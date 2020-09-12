@@ -883,6 +883,8 @@ add_file_folder("Network"
 	network/gtrack.h
 	network/multi.cpp
 	network/multi.h
+	network/multi_bytestream_manager.cpp
+	network/multi_bytestream_manager.h
 	network/multi_campaign.cpp
 	network/multi_campaign.h
 	network/multi_data.cpp

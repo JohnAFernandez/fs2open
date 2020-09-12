@@ -558,4 +558,7 @@ void process_self_destruct_packet(ubyte *data, header *hinfo);
 void send_sexp_packet(ubyte *sexp_packet, int num_ubytes);
 void process_sexp_packet(ubyte *data, header *hinfo);
 
+void send_bytestream_packet(scripting::api::bytearray_h bytearray_in, SCP_string scriptfile_to_send_to, bool to_all_players, int player_id = 0);
+void process_bytestream_packet(ubyte* data, header* hinfo);
+
 #endif
