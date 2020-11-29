@@ -408,7 +408,7 @@ void HudGaugeEscort::renderIconDogfight(int x, int y, int index)
 	}
 	
 	// print out player name
-	strcpy_s(buf, Net_players[np_index].m_player->callsign);
+	strcpy_s(buf, Net_players[np_index].safe_callsign.c_str());
 	font::force_fit_string(buf, 255, 100 - stat_shift);
 	renderString( x + ship_name_offsets[0], y + ship_name_offsets[1], EG_ESCORT1 + index, buf);	
 

@@ -2719,7 +2719,7 @@ void ss_return_name(int wing_block, int wing_slot, char *name)
 		if(Game_mode & GM_MULTIPLAYER){
 			int player_index = multi_find_player_by_object(&Objects[sp->objnum]);
 			if(player_index != -1){
-				strcpy(name,Net_players[player_index].m_player->callsign);
+				strcpy(name,Net_players[player_index].safe_callsign.c_str());
 			} else {
 				strcpy(name,sp->ship_name);
 			}

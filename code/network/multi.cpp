@@ -172,8 +172,8 @@ void multi_init()
 	Multi_id_num = 0;
 
 	// clear out all netplayers
-	memset(Net_players, 0, sizeof(net_player) * MAX_PLAYERS);
 	for(idx=0; idx<MAX_PLAYERS; idx++){
+		multi_reset_net_player_entry(idx);
 		Net_players[idx].reliable_socket = PSNET_INVALID_SOCKET;
 	}
 
@@ -185,7 +185,7 @@ void multi_init()
 	Net_player->s_info.xfer_handle = -1;
 	Net_player->player_id = multi_get_new_id();
 	Net_player->client_cinfo_seq = 0;
-	Net_player->client_server_seq = 0;		
+	Net_player->client_server_seq = 0;
 
 	// get our connection speed
 	Multi_connection_speed = multi_get_connection_speed();			
@@ -270,7 +270,7 @@ void multi_level_init()
 		// close all sockets down just for good measure
 		psnet_rel_close_socket(Net_players[idx].reliable_socket);
 
-		memset(&Net_players[idx],0,sizeof(net_player));
+		multi_reset_net_player_entry(idx);
 		Net_players[idx].reliable_socket = PSNET_INVALID_SOCKET;
 
 		Net_players[idx].s_info.xfer_handle = -1;
@@ -1521,6 +1521,7 @@ void standalone_main_init()
 	Net_player->p_info.addr = Psnet_my_addr;
 	Net_player->s_info.xfer_handle = -1;	
 	Net_player->player_id = multi_get_new_id();	
+	multi_assign_safe_callsign(0);
 	Netgame.server = Net_player; 
 
 	// maybe flag the game as having a hacked ships.tbl

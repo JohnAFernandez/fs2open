@@ -47,9 +47,12 @@ extern int find_player_socket(PSNET_SOCKET_RELIABLE sock);	// note this is only 
 extern int multi_find_player_by_object( object *obj );
 extern int multi_find_player_by_signature( int signature );
 extern int multi_find_player_by_callsign(const char *callsign);
+extern void multi_assign_safe_callsign(int player_index);
+extern int multi_find_player_by_safe_callsign(const char* safe_callsign);
 extern int multi_find_player_by_net_signature(ushort net_signature);
 extern int multi_find_player_by_parse_object(p_object *p_objp );
 extern int multi_find_player_by_ship_name(const char *ship_name, bool inc_respawning = false);
+extern void multi_reset_net_player_entry(int net_player_num);
 extern void multi_create_player(int player_num, player *pl, const char* name, net_addr* addr, int ship_class, short id);
 extern int multi_find_open_netplayer_slot();
 extern int multi_find_open_player_slot();

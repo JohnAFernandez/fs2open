@@ -1033,7 +1033,7 @@ void multi_fs_tracker_check_dup_callsign(net_player *player,int player_index)
 		}
 		
 		if(MULTI_CONNECTED(Net_players[idx]) && !MULTI_STANDALONE(Net_players[idx]) && !MULTI_PERM_OBSERVER(Net_players[idx]) && (Net_players[idx].tracker_player_id != -1)){
-			Assert(strcmp(player->m_player->callsign,Net_players[idx].m_player->callsign));
+			Assert(player->safe_callsign != Net_players[idx].safe_callsign);
 		}
 	}
 }

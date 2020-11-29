@@ -461,8 +461,9 @@ typedef struct net_player_info {
 typedef struct net_player {
 	player			*m_player;								// stuff pertaining directly to the player (callsign, etc).
 	short				player_id;							// player id (always use this instead of ip address for identification purposes)
-	int				tracker_player_id;            // the tracker id for this player, only matters in
-																// tracker games.	
+	int				tracker_player_id;            // the tracker id for this player, only matters in tracker games.
+	SCP_string		safe_callsign;				  // for use in the mission log, combination of short callsign and player_id
+
 	int				flags;								// tells us interesting information about this player
 	int				state;								// one of the NETGAME_STATE_* flags below -- used for sequencing
 	PSNET_SOCKET_RELIABLE	reliable_socket;		// reliable socket to server

@@ -63,7 +63,7 @@ int multi_msg_message_text(char *txt);
 void multi_msg_display_mission_text(const char *msg, int player_index);
 
 // if the passed net_player's callsign matches the reg expression of the passed expr
-int multi_msg_matches_expr(net_player *player, const char *expr);
+bool multi_msg_matches_expr(net_player *player, const char *expr);
 
 // if text input mode is active, clear it
 void multi_msg_text_flush();

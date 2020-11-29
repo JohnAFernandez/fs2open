@@ -41,8 +41,8 @@ void multi_obs_create_player(int player_num,char *name,net_addr *addr,player *pl
 	Assertion(pl != nullptr, "A nullptr player was passed to multi_obs_create_player(). This is a code error, please report.");
 
 	// blast the player struct
-	memset(&Net_players[player_num],0,sizeof(net_player));
-	
+	multi_reset_net_player_entry(player_num);
+
 	// Net_players[player_num].flags |= (NETINFO_FLAG_CONNECTED | NETINFO_FLAG_OBSERVER);	
 	// DOH!!! The lack of this caused many bugs. 
 	Net_players[player_num].flags = (NETINFO_FLAG_DO_NETWORKING | NETINFO_FLAG_OBSERVER);
@@ -93,6 +93,9 @@ void multi_obs_create_player(int player_num,char *name,net_addr *addr,player *pl
 	// callsign and short callsign
 	strcpy_s(pl->callsign,name);
 	pilot_set_short_callsign(pl,SHORT_CALLSIGN_PIXEL_W);
+
+	multi_assign_safe_callsign(Net_players[player_num].player_id);
+
 	pl->flags |= PLAYER_FLAGS_STRUCTURE_IN_USE;	
 
 	Net_players[player_num].sv_bytes_sent = 0;	

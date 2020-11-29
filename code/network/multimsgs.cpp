@@ -1144,12 +1144,14 @@ void process_new_player_packet(ubyte* data, header* hinfo)
 
 		Net_players[new_player_num].player_id = new_id;
 
+		multi_assign_safe_callsign(new_player_num);
+
 		// zero out this players ping
 		multi_ping_reset(&Net_players[new_player_num].s_info.ping);		
 
 		// add a chat message
-		if(*Net_players[new_player_num].m_player->callsign){
-			sprintf(notify_string,XSTR("<%s has joined>",717),Net_players[new_player_num].m_player->callsign);
+		if(*Net_players[new_player_num].safe_callsign.c_str()){
+			sprintf(notify_string,XSTR("<%s has joined>",717),Net_players[new_player_num].safe_callsign.c_str());
 			multi_display_chat_msg(notify_string,0,0);
 		}
 	}		
@@ -1368,6 +1370,8 @@ void process_accept_player_data( ubyte *data, header *hinfo )
 			Net_players[player_num].m_player->objnum = ig_signature;
 		}
 
+		multi_assign_safe_callsign(player_num);
+
 		// get the stop byte
 		GET_DATA(stop);
 	}
@@ -1537,8 +1541,8 @@ void send_accept_packet(int new_player_num, int code, int ingame_join_team)
 	}
 
 	// add a chat message
-	if(*Net_players[new_player_num].m_player->callsign){
-		sprintf(notify_string,XSTR("<%s has joined>",717), Net_players[new_player_num].m_player->callsign);
+	if(*Net_players[new_player_num].safe_callsign.c_str()){
+		sprintf(notify_string,XSTR("<%s has joined>",717), Net_players[new_player_num].safe_callsign.c_str());
 		multi_display_chat_msg(notify_string, 0, 0);
 	}	
 
@@ -1625,6 +1629,8 @@ void process_accept_packet(ubyte* data, header* hinfo)
 	stuff_netplayer_info( Net_player, &Psnet_my_addr, 0, Player );	
 	multi_options_local_load(&Net_player->p_info.options, Net_player);
 	Net_player->p_info.team = team;	
+
+	multi_assign_safe_callsign(0);
 
 	// determine if I have a CD
 	if(Multi_has_cd){
@@ -8961,7 +8967,7 @@ void process_host_captain_change_packet(ubyte *data, header *hinfo)
 		// flag the new guy		
 		for(idx=0; idx<MAX_PLAYERS; idx++){
 			if(MULTI_CONNECTED(Net_players[idx]) && (Net_players[idx].player_id == player_id)){
-				HUD_printf("%s is the new captain of team %d", Net_players[idx].m_player->callsign, Net_players[idx].p_info.team + 1);
+				HUD_printf("%s is the new captain of team %d", Net_players[idx].safe_callsign.c_str(), Net_players[idx].p_info.team + 1);
 				break;
 			}
 		}
@@ -8979,7 +8985,7 @@ void process_host_captain_change_packet(ubyte *data, header *hinfo)
 
 				// spew to the HUD config
 				if(Net_players[idx].m_player != NULL){
-					HUD_printf("%s is the new game host", Net_players[idx].m_player->callsign);
+					HUD_printf("%s is the new game host", Net_players[idx].safe_callsign.c_str());
 				}
 
 				found_player = 1;

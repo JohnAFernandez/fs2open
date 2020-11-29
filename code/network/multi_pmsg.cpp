@@ -310,19 +310,23 @@ void multi_msg_display_mission_text(const char *msg, int player_index)
 	if(MULTI_STANDALONE(Net_players[player_index])){
 		HUD_sourced_printf(HUD_SOURCE_NETPLAYER,"%s %s",XSTR("<SERVER>", 698), msg);			
 	} else {
-		HUD_sourced_printf(HUD_SOURCE_NETPLAYER,"%s: %s", Net_players[player_index].m_player->callsign, msg);			
+		HUD_sourced_printf(HUD_SOURCE_NETPLAYER,"%s: %s", Net_players[player_index].safe_callsign.c_str(), msg);			
 	}
 }
 
 // if the passed net_player's callsign matches the reg expression of the passed expr
-int multi_msg_matches_expr(net_player *np, const char *expr)
+bool multi_msg_matches_expr(net_player *np, const char *expr)
 {
 	// some error checking
 	if((np == NULL) || (expr == NULL) || (strlen(expr) <= 0)){
-		return 0;
+		return false;
+	}
+	
+	if ( !stricmp(expr, np->m_player->callsign) || !stricmp(expr, np->safe_callsign.c_str()) ) {
+		return true;
 	}
 
-	return stricmp(expr, np->m_player->callsign) ? 0 : 1 ; 
+	return false; 
 }
 
 // if text input mode is active, clear it

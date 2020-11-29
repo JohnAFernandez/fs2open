@@ -1259,7 +1259,7 @@ void multi_ts_blit_wing_callsigns()
 		// if there is a player in the slot
 		if(Multi_ts_team[Net_player->p_info.team].multi_ts_player[idx] != NULL){
 			// make sure the string fits
-			strcpy_s(callsign,Multi_ts_team[Net_player->p_info.team].multi_ts_player[idx]->m_player->callsign);
+			strcpy_s(callsign,Multi_ts_team[Net_player->p_info.team].multi_ts_player[idx]->safe_callsign.c_str());
 		} else {
 			// determine if this is a locked AI ship
 			pobj = mission_parse_get_arrival_ship(Ships[Objects[Multi_ts_team[Net_player->p_info.team].multi_ts_objnum[idx]].instance].ship_name);			
@@ -2428,7 +2428,7 @@ void multi_ts_blit_carried_icon()
 		break;
 	case MULTI_TS_PLAYER_LIST:
 		// get the final length of the string so we can calculate a valid offset
-		strcpy_s(callsign,Multi_ts_team[Net_player->p_info.team].multi_ts_player[Multi_ts_carried_from_index]->m_player->callsign);
+		strcpy_s(callsign,Multi_ts_team[Net_player->p_info.team].multi_ts_player[Multi_ts_carried_from_index]->safe_callsign.c_str());
 		font::force_fit_string(callsign,CALLSIGN_LEN,Multi_ts_slot_text_coords[Multi_ts_carried_from_index][gr_screen.res][MULTI_TS_W_COORD]);						
 		gr_get_string_size(&callsign_w,NULL,callsign);
 
@@ -2437,7 +2437,7 @@ void multi_ts_blit_carried_icon()
 		offset_y = Multi_ts_slot_text_coords[Multi_ts_carried_from_index][gr_screen.res][MULTI_TS_Y_COORD] - Multi_ts_clicked_y;
 
 		gr_set_color_fast(&Color_normal);
-		gr_string(x + offset_x,y + offset_y,Multi_ts_team[Net_player->p_info.team].multi_ts_player[Multi_ts_carried_from_index]->m_player->callsign,GR_RESIZE_MENU);
+		gr_string(x + offset_x,y + offset_y,Multi_ts_team[Net_player->p_info.team].multi_ts_player[Multi_ts_carried_from_index]->safe_callsign.c_str(),GR_RESIZE_MENU);
 		break;
 	default : 
 		break;			

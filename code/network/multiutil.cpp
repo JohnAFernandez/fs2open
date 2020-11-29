@@ -735,6 +735,26 @@ void multi_assign_player_ship( int net_player_num, object *objp,int ship_class )
 
 }
 
+void multi_reset_net_player_entry(int net_player_num) 
+{
+	Net_players[net_player_num].m_player = nullptr;
+	Net_players[net_player_num].player_id = 0;
+	Net_players[net_player_num].tracker_player_id = 0;
+	Net_players[net_player_num].safe_callsign.clear();
+	Net_players[net_player_num].flags = 0;
+	Net_players[net_player_num].state = 0;
+	Net_players[net_player_num].reliable_socket = 0;
+	Net_players[net_player_num].client_cinfo_seq = 0;
+	Net_players[net_player_num].client_server_seq = 0;
+	Net_players[net_player_num].last_heard_time = 0;
+	memset(&Net_players[net_player_num].s_info, 0, sizeof(net_player_server_info));
+	memset(&Net_players[net_player_num].p_info, 0, sizeof(net_player_info));
+	Net_players[net_player_num].sv_bytes_sent = 0;
+	Net_players[net_player_num].sv_last_pl = 0;
+	Net_players[net_player_num].cl_bytes_recvd = 0;
+	Net_players[net_player_num].cl_last_pl = 0;
+}
+
 // -------------------------------------------------------------------------------------------------
 //	create_player() is called when a net player needs to be instantiated.  The ship that is created
 // depends on the parameter ship_class.  Note that if ship_class is invalid, the ship default_player_ship
@@ -751,7 +771,7 @@ void multi_create_player( int net_player_num, player *pl, const char* name, net_
 	Assertion(name != nullptr, "A nullptr callsign was passed to multi_create_player(). This is a code error, please report.");
 
 	// blast _any_ old data
-	memset(&Net_players[net_player_num],0,sizeof(net_player));
+	multi_reset_net_player_entry(net_player_num);
 
 	// get the current # of players
 	current_player_count = multi_num_players();
@@ -841,6 +861,8 @@ void multi_create_player( int net_player_num, player *pl, const char* name, net_
 	}
 	
 	Net_players[net_player_num].player_id = id;
+
+	multi_assign_safe_callsign(net_player_num);
 
 	Net_player->sv_bytes_sent = 0;
 	Net_player->sv_last_pl = -1;
@@ -997,8 +1019,8 @@ void delete_player(int player_num,int kicked_reason)
 	multi_rate_reset(player_num);
 
 	// display a message that this guy has left
-	if(*Net_players[player_num].m_player->callsign){
-		sprintf(notify_string,XSTR("<%s has left>",901),Net_players[player_num].m_player->callsign);
+	if(*Net_players[player_num].safe_callsign.c_str()){
+		sprintf(notify_string,XSTR("<%s has left>",901),Net_players[player_num].safe_callsign.c_str());
 		multi_display_chat_msg(notify_string,0,0);
 	}
 	
@@ -1009,7 +1031,7 @@ void delete_player(int player_num,int kicked_reason)
 	}
 
 	// blast this memory clean
-	memset(&Net_players[player_num], 0, sizeof(net_player));
+	multi_reset_net_player_entry(player_num);
 	Net_players[player_num].reliable_socket = PSNET_INVALID_SOCKET;
 
 	extern int Multi_client_update_times[MAX_PLAYERS];
@@ -1271,6 +1293,27 @@ int multi_find_player_by_callsign(const char *callsign)
 	for(idx=0;idx<MAX_PLAYERS;idx++){
 		if(MULTI_CONNECTED(Net_players[idx]) && (strcmp(callsign,Net_players[idx].m_player->callsign)==0)){
 			return idx;
+		}
+	}
+
+	return -1;
+}
+
+void multi_assign_safe_callsign(int player_index)
+{
+	Net_players[player_index].safe_callsign = std::to_string(Net_players[player_index].player_id);
+	Net_players[player_index].safe_callsign += ") ";
+	Net_players[player_index].safe_callsign += Net_player->m_player->callsign;
+	if (Net_player->safe_callsign.length() > NAME_LENGTH) {
+		Net_player->safe_callsign.erase(NAME_LENGTH, Net_player->safe_callsign.length() - 1);
+	}
+}
+
+int multi_find_player_by_safe_callsign(const char* safe_callsign) 
+{
+	for (int i = 0; i < MAX_PLAYERS; i++) {
+		if (MULTI_CONNECTED(Net_players[i]) && (!strcmp(safe_callsign, Net_player[i].safe_callsign.c_str())) ) {
+			return i;
 		}
 	}
 
@@ -2560,6 +2603,9 @@ void multi_process_valid_join_request(join_request *jr, net_addr *who_from, int 
 			multi_create_handle_join(&Net_players[net_player_num]);
 		}
 	}
+	
+	// no matter what, make sure they their unique callsign.
+	multi_assign_safe_callsign(net_player_num);
 
 	extern int Multi_client_update_times[MAX_PLAYERS];
 	Multi_client_update_times[net_player_num] = -1;
