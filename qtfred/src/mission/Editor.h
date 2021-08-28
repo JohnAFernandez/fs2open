@@ -179,6 +179,8 @@ class Editor : public QObject {
 	static void strip_quotation_marks(SCP_string& str);
 	static void pad_with_newline(SCP_string& str, size_t max_size);
 
+	SCP_vector<int> getStartingWingLoadoutUseCounts();
+
   private:
 	void clearMission();
 
@@ -205,6 +207,10 @@ class Editor : public QObject {
 	char err_flags[MAX_OBJECTS];
 	int obj_count = 0;
 	int g_err = 0;
+
+	// ship and weapon usage pools
+	int _ship_usage[MAX_TVT_TEAMS][MAX_SHIP_CLASSES];
+	int _weapon_usage[MAX_TVT_TEAMS][MAX_WEAPON_TYPES];
 
 	int common_object_delete(int obj);
 
@@ -257,6 +263,8 @@ class Editor : public QObject {
 
 	void generate_team_weaponry_usage_list(int team, int* arr);
 
+	void generate_ship_usage_list(int* arr, int wing);
+
 	int get_visible_sub_system_count(ship* shipp);
 
 	int get_next_visible_subsys(ship* shipp, ship_subsys** next_subsys);
@@ -277,6 +285,8 @@ class Editor : public QObject {
 	int global_error_check_player_wings(int multi);
 
 	const char* get_order_name(int order);
+
+	void updateStartingWingLoadoutUseCounts();
 };
 
 } // namespace fred

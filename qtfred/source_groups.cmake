@@ -49,6 +49,8 @@ add_file_folder("Source/Mission/Dialogs"
     src/mission/dialogs/FictionViewerDialogModel.h
 	src/mission/dialogs/FormWingDialogModel.cpp
 	src/mission/dialogs/FormWingDialogModel.h
+	src/mission/dialogs/LoadoutEditorDialogModel.cpp
+	src/mission/dialogs/LoadoutEditorDialogModel.h
 	src/mission/dialogs/MissionGoalsDialogModel.cpp
 	src/mission/dialogs/MissionGoalsDialogModel.h
 	src/mission/dialogs/MissionSpecDialogModel.cpp
@@ -91,6 +93,8 @@ add_file_folder("Source/UI/Dialogs"
 	src/ui/dialogs/FictionViewerDialog.h
 	src/ui/dialogs/FormWingDialog.cpp
 	src/ui/dialogs/FormWingDialog.h
+	src/ui/dialogs/LoadoutEditorDialog.cpp	
+	src/ui/dialogs/LoadoutEditorDialog.h
 	src/ui/dialogs/MissionGoalsDialog.cpp
 	src/ui/dialogs/MissionGoalsDialog.h
 	src/ui/dialogs/MissionSpecDialog.cpp
@@ -138,12 +142,12 @@ add_file_folder("UI"
 	ui/FictionViewerDialog.ui
 	ui/FormWingDialog.ui
     ui/FredView.ui
+	ui/LoadoutDialog.ui
 	ui/MissionGoalsDialog.ui
 	ui/MissionSpecDialog.ui
 	ui/ObjectOrientationDialog.ui
 	ui/SelectionDialog.ui
 	ui/ShieldSystemDialog.ui
-	ui/TeamLoadoutDialog.ui
 	ui/VoiceActingManager.ui
     ui/WaypointEditorDialog.ui
 	ui/ShipEditorDialog.ui
