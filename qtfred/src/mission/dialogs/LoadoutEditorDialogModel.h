@@ -1,0 +1,77 @@
+#ifndef LOADOUTEDITORDIALOGMODEL
+#define LOADOUTEDITORDIALOGMODEL
+
+#include "AbstractDialogModel.h"
+#include "globalincs/pstypes.h"
+
+namespace fso {
+namespace fred {
+namespace dialogs {
+
+struct LoadoutItem {
+	int infoIndex; // for var items, this points to the sexp index.
+	bool enabled;
+	int countInWings;
+	int extraAllocated;
+	int varCountIndex;
+	SCP_string name;
+};
+
+struct TeamLoadout {
+	int startingShipCount; // TODO: Make sure this gets pop everywhere
+	int largestPrimaryBankCount;
+	int largestSecondaryCapacity;
+	SCP_vector<LoadoutItem> ships;
+	SCP_vector<LoadoutItem> weapons;
+	SCP_vector<LoadoutItem> varShips; 
+	SCP_vector<LoadoutItem> varWeapons;
+};
+
+class LoadoutDialogModel : public AbstractDialogModel {
+public:
+	LoadoutDialogModel(QObject* parent, EditorViewport* viewport);
+
+	bool apply() override;
+	void reject() override;
+
+	int getCurrentTeam();
+	void setPlayerEntryDelay(float delay);
+	float getPlayerEntryDelay();
+
+	SCP_vector<std::pair<SCP_string,bool>> getShipList();
+	SCP_vector<std::pair<SCP_string,bool>> getWeaponList();
+	SCP_vector<std::pair<SCP_string,bool>> getShipEnablerVariables();
+	SCP_vector<std::pair<SCP_string,bool>> getWeaponEnablerVariables();
+
+	void setShipInfo(SCP_string textIn, bool enabled, int extraAllocated, SCP_string varForCount);
+	void setWeaponInfo(SCP_string textIn, bool enabled, int extraAllocated, SCP_string varForCount);
+	void setShipEnablerVariables(SCP_vector<SCP_string> variablesIn, bool enabled);
+	void setWeaponEnablerVariables(SCP_vector<SCP_string> variablesIn, bool enabled);
+
+	void switchTeam(int teamIn);
+	void copyToOtherTeam();
+
+private:
+
+	SCP_string createItemString(bool ship, int itemIndex);
+	void buildCurrentLists();
+	void initializeData();
+
+	float _playerEntryDelay;
+	int _currentTeam;
+
+	SCP_vector<TeamLoadout> _teams; // all loadout info for each team
+	SCP_vector<std::pair<SCP_string,bool>> _shipList;
+	SCP_vector<std::pair<SCP_string,bool>> _weaponList;
+	SCP_vector<std::pair<SCP_string,bool>> _shipVarList;
+	SCP_vector<std::pair<SCP_string,bool>> _weaponVarList;
+	SCP_vector<SCP_string> _numberVarList;
+};
+
+
+}
+}
+}
+
+
+#endif
