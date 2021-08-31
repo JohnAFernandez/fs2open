@@ -105,8 +105,6 @@ add_file_folder("Source/UI/Dialogs"
 	src/ui/dialogs/SelectionDialog.h
 	src/ui/dialogs/ShieldSystemDialog.h
 	src/ui/dialogs/ShieldSystemDialog.cpp
-	src/ui/dialogs/TeamLoadoutDialog.cpp
-	src/ui/dialogs/TeamLoadoutDialog.h
 	src/ui/dialogs/VoiceActingManager.h
 	src/ui/dialogs/VoiceActingManager.cpp
 	src/ui/dialogs/WaypointEditorDialog.cpp

@@ -1,5 +1,5 @@
-#include "TeamLoadoutDialog.h"
-#include "ui_TeamLoadoutDialog.h"
+#include "LoadoutDialog.h"
+#include "ui_LoadoutDialog.h"
 
 #include <QtWidgets/QMenuBar>
 
@@ -7,22 +7,29 @@ namespace fso {
 namespace fred {
 namespace dialogs {
 
-TeamLoadoutDialog::TeamLoadoutDialog(QWidget *parent) :
+LoadoutDialog::LoadoutDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::TeamLoadoutDialog)
 {
+	this->setFocus();
     ui->setupUi(this);
 
-    QMenuBar *menubar = new QMenuBar();
-    QMenu *teamMenu = new QMenu("Select Team");
-    teamMenu->addAction("Team 1");
-    teamMenu->addAction("Team 2");
-    QMenu *optionsMenu = new QMenu("Options");
-    optionsMenu->addAction("Balance Teams");
-    menubar->addMenu(teamMenu);
-    menubar->addMenu(optionsMenu);
+	connect(_model.get(), &AbstractDialogModel::modelChanged, this, &CommandBriefingDialog::updateUI);
+	connect(this, &QDialog::accepted, _model.get(), &CommandBriefingDialogModel::apply);
+	connect(this, &QDialog::rejected, _model.get(), &CommandBriefingDialogModel::reject);
 
-    ui->mainLayout->insertWidget(0,menubar);
+/*	void onSwitchViewButtonPressed();
+	void onShipListEdited();
+	void onWeaponListEdited();
+	void onExtraShipSpinboxUpdated();
+	void onExtraWeaponSpinboxUpdated();
+	void onExtraShipComboboxUpdated();
+	void onExtraWeaponComboboxUpdated();
+	void onPlayerDelayDoubleSpinBoxUpdated();
+	void onCurrentTeamSpinboxUpdated();
+	void onCopyLoadoutToOtherTeamsButtonPressed();
+	*/
+
 
     /*
      * Note: For the weapon and ship loadout listWidgest, will need to do something similar to the following during loading to
@@ -38,6 +45,8 @@ TeamLoadoutDialog::TeamLoadoutDialog(QWidget *parent) :
     }
     */
 }
+
+
 
 TeamLoadoutDialog::~TeamLoadoutDialog()
 {

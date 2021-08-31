@@ -1,26 +1,60 @@
 #ifndef TEAMLOADOUTDIALOG_H
 #define TEAMLOADOUTDIALOG_H
 
-#include <QDialog>
+#include <QtWidgets/QDialog>
+#include <mission/dialogs/LoadoutEditorDialogModel.h>
+#include <ui/FredView.h>
+
 
 namespace fso {
 namespace fred {
 namespace dialogs {
 
 namespace Ui {
-class TeamLoadoutDialog;
+class LoadoutDialog;
 }
 
-class TeamLoadoutDialog : public QDialog
+class LoadoutDialog : public QDialog
 {
     Q_OBJECT
 
+		/*	the elements I need to finish.
+		viewNameLabel
+		switchViewButton
+		shipVarList (listwidget)
+		weaponVarList (listwidget)
+		startingShipsLabel
+		startingWeaponsLabel
+		extraShipSpinbox
+		extraWepSpinbox
+		extraShipsViaVarCombo
+		extraWeaponsViaVarCombo
+		playerDelayDoubleSpinbox
+		currentTeamSpinbox
+		copyLoadoutToOtherTeamsButton
+		*/
 public:
-    explicit TeamLoadoutDialog(QWidget *parent = 0);
-    ~TeamLoadoutDialog() override;
+    explicit LoadoutDialog(QWidget *parent = 0);
+    ~LoadoutDialog() override;
 
 private:
-    Ui::TeamLoadoutDialog *ui;
+    Ui::LoadoutDialog *ui;
+
+	std::unique_ptr<Ui::LoadoutDialog> ui;
+	std::unique_ptr<LoadoutDialogModel> _model;
+	EditorViewport* _viewport;
+
+	void onSwitchViewButtonPressed();
+	void onShipListEdited();
+	void onWeaponListEdited();
+	void onExtraShipSpinboxUpdated();
+	void onExtraWeaponSpinboxUpdated();
+	void onExtraShipComboboxUpdated();
+	void onExtraWeaponComboboxUpdated();
+	void onPlayerDelayDoubleSpinBoxUpdated();
+	void onCurrentTeamSpinboxUpdated();
+	void onCopyLoadoutToOtherTeamsButtonPressed();
+
 };
 
 }
