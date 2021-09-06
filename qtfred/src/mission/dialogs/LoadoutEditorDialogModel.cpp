@@ -24,9 +24,10 @@ LoadoutDialogModel::LoadoutDialogModel(QObject* parent, EditorViewport* viewport
 void LoadoutDialogModel::initializeData()
 {
 
+	TeamLoadout defaultEntry;
 	// make sure we have the correct number of teams.
 	for (int i = 0; i < Num_teams; i++) {
-		_teams.emplace_back(new TeamLoadout);
+		_teams.emplace_back(defaultEntry);
 	}
 
 	// this is basically raw data, so we have to make sure to calculate the indices correctly.
@@ -46,10 +47,10 @@ void LoadoutDialogModel::initializeData()
 				team.ships.emplace_back(
 					index,
 					false,
-					usage[(MAX_SHIP_CLASSES * currentTeam) + index],
+					usage.at((MAX_SHIP_CLASSES * currentTeam) + index),
 					0,
 					-1,
-					ship.name);
+					SCP_string(ship.name));
 
 				// make sure that starting ships are enabled.
 				if (team.ships.back().countInWings > 0) {
@@ -81,7 +82,7 @@ void LoadoutDialogModel::initializeData()
 					usage[(MAX_SHIP_CLASSES * MAX_TVT_TEAMS) + (MAX_SHIP_CLASSES * currentTeam) + index],
 					0,
 					-1,
-					weapon.name);
+					SCP_string(weapon.name));
 
 				// make sure that weapons in starting wing slots are enabled.
 				if (team.weapons.back().countInWings > 0) {
@@ -109,7 +110,7 @@ void LoadoutDialogModel::initializeData()
 					0, // 0 until proven otherwise in-game.
 					team.ship_count[index],
 					(strlen(team.ship_count_variables[index])) ? get_index_sexp_variable_name(team.ship_list_variables[index]) : -1,
-					team.ship_list_variables[index]
+					SCP_string(team.ship_list_variables[index])
 				);
 
 			} // if it doesn't, enable the matching item.
@@ -155,7 +156,7 @@ void LoadoutDialogModel::initializeData()
 					0, // 0 until proven otherwise in-game.
 					team.weaponry_count[index],
 					(strlen(team.weaponry_amount_variable[index])) ? get_index_sexp_variable_name(team.weaponry_pool_variable[index]) : -1,
-					team.weaponry_pool_variable[index]
+					SCP_string(team.weaponry_pool_variable[index])
 				);
 
 				// it's impossible for this type to tell if it's secondary or its cargo size, so this default allows for a good number.
@@ -408,7 +409,7 @@ void LoadoutDialogModel::setShipEnablerVariables(SCP_vector<SCP_string> variable
 					0, // there cannot be any because this is var enabled.
 					ShipVarDefault, // default o f.
 					-1, // no var for count until one can be selected.
-					nameIn);
+					SCP_string(nameIn));
 			}
 		}
 
@@ -463,7 +464,7 @@ void LoadoutDialogModel::setWeaponEnablerVariables(SCP_vector<SCP_string> variab
 					0, // there cannot be any because this is var enabled.
 					WeaponVarDefault * _teams[_currentTeam].startingShipCount,
 					-1, // no var for count until one can be selected.
-					nameIn);
+					SCP_string(nameIn));
 			}
 		}
 

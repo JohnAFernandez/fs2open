@@ -9,6 +9,9 @@ namespace fred {
 namespace dialogs {
 
 struct LoadoutItem {
+	LoadoutItem(int infoIn, bool enabledIn, int countIn, int extraIn, int varCountIn, SCP_string nameIn) {
+		infoIndex = infoIn; enabled = enabledIn; countInWings = countIn; extraAllocated = extraIn; varCountIndex = varCountIn; name = nameIn;
+	}
 	int infoIndex; // for var items, this points to the sexp index.
 	bool enabled;
 	int countInWings;
@@ -18,6 +21,16 @@ struct LoadoutItem {
 };
 
 struct TeamLoadout {
+	TeamLoadout() {
+		startingShipCount = 0;
+		largestPrimaryBankCount = 0;
+		largestSecondaryCapacity = 0;
+		ships = {};
+		weapons = {};
+		varShips = {};
+		varWeapons = {};
+	}
+
 	int startingShipCount; // TODO: Make sure this gets pop everywhere
 	int largestPrimaryBankCount;
 	int largestSecondaryCapacity;
