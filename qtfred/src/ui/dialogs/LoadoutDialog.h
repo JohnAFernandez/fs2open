@@ -34,12 +34,10 @@ class LoadoutDialog : public QDialog
 		copyLoadoutToOtherTeamsButton
 		*/
 public:
-    explicit LoadoutDialog(QWidget *parent = 0);
-    ~LoadoutDialog() override;
+	explicit LoadoutDialog(FredView* parent, EditorViewport* viewport);
+	~LoadoutDialog() override;
 
 private:
-    Ui::LoadoutDialog *ui;
-
 	std::unique_ptr<Ui::LoadoutDialog> ui;
 	std::unique_ptr<LoadoutDialogModel> _model;
 	EditorViewport* _viewport;
@@ -55,6 +53,7 @@ private:
 	void onCurrentTeamSpinboxUpdated();
 	void onCopyLoadoutToOtherTeamsButtonPressed();
 
+	void updateUI();
 };
 
 }

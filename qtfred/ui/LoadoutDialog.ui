@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>fso::fred::dialogs::TeamLoadoutDialog</class>
- <widget class="QDialog" name="fso::fred::dialogs::TeamLoadoutDialog">
+ <class>fso::fred::dialogs::LoadoutDialog</class>
+ <widget class="QDialog" name="fso::fred::dialogs::LoadoutDialog">
   <property name="enabled">
    <bool>true</bool>
   </property>

@@ -294,7 +294,7 @@ void LoadoutDialogModel::setShipInfo(SCP_string textIn, bool enabled, int extraA
 
 void LoadoutDialogModel::setWeaponInfo(SCP_string textIn, bool enabled, int extraAllocated, SCP_string varForCount)
 {
-	bool found = false, bool previouslyEnabled;
+	bool found = false, previouslyEnabled;
 	int index = 0;
 
 	for (auto& item : _teams[_currentTeam].weapons) {

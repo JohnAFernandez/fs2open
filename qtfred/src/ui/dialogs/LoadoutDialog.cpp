@@ -7,16 +7,16 @@ namespace fso {
 namespace fred {
 namespace dialogs {
 
-LoadoutDialog::LoadoutDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::TeamLoadoutDialog)
+LoadoutDialog::LoadoutDialog(FredView* parent, EditorViewport* viewport) 
+	: QDialog(parent), ui(new Ui::LoadoutDialog()), _model(new LoadoutDialogModel(this, viewport)),
+		_viewport(viewport)
 {
 	this->setFocus();
     ui->setupUi(this);
 
-	connect(_model.get(), &AbstractDialogModel::modelChanged, this, &CommandBriefingDialog::updateUI);
-	connect(this, &QDialog::accepted, _model.get(), &CommandBriefingDialogModel::apply);
-	connect(this, &QDialog::rejected, _model.get(), &CommandBriefingDialogModel::reject);
+	connect(_model.get(), &AbstractDialogModel::modelChanged, this, &LoadoutDialog::updateUI);
+	connect(this, &QDialog::accepted, _model.get(), &LoadoutDialogModel::apply);
+	connect(this, &QDialog::rejected, _model.get(), &LoadoutDialogModel::reject);
 
 /*	void onSwitchViewButtonPressed();
 	void onShipListEdited();
@@ -48,9 +48,61 @@ LoadoutDialog::LoadoutDialog(QWidget *parent) :
 
 
 
-TeamLoadoutDialog::~TeamLoadoutDialog()
+LoadoutDialog::~LoadoutDialog(){} // NOLINT
+
+void LoadoutDialog::onSwitchViewButtonPressed()
 {
-    delete ui;
+	// this one is complicated, do it later, lol
+}
+
+void LoadoutDialog::onShipListEdited()
+{
+
+}
+
+void LoadoutDialog::onWeaponListEdited()
+{
+
+}
+
+void LoadoutDialog::onExtraShipSpinboxUpdated()
+{
+
+}
+
+void LoadoutDialog::onExtraWeaponSpinboxUpdated()
+{
+
+}
+
+void LoadoutDialog::onExtraShipComboboxUpdated()
+{
+
+}
+
+void LoadoutDialog::onExtraWeaponComboboxUpdated()
+{
+
+}
+
+void LoadoutDialog::onPlayerDelayDoubleSpinBoxUpdated()
+{
+
+}
+
+void LoadoutDialog::onCurrentTeamSpinboxUpdated()
+{
+//	_model->switchTeam()
+}
+
+void LoadoutDialog::onCopyLoadoutToOtherTeamsButtonPressed()
+{
+	_model->copyToOtherTeam();
+}
+
+void LoadoutDialog::updateUI()
+{
+
 }
 
 }
