@@ -2,6 +2,11 @@
 #include "ui_LoadoutDialog.h"
 
 #include <QtWidgets/QMenuBar>
+#include <qlist.h>
+
+constexpr int TABLE_MODE = 0;
+constexpr int VARIABLE_MODE = 1;
+
 
 namespace fso {
 namespace fred {
@@ -18,81 +23,121 @@ LoadoutDialog::LoadoutDialog(FredView* parent, EditorViewport* viewport)
 	connect(this, &QDialog::accepted, _model.get(), &LoadoutDialogModel::apply);
 	connect(this, &QDialog::rejected, _model.get(), &LoadoutDialogModel::reject);
 
-/*	void onSwitchViewButtonPressed();
-	void onShipListEdited();
-	void onWeaponListEdited();
-	void onExtraShipSpinboxUpdated();
-	void onExtraWeaponSpinboxUpdated();
-	void onExtraShipComboboxUpdated();
-	void onExtraWeaponComboboxUpdated();
-	void onPlayerDelayDoubleSpinBoxUpdated();
-	void onCurrentTeamSpinboxUpdated();
-	void onCopyLoadoutToOtherTeamsButtonPressed();
-	*/
+	connect(ui->currentTeamSpinbox,
+		static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+		this,
+		&LoadoutDialog::onCurrentTeamSpinboxUpdated);
 
+	connect(ui->extraShipSpinbox,
+		static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+		this,
+		&LoadoutDialog::onExtraShipSpinboxUpdated);
 
-    /*
-     * Note: For the weapon and ship loadout listWidgest, will need to do something similar to the following during loading to
-     * add each ship and weapon option as a checkbox
-    QStringList  itemLabels= getLabels();
+	connect(ui->extraWepSpinbox,
+		static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+		this,
+		&LoadoutDialog::onExtraWeaponSpinboxUpdated);
+	
+	connect(ui->playerDelayDoubleSpinbox,
+		static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+		this,
+		&LoadoutDialog::onPlayerDelayDoubleSpinBoxUpdated);
 
-    QStringListIterator it(itemLabels);
-    while (it.hasNext())
-    {
-          QListWidgetItem *listItem = new QListWidgetItem(it.next(),listWidget);
-          listItem->setCheckState(Qt::Unchecked);
-          ui->listWidget->addItem(listItem);
-    }
-    */
+	connect(ui->extraShipsViaVarCombo,
+		QOverload<int>::of(&QComboBox::currentIndexChanged),
+		this,
+		&LoadoutDialog::onExtraShipComboboxUpdated);
+
+	connect(ui->extraWeaponsViaVarCombo,
+		QOverload<int>::of(&QComboBox::currentIndexChanged),
+		this,
+		&LoadoutDialog::onExtraWeaponComboboxUpdated);
+
+	connect(ui->copyLoadoutToOtherTeamsButton,
+		&QPushButton::clicked,
+		this,
+		&LoadoutDialog::onCopyLoadoutToOtherTeamsButtonPressed);
+
+	connect(ui->switchViewButton,
+		&QPushButton::clicked,
+		this,
+		&LoadoutDialog::onSwitchViewButtonPressed);
+
+	connect(ui->shipVarList,
+		static_cast<void (QListWidget::*)(QListWidgetItem*)>(&QListWidget::itemClicked),
+		this,
+		&LoadoutDialog::onShipListEdited);
+
+	connect(ui->weaponVarList,
+		static_cast<void (QListWidget::*)(QListWidgetItem*)>(&QListWidget::itemClicked),
+		this,
+		&LoadoutDialog::onWeaponListEdited);
+
+	_mode = TABLE_MODE;
+
+	updateUI();
 }
-
-
 
 LoadoutDialog::~LoadoutDialog(){} // NOLINT
 
 void LoadoutDialog::onSwitchViewButtonPressed()
 {
-	// this one is complicated, do it later, lol
+	if (_mode = TABLE_MODE) {
+		ui->tableVarLabel->setText("Enable Via Variable View");
+		ui->startingShipsLabel->setText("Ship-Enabling Variables");
+		ui->startingWeaponsLabel->setText("Weapon-Enabling Variables");
+		_mode = VARIABLE_MODE;
+	}
+	else {
+		ui->tableVarLabel->setText("Table Entry View");
+		ui->startingShipsLabel->setText("Starting Ships");
+		ui->startingWeaponsLabel->setText("Starting Weapons");
+		_mode = TABLE_MODE;
+	}
+
+	// model does not keep track of whether the UI is editing the table values or the vars
+	// so, just update the UI
+	updateUI();
 }
 
 void LoadoutDialog::onShipListEdited()
 {
-
+	sendEditedShips();
 }
 
 void LoadoutDialog::onWeaponListEdited()
 {
-
+	sendEditedWeapons();
 }
 
 void LoadoutDialog::onExtraShipSpinboxUpdated()
 {
-
+	sendEditedShips();
 }
 
 void LoadoutDialog::onExtraWeaponSpinboxUpdated()
 {
-
+	sendEditedWeapons();
 }
 
 void LoadoutDialog::onExtraShipComboboxUpdated()
 {
-
+	sendEditedShips();
 }
 
 void LoadoutDialog::onExtraWeaponComboboxUpdated()
 {
-
+	sendEditedWeapons();
 }
 
 void LoadoutDialog::onPlayerDelayDoubleSpinBoxUpdated()
 {
-
+	_model->setPlayerEntryDelay(static_cast<float>(ui->playerDelayDoubleSpinbox->value()));
 }
 
 void LoadoutDialog::onCurrentTeamSpinboxUpdated()
 {
-//	_model->switchTeam()
+	_model->switchTeam(ui->currentTeamSpinbox->value());
 }
 
 void LoadoutDialog::onCopyLoadoutToOtherTeamsButtonPressed()
@@ -100,9 +145,124 @@ void LoadoutDialog::onCopyLoadoutToOtherTeamsButtonPressed()
 	_model->copyToOtherTeam();
 }
 
+void LoadoutDialog::sendEditedShips()
+{
+	SCP_vector<SCP_string> namesOut;
+	bool enabled = false;
+
+	for (auto& item : ui->shipVarList->selectedItems()) {
+		SCP_string workingCopy = item->text().toStdString();
+		size_t location = workingCopy.find_last_of(":"); // the character the separates the name and numbers
+		workingCopy.erase(workingCopy.begin() + location, workingCopy.end()-1);
+		namesOut.push_back(workingCopy);
+		enabled = (item->checkState() == Qt::Checked); // TODO! Make sure that all items are changed to enabled or disabled before we get here
+	}
+
+	if (_mode == TABLE_MODE) {
+		// why did I do it this way?  I don't know. Sorry. I wrote the model first.
+		for (auto& nameOut : namesOut){
+			_model->setShipInfo(nameOut, enabled, ui->extraShipSpinbox->value(), ui->extraShipsViaVarCombo->currentText().toStdString());
+		}
+	}
+	else {
+		_model->setShipEnablerVariables(namesOut, enabled, ui->extraShipSpinbox->value(), ui->extraShipsViaVarCombo->currentText().toStdString());
+	}
+
+	updateUI(); // Better to call it here, than over and over with a modelChanged
+}
+
+// to simplify things on our end, send everything about whatever is selected.
+void LoadoutDialog::sendEditedWeapons()
+{
+	SCP_vector<SCP_string> namesOut;
+	bool enabled = false;
+
+	for (auto& item : ui->weaponVarList->selectedItems()) {
+		SCP_string workingCopy = item->text().toStdString();
+		size_t location = workingCopy.find_last_of(":"); // the character the separates the name and numbers
+		workingCopy.erase(workingCopy.begin() + location, workingCopy.end()-1);
+		namesOut.push_back(workingCopy);
+		enabled = (item->checkState() == Qt::Checked); // TODO! Make sure that all items are changed to enabled or disabled before we get here
+	}
+
+	if (_mode == TABLE_MODE) {
+		// why did I do it this way?  Bad assumption, sorry. I wrote the model first.
+		for (auto& nameOut : namesOut){
+			_model->setWeaponInfo(nameOut, enabled, ui->extraShipSpinbox->value(), ui->extraShipsViaVarCombo->currentText().toStdString());
+		}
+	}
+	else {
+		_model->setWeaponEnablerVariables(namesOut, enabled, ui->extraShipSpinbox->value(), ui->extraShipsViaVarCombo->currentText().toStdString());
+	}
+
+	updateUI();
+}
+
 void LoadoutDialog::updateUI()
 {
+	SCP_vector<SCP_string> saveListShips;
+	SCP_vector<SCP_string> saveListWeapons;
 
+	// save all currently selected Items
+	for (auto& item : ui->shipVarList->selectedItems()) {
+		SCP_string workingCopy = item->text().toStdString();
+		size_t location = workingCopy.find_last_of(":"); // the character the separates the name and numbers
+		workingCopy.erase(workingCopy.begin() + location, workingCopy.end()-1);
+		saveListShips.push_back(workingCopy);
+	}
+
+	for (auto& item : ui->weaponVarList->selectedItems()) {
+		SCP_string workingCopy = item->text().toStdString();
+		size_t location = workingCopy.find_last_of(":"); // the character the separates the name and numbers
+		workingCopy.erase(workingCopy.begin() + location, workingCopy.end()-1);
+		saveListWeapons.push_back(workingCopy);
+	}
+	
+	// clear the lists
+	ui->shipVarList->clear();
+	ui->weaponVarList->clear();
+
+	SCP_vector<std::pair<SCP_string, bool>> newShipList;
+	SCP_vector<std::pair<SCP_string, bool>> newWeaponList;
+
+	// repopulate with the correct lists from the model.
+	if (_mode == TABLE_MODE) {
+		newShipList = _model->getShipList();
+		newWeaponList = _model->getWeaponList();
+	}
+	else {
+		newShipList = _model->getShipEnablerVariables();
+		newWeaponList = _model->getWeaponEnablerVariables();
+	}
+	
+	for (auto& newShip : newShipList) {
+		QListWidgetItem *listItem = new QListWidgetItem(newShip.first.c_str());
+		(newShip.second) ? listItem->setCheckState(Qt::Checked) : listItem->setCheckState(Qt::Unchecked);
+		ui->shipVarList->addItem(listItem);
+	}
+
+	for (auto& newWeapon : newWeaponList) {
+		QListWidgetItem *listItem = new QListWidgetItem(newWeapon.first.c_str());
+		(newWeapon.second) ? listItem->setCheckState(Qt::Checked) : listItem->setCheckState(Qt::Unchecked);
+		ui->shipVarList->addItem(listItem);
+	}
+
+	// reselect those that were previously selected 
+	for (auto& savedSelection : saveListShips) {
+		QList<QListWidgetItem *> foundItems = ui->shipVarList->findItems(savedSelection.c_str(), Qt::MatchStartsWith);
+		for (auto& item : foundItems) {
+			item->setSelected(true);
+		}
+	}
+
+	for (auto& savedSelection : saveListWeapons) {
+		QList<QListWidgetItem *> foundItems = ui->shipVarList->findItems(savedSelection.c_str(), Qt::MatchStartsWith);
+		for (auto& item : foundItems) {
+			item->setSelected(true);
+		}
+	}
+
+	// update random spinboxes and comboboxes. if the values differ, clear them out.
 }
 
 }

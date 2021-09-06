@@ -54,6 +54,13 @@ private:
 	void onCopyLoadoutToOtherTeamsButtonPressed();
 
 	void updateUI();
+
+	void sendEditedShips();
+	void sendEditedWeapons();
+	void sendEditedShipVars();
+	void sendEditedWeaponVars();
+
+	int _mode;
 };
 
 }
