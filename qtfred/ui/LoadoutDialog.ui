@@ -324,7 +324,7 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton">
+        <widget class="QPushButton" name="switchViewButton">
          <property name="text">
           <string>Switch to Enable Via Variable</string>
          </property>

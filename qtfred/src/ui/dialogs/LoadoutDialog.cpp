@@ -18,16 +18,73 @@ LoadoutDialog::LoadoutDialog(FredView* parent, EditorViewport* viewport)
 	connect(this, &QDialog::accepted, _model.get(), &LoadoutDialogModel::apply);
 	connect(this, &QDialog::rejected, _model.get(), &LoadoutDialogModel::reject);
 
-/*	void onSwitchViewButtonPressed();
-	void onShipListEdited();
-	void onWeaponListEdited();
-	void onExtraShipSpinboxUpdated();
-	void onExtraWeaponSpinboxUpdated();
+	connect(ui->currentTeamSpinbox,
+		static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+		this,
+		&LoadoutDialog::onCurrentTeamSpinboxUpdated);
+
+	connect(ui->extraShipSpinbox,
+		static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+		this,
+		&LoadoutDialog::onExtraShipSpinboxUpdated);
+
+	connect(ui->extraWepSpinbox,
+		static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+		this,
+		&LoadoutDialog::onExtraWeaponSpinboxUpdated);
+	
+	connect(ui->playerDelayDoubleSpinbox,
+		static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+		this,
+		&LoadoutDialog::onPlayerDelayDoubleSpinBoxUpdated);
+
+	connect(ui->extraShipsViaVarCombo,
+		QOverload<int>::of(&QComboBox::currentIndexChanged),
+		this,
+		&LoadoutDialog::onExtraShipComboboxUpdated);
+
+	connect(ui->extraWeaponsViaVarCombo,
+		QOverload<int>::of(&QComboBox::currentIndexChanged),
+		this,
+		&LoadoutDialog::onExtraWeaponComboboxUpdated);
+
+	connect(ui->copyLoadoutToOtherTeamsButton,
+		&QPushButton::clicked,
+		this,
+		&LoadoutDialog::onCopyLoadoutToOtherTeamsButtonPressed);
+
+	connect(ui->switchViewButton,
+		&QPushButton::clicked,
+		this,
+		&LoadoutDialog::onSwitchViewButtonPressed);
+
+	connect(ui->shipVarList,
+		static_cast<void (QListWidget::*)(QListWidgetItem*)>(&QListWidget::itemClicked),
+		this,
+		&LoadoutDialog::onShipListEdited);
+
+	connect(ui->weaponVarList,
+		static_cast<void (QListWidget::*)(QListWidgetItem*)>(&QListWidget::itemClicked),
+		this,
+		&LoadoutDialog::onWeaponListEdited);
+
+
+	updateUI();
+
+/*
+
+	void onSwitchViewButtonPressed();
 	void onExtraShipComboboxUpdated();
 	void onExtraWeaponComboboxUpdated();
 	void onPlayerDelayDoubleSpinBoxUpdated();
 	void onCurrentTeamSpinboxUpdated();
+	void onExtraShipSpinboxUpdated();
+	void onExtraWeaponSpinboxUpdated();
 	void onCopyLoadoutToOtherTeamsButtonPressed();
+	void onShipListEdited();
+	void onWeaponListEdited();
+
+
 	*/
 
 
@@ -87,7 +144,7 @@ void LoadoutDialog::onExtraWeaponComboboxUpdated()
 
 void LoadoutDialog::onPlayerDelayDoubleSpinBoxUpdated()
 {
-
+	_model->setPlayerEntryDelay(static_cast<float>(ui->playerDelayDoubleSpinbox->value()));
 }
 
 void LoadoutDialog::onCurrentTeamSpinboxUpdated()
