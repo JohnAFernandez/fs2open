@@ -76,7 +76,7 @@ void LoadoutDialogModel::initializeData()
 		if (weapon.wi_flags[Weapon::Info_Flags::Player_allowed]) {
 			for (auto& team : _teams) {
 				// even though it gets created here, it's not complete because the enabled entries are in Team_data
-				team.ships.emplace_back(
+				team.weapons.emplace_back(
 					index,
 					false,
 					usage[(MAX_SHIP_CLASSES * MAX_TVT_TEAMS) + (MAX_SHIP_CLASSES * currentTeam) + index],

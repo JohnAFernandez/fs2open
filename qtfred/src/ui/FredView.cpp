@@ -705,7 +705,7 @@ void FredView::on_actionCommand_Briefing_triggered(bool) {
 	auto editorDialog = new dialogs::CommandBriefingDialog(this, _viewport);
 	editorDialog->show();
 }
-void FredView::on_actionTeam_loadout_triggered(bool) {
+void FredView::on_actionLoadout_triggered(bool) {
 	auto editorDialog = new dialogs::LoadoutDialog(this, _viewport);
 	editorDialog->show();
 }

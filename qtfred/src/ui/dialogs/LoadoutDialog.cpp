@@ -262,7 +262,8 @@ void LoadoutDialog::updateUI()
 		}
 	}
 
-	// update random spinboxes and comboboxes. if the values differ, clear them out.
+	// TODO! update random spinboxes and comboboxes. if the values differ, clear them out.
+	// it looks like I'm going to need to write a few more lines in the model to do this.
 }
 
 }
