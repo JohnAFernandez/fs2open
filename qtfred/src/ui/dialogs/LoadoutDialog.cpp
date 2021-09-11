@@ -3,6 +3,7 @@
 
 #include <QtWidgets/QMenuBar>
 #include <qlist.h>
+#include <qtablewidget.h>
 
 constexpr int TABLE_MODE = 0;
 constexpr int VARIABLE_MODE = 1;
@@ -64,16 +65,18 @@ LoadoutDialog::LoadoutDialog(FredView* parent, EditorViewport* viewport)
 		&LoadoutDialog::onSwitchViewButtonPressed);
 
 	connect(ui->shipVarList,
-		static_cast<void (QListWidget::*)(QListWidgetItem*)>(&QListWidget::itemClicked),
+		static_cast<void (QTableWidget::*)(QTableWidgetItem*)>(&QTableWidget::itemClicked),
 		this,
 		&LoadoutDialog::onShipListEdited);
 
 	connect(ui->weaponVarList,
-		static_cast<void (QListWidget::*)(QListWidgetItem*)>(&QListWidget::itemClicked),
+		static_cast<void (QTableWidget::*)(QTableWidgetItem*)>(&QTableWidget::itemClicked),
 		this,
 		&LoadoutDialog::onWeaponListEdited);
 
 	_mode = TABLE_MODE;
+	ui->shipVarList->setColumnCount(2);
+	ui->weaponVarList->setColumnCount(2);
 
 	updateUI();
 }
@@ -219,8 +222,8 @@ void LoadoutDialog::updateUI()
 	}
 	
 	// clear the lists
-	ui->shipVarList->clear();
-	ui->weaponVarList->clear();
+	ui->shipVarList->clearContents();
+	ui->weaponVarList->clearContents();
 
 	SCP_vector<std::pair<SCP_string, bool>> newShipList;
 	SCP_vector<std::pair<SCP_string, bool>> newWeaponList;
@@ -235,28 +238,37 @@ void LoadoutDialog::updateUI()
 		newWeaponList = _model->getWeaponEnablerVariables();
 	}
 	
+	ui->shipVarList->setRowCount(static_cast<int>(newShipList.size()));
+	ui->weaponVarList->setRowCount(static_cast<int>(newWeaponList.size()));
+
+	int currentRow = 0;
+
 	for (auto& newShip : newShipList) {
-		QListWidgetItem *listItem = new QListWidgetItem(newShip.first.c_str());
+		QTableWidgetItem *listItem = new QTableWidgetItem(newShip.first.c_str());
 		(newShip.second) ? listItem->setCheckState(Qt::Checked) : listItem->setCheckState(Qt::Unchecked);
-		ui->shipVarList->addItem(listItem);
+
+		ui->shipVarList->setItem(currentRow, 0, listItem);
+		currentRow++;
 	}
 
+	currentRow = 0;
+
 	for (auto& newWeapon : newWeaponList) {
-		QListWidgetItem *listItem = new QListWidgetItem(newWeapon.first.c_str());
+		QTableWidgetItem *listItem = new QTableWidgetItem(newWeapon.first.c_str());
 		(newWeapon.second) ? listItem->setCheckState(Qt::Checked) : listItem->setCheckState(Qt::Unchecked);
-		ui->shipVarList->addItem(listItem);
+		ui->weaponVarList->setItem(currentRow, 0, listItem);
 	}
 
 	// reselect those that were previously selected 
 	for (auto& savedSelection : saveListShips) {
-		QList<QListWidgetItem *> foundItems = ui->shipVarList->findItems(savedSelection.c_str(), Qt::MatchStartsWith);
+		QList<QTableWidgetItem *> foundItems = ui->shipVarList->findItems(savedSelection.c_str(), Qt::MatchStartsWith);
 		for (auto& item : foundItems) {
 			item->setSelected(true);
 		}
 	}
 
 	for (auto& savedSelection : saveListWeapons) {
-		QList<QListWidgetItem *> foundItems = ui->shipVarList->findItems(savedSelection.c_str(), Qt::MatchStartsWith);
+		QList<QTableWidgetItem *> foundItems = ui->shipVarList->findItems(savedSelection.c_str(), Qt::MatchStartsWith);
 		for (auto& item : foundItems) {
 			item->setSelected(true);
 		}

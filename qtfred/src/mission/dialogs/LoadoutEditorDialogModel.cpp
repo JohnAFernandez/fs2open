@@ -23,6 +23,7 @@ LoadoutDialogModel::LoadoutDialogModel(QObject* parent, EditorViewport* viewport
 
 void LoadoutDialogModel::initializeData()
 {
+	_currentTeam = 0;
 
 	TeamLoadout defaultEntry;
 	// make sure we have the correct number of teams.
@@ -50,7 +51,7 @@ void LoadoutDialogModel::initializeData()
 					usage.at((MAX_SHIP_CLASSES * currentTeam) + index),
 					0,
 					-1,
-					SCP_string(ship.name));
+					QString(ship.name).toStdString());// definitely looks janky, but Qstring handles the string conversion better.
 
 				// make sure that starting ships are enabled.
 				if (team.ships.back().countInWings > 0) {
@@ -82,7 +83,7 @@ void LoadoutDialogModel::initializeData()
 					usage[(MAX_SHIP_CLASSES * MAX_TVT_TEAMS) + (MAX_SHIP_CLASSES * currentTeam) + index],
 					0,
 					-1,
-					SCP_string(weapon.name));
+					QString(weapon.name).toStdString());// definitely looks janky, but Qstring handles the string conversion better.
 
 				// make sure that weapons in starting wing slots are enabled.
 				if (team.weapons.back().countInWings > 0) {
@@ -115,7 +116,7 @@ void LoadoutDialogModel::initializeData()
 
 			} // if it doesn't, enable the matching item.
 			else {
-				for (auto& item : _teams[currentTeam].ships) {
+				for (auto item : _teams[currentTeam].ships) {
 					if (team.ship_list[index] == item.infoIndex) {
 						item.enabled = true;
 						item.extraAllocated = team.ship_count[index];
@@ -196,6 +197,9 @@ void LoadoutDialogModel::initializeData()
 		}
 
 		currentTeam++;
+		if (currentTeam >= static_cast<int>(_teams.size())) {
+			break;
+		}
 	}
 
 	// need to build list for count variables.

@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>542</width>
+    <width>540</width>
     <height>643</height>
    </rect>
   </property>
@@ -226,7 +226,7 @@
         <enum>QLayout::SetMinimumSize</enum>
        </property>
        <item>
-        <widget class="QListWidget" name="shipVarList">
+        <widget class="QTableWidget" name="shipVarList">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -248,19 +248,6 @@
          <property name="selectionBehavior">
           <enum>QAbstractItemView::SelectRows</enum>
          </property>
-         <item>
-          <property name="text">
-           <string>Ship Name/Amount in WIng/Extra/Total</string>
-          </property>
-          <property name="flags">
-           <set>ItemIsEnabled</set>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>First Ship - 4, 2, 6</string>
-          </property>
-         </item>
         </widget>
        </item>
       </layout>
@@ -281,29 +268,13 @@
         <enum>QLayout::SetMinimumSize</enum>
        </property>
        <item>
-        <widget class="QListWidget" name="weaponVarList">
+        <widget class="QTableWidget" name="weaponVarList">
          <property name="minimumSize">
           <size>
            <width>0</width>
            <height>0</height>
           </size>
          </property>
-         <property name="selectionRectVisible">
-          <bool>true</bool>
-         </property>
-         <item>
-          <property name="text">
-           <string>Wep Name/Amount in Wing/Extra/Total</string>
-          </property>
-          <property name="flags">
-           <set>ItemIsEnabled</set>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>First Weapon - 250, 100, 350</string>
-          </property>
-         </item>
         </widget>
        </item>
       </layout>
