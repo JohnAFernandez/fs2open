@@ -18,21 +18,6 @@ class LoadoutDialog : public QDialog
 {
     Q_OBJECT
 
-		/*	the elements I need to finish.
-		viewNameLabel
-		switchViewButton
-		shipVarList (listwidget)
-		weaponVarList (listwidget)
-		startingShipsLabel
-		startingWeaponsLabel
-		extraShipSpinbox
-		extraWepSpinbox
-		extraShipsViaVarCombo
-		extraWeaponsViaVarCombo
-		playerDelayDoubleSpinbox
-		currentTeamSpinbox
-		copyLoadoutToOtherTeamsButton
-		*/
 public:
 	explicit LoadoutDialog(FredView* parent, EditorViewport* viewport);
 	~LoadoutDialog() override;
@@ -57,10 +42,13 @@ private:
 
 	void sendEditedShips();
 	void sendEditedWeapons();
-	void sendEditedShipVars();
-	void sendEditedWeaponVars();
+
+	void resetLists();
 
 	int _mode;
+
+	SCP_vector<bool> _lastEnabledShips;
+	SCP_vector<bool> _lastEnabledWeapons;
 };
 
 }
