@@ -87,7 +87,7 @@ void LoadoutDialogModel::initializeData()
 
 				// make sure that weapons in starting wing slots are enabled.
 				if (team.weapons.back().countInWings > 0) {
-					team.ships.back().enabled = true;
+					team.weapons.back().enabled = true;
 				}
 
 				currentTeam++;
@@ -335,9 +335,16 @@ void LoadoutDialogModel::setWeaponInfo(SCP_string textIn, bool enabled, int extr
 
 SCP_string LoadoutDialogModel::createItemString(bool ship, int itemIndex)
 {
-	LoadoutItem* ip = (ship) ? &_teams[_currentTeam].ships[itemIndex] : &_teams[_currentTeam].weapons[itemIndex];
+	LoadoutItem* ip;
+	SCP_string stringOut;
 
-	SCP_string stringOut = Ship_info[ip->infoIndex].name;
+	if (ship) {
+		ip = &_teams[_currentTeam].ships[itemIndex];
+		stringOut = Ship_info[ip->infoIndex].name;
+	} else { 
+		ip = &_teams[_currentTeam].weapons[itemIndex];
+		stringOut = Weapon_info[ip->infoIndex].name;
+	}
 
 	stringOut += ": ";
 	stringOut += std::to_string(ip->countInWings);
@@ -603,7 +610,7 @@ void LoadoutDialogModel::buildCurrentLists()
 	index = 0;
 
 	for (auto& item : _teams[_currentTeam].weapons) {
-		_weaponList.emplace_back(createItemString(true, index), item.enabled);
+		_weaponList.emplace_back(createItemString(false, index), item.enabled);
 		index++;
 	}
 	

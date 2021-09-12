@@ -8,6 +8,11 @@
 constexpr int TABLE_MODE = 0;
 constexpr int VARIABLE_MODE = 1;
 
+// header text
+constexpr char* SHIPHEADER = "Ship";
+constexpr char* WEAPONHEADER = "Weapon";
+constexpr char* KEYHEADER = "In wings / Extra / Total";
+
 
 namespace fso {
 namespace fred {
@@ -74,9 +79,19 @@ LoadoutDialog::LoadoutDialog(FredView* parent, EditorViewport* viewport)
 		this,
 		&LoadoutDialog::onWeaponListEdited);
 
+	// things that must be set for everything to work...
 	_mode = TABLE_MODE;
+	
+	// rows will vary but columns need to be 2
 	ui->shipVarList->setColumnCount(2);
 	ui->weaponVarList->setColumnCount(2);
+	
+	ui->shipVarList->setHorizontalHeaderItem(0, new QTableWidgetItem(SHIPHEADER));
+
+	ui->weaponVarList->setHorizontalHeaderItem(0, new QTableWidgetItem(WEAPONHEADER));
+
+	ui->shipVarList->setHorizontalHeaderItem(1, new QTableWidgetItem(KEYHEADER));
+	ui->weaponVarList->setHorizontalHeaderItem(1, new QTableWidgetItem(KEYHEADER));
 
 	updateUI();
 }
@@ -85,7 +100,7 @@ LoadoutDialog::~LoadoutDialog(){} // NOLINT
 
 void LoadoutDialog::onSwitchViewButtonPressed()
 {
-	if (_mode = TABLE_MODE) {
+	if (_mode == TABLE_MODE) {
 		ui->tableVarLabel->setText("Enable Via Variable View");
 		ui->startingShipsLabel->setText("Ship-Enabling Variables");
 		ui->startingWeaponsLabel->setText("Weapon-Enabling Variables");
@@ -158,7 +173,7 @@ void LoadoutDialog::sendEditedShips()
 		size_t location = workingCopy.find_last_of(":"); // the character the separates the name and numbers
 		workingCopy.erase(workingCopy.begin() + location, workingCopy.end()-1);
 		namesOut.push_back(workingCopy);
-		enabled = (item->checkState() == Qt::Checked); // TODO! Make sure that all items are changed to enabled or disabled before we get here
+		enabled = (item->checkState() == Qt::Checked);
 	}
 
 	if (_mode == TABLE_MODE) {
@@ -208,14 +223,14 @@ void LoadoutDialog::updateUI()
 
 	// save all currently selected Items
 	for (auto& item : ui->shipVarList->selectedItems()) {
-		SCP_string workingCopy = item->text().toStdString();
+		SCP_string workingCopy = ui->shipVarList->itemAt(item->row(), 0)->text().toStdString();
 		size_t location = workingCopy.find_last_of(":"); // the character the separates the name and numbers
 		workingCopy.erase(workingCopy.begin() + location, workingCopy.end()-1);
 		saveListShips.push_back(workingCopy);
 	}
 
 	for (auto& item : ui->weaponVarList->selectedItems()) {
-		SCP_string workingCopy = item->text().toStdString();
+		SCP_string workingCopy = ui->weaponVarList->itemAt(item->row(), 0)->text().toStdString();
 		size_t location = workingCopy.find_last_of(":"); // the character the separates the name and numbers
 		workingCopy.erase(workingCopy.begin() + location, workingCopy.end()-1);
 		saveListWeapons.push_back(workingCopy);
@@ -243,34 +258,62 @@ void LoadoutDialog::updateUI()
 
 	int currentRow = 0;
 
-	for (auto& newShip : newShipList) {
-		QTableWidgetItem *listItem = new QTableWidgetItem(newShip.first.c_str());
-		(newShip.second) ? listItem->setCheckState(Qt::Checked) : listItem->setCheckState(Qt::Unchecked);
+	QTableWidgetItem* nameItem = new QTableWidgetItem("");
+	QTableWidgetItem* countItem = new QTableWidgetItem("");
 
-		ui->shipVarList->setItem(currentRow, 0, listItem);
+	// build the ship list...
+	for (auto& newShip : newShipList) {
+		// need to split the incoming string into the different parts.
+		size_t divider = newShip.first.find_last_of(":");
+
+		// add text to the items
+		QTableWidgetItem* nameItem = new QTableWidgetItem(newShip.first.substr(0, divider).c_str());
+		QTableWidgetItem* countItem = new QTableWidgetItem(newShip.first.substr(divider + 2).c_str());
+
+		// enable the check box, if necessary
+		(newShip.second) ? nameItem->setCheckState(Qt::Checked) : nameItem->setCheckState(Qt::Unchecked);
+
+		// overwrite the entry in the table.
+		ui->shipVarList->setItem(currentRow, 0, nameItem);
+		ui->shipVarList->setItem(currentRow, 1, countItem);
+
 		currentRow++;
 	}
 
 	currentRow = 0;
 
 	for (auto& newWeapon : newWeaponList) {
-		QTableWidgetItem *listItem = new QTableWidgetItem(newWeapon.first.c_str());
-		(newWeapon.second) ? listItem->setCheckState(Qt::Checked) : listItem->setCheckState(Qt::Unchecked);
-		ui->weaponVarList->setItem(currentRow, 0, listItem);
+		// need to split the incoming string into the different parts.
+		size_t divider = newWeapon.first.find_last_of(":");
+
+		// add text to the items
+		QTableWidgetItem* nameItem = new QTableWidgetItem(newWeapon.first.substr(0, divider).c_str());
+		QTableWidgetItem* countItem = new QTableWidgetItem(newWeapon.first.substr(divider + 2).c_str());
+
+		// enable the check box, if necessary
+		(newWeapon.second) ? nameItem->setCheckState(Qt::Checked) : nameItem->setCheckState(Qt::Unchecked);
+
+		// overwrite the entry in the table.
+		ui->weaponVarList->setItem(currentRow, 0, nameItem);
+		ui->weaponVarList->setItem(currentRow, 1, countItem);
+
+		currentRow++;
 	}
+
+	currentRow = 0;
 
 	// reselect those that were previously selected 
 	for (auto& savedSelection : saveListShips) {
 		QList<QTableWidgetItem *> foundItems = ui->shipVarList->findItems(savedSelection.c_str(), Qt::MatchStartsWith);
 		for (auto& item : foundItems) {
-			item->setSelected(true);
+			ui->shipVarList->selectRow(item->row());
 		}
 	}
 
 	for (auto& savedSelection : saveListWeapons) {
 		QList<QTableWidgetItem *> foundItems = ui->shipVarList->findItems(savedSelection.c_str(), Qt::MatchStartsWith);
 		for (auto& item : foundItems) {
-			item->setSelected(true);
+			ui->weaponVarList->selectRow(item->row());
 		}
 	}
 

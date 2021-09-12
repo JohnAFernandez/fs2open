@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>540</width>
+    <width>620</width>
     <height>643</height>
    </rect>
   </property>
@@ -61,7 +61,7 @@
      <item row="10" column="0" alignment="Qt::AlignHCenter">
       <widget class="QLabel" name="startingShipsLabel">
        <property name="text">
-        <string>Starting Ships</string>
+        <string>Starting Ships Amount in Wings/Additional/Total</string>
        </property>
       </widget>
      </item>
