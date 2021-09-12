@@ -116,7 +116,7 @@ void LoadoutDialogModel::initializeData()
 
 			} // if it doesn't, enable the matching item.
 			else {
-				for (auto item : _teams[currentTeam].ships) {
+				for (auto& item : _teams[currentTeam].ships) {
 					if (team.ship_list[index] == item.infoIndex) {
 						item.enabled = true;
 						item.extraAllocated = team.ship_count[index];
