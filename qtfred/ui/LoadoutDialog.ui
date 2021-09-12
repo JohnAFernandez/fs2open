@@ -61,7 +61,7 @@
      <item row="10" column="0" alignment="Qt::AlignHCenter">
       <widget class="QLabel" name="startingShipsLabel">
        <property name="text">
-        <string>Starting Ships Amount in Wings/Additional/Total</string>
+        <string>Starting Ships</string>
        </property>
       </widget>
      </item>
@@ -242,11 +242,23 @@
            <height>0</height>
           </size>
          </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <property name="showDropIndicator" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="dragDropOverwriteMode">
+          <bool>false</bool>
+         </property>
          <property name="selectionMode">
           <enum>QAbstractItemView::MultiSelection</enum>
          </property>
          <property name="selectionBehavior">
           <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+         <property name="showGrid">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -274,6 +286,18 @@
            <width>0</width>
            <height>0</height>
           </size>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <property name="showDropIndicator" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="dragDropOverwriteMode">
+          <bool>false</bool>
+         </property>
+         <property name="showGrid">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
