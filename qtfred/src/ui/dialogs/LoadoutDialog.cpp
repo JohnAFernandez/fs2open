@@ -93,6 +93,8 @@ LoadoutDialog::LoadoutDialog(FredView* parent, EditorViewport* viewport)
 	ui->shipVarList->setHorizontalHeaderItem(1, new QTableWidgetItem(KEYHEADER));
 	ui->weaponVarList->setHorizontalHeaderItem(1, new QTableWidgetItem(KEYHEADER));
 
+	// need to completely rebuild the lists here.
+	resetLists();
 	updateUI();
 }
 
@@ -114,7 +116,8 @@ void LoadoutDialog::onSwitchViewButtonPressed()
 	}
 
 	// model does not keep track of whether the UI is editing the table values or the vars
-	// so, just update the UI
+	// so, just reset the lists and then update the UI
+	resetLists();
 	updateUI();
 }
 
@@ -212,18 +215,103 @@ void LoadoutDialog::sendEditedWeapons()
 
 void LoadoutDialog::updateUI()
 {
-	SCP_vector<SCP_string> saveListShips;
-	SCP_vector<SCP_string> saveListWeapons;
+	SCP_vector<std::pair<SCP_string, bool>> newShipList;
+	SCP_vector<std::pair<SCP_string, bool>> newWeaponList;
 
-	// save all currently selected Items
-//	for (auto& item : ui->shipVarList->selectedItems()) {
-//		saveListShips.push_back(ui->shipVarList->itemAt(item->row(), 0)->text().toStdString());
+	// repopulate with the correct lists from the model.
+	if (_mode == TABLE_MODE) {
+		newShipList = _model->getShipList();
+		newWeaponList = _model->getWeaponList();
+	}
+	else {
+		newShipList = _model->getShipEnablerVariables();
+		newWeaponList = _model->getWeaponEnablerVariables();
+	}
+
+	int currentRow = 0;
+
+	// build the ship list...
+	for (auto& newShip : newShipList) {
+		// need to split the incoming string into the different parts.
+		size_t divider = newShip.first.find_last_of(":");
+
+		// Overwrite the old number text.
+		ui->shipVarList->item(currentRow, 1)->setText(newShip.first.substr(divider + 2).c_str());
+
+		// enable the check box, if necessary
+		(newShip.second) ? ui->shipVarList->item(currentRow, 0)->setCheckState(Qt::Checked) : ui->shipVarList->item(currentRow, 0)->setCheckState(Qt::Unchecked);
+
+		currentRow++;
+	}
+
+	currentRow = 0;
+
+	for (auto& newWeapon : newWeaponList) {
+		// need to split the incoming string into the different parts.
+		size_t divider = newWeapon.first.find_last_of(":");
+
+		// Overwrite the old number text.
+		ui->weaponVarList->item(currentRow, 1)->setText(newWeapon.first.substr(divider + 2).c_str());
+
+		// enable the check box, if necessary
+		(newWeapon.second) ? ui->weaponVarList->item(currentRow, 0)->setCheckState(Qt::Checked) : ui->weaponVarList->item(currentRow, 0)->setCheckState(Qt::Unchecked);
+
+		currentRow++;
+	}
+
+	SCP_vector<SCP_string> namesOut;
+	// get all selected ship items to send to the model
+	for (auto& item : ui->shipVarList->selectedItems()) {
+		namesOut.push_back(ui->shipVarList->itemAt(item->row(), 0)->text().toStdString());
+	}
+
+	// request info for combo and extra ship box.
+	if (_mode == TABLE_MODE) {
+		ui->extraShipsViaVarCombo->setCurrentText(_model->getCountVarShips(namesOut).c_str()); // TODO in the future, loop through current choices.
+		ui->extraShipSpinbox->setValue(_model->getExtraAllocatedShips(namesOut));
+	}
+	else {
+		ui->extraShipsViaVarCombo->setCurrentText(_model->getCountVarShipEnabler(namesOut).c_str());
+		ui->extraShipSpinbox->setValue(_model->getExtraAllocatedShipEnabler(namesOut));
+	}
+
+	namesOut.clear();
+
+	for (auto& item : ui->weaponVarList->selectedItems()) {
+		namesOut.push_back(ui->weaponVarList->itemAt(item->row(), 0)->text().toStdString());
+	}
+
+	if (_mode == TABLE_MODE) {
+		ui->extraWeaponsViaVarCombo->setCurrentText(_model->getCountVarWeapons(namesOut).c_str()); // TODO in the future, loop through current choices.
+		ui->extraWepSpinbox->setValue(_model->getExtraAllocatedWeapons(namesOut));
+	}
+	else {
+		ui->extraWeaponsViaVarCombo->setCurrentText(_model->getCountVarWeaponEnabler(namesOut).c_str());
+		ui->extraWepSpinbox->setValue(_model->getExtraAllocatedWeaponEnabler(namesOut));
+	}
+
+	ui->playerDelayDoubleSpinbox->setValue(_model->getPlayerEntryDelay());
+	ui->currentTeamSpinbox->setValue(_model->getCurrentTeam() + 1);
+
+
+	// reselect those that were previously selected 
+//	for (auto& savedSelection : saveListShips) {
+//		QList<QTableWidgetItem *> foundItems = ui->shipVarList->findItems(savedSelection.c_str(), Qt::MatchStartsWith);
+//		for (auto& item : foundItems) {
+//			ui->shipVarList->selectRow(item->row());
+//		}
 //	}
 
-//	for (auto& item : ui->weaponVarList->selectedItems()) {
-//		saveListWeapons.push_back(ui->weaponVarList->itemAt(item->row(), 0)->text().toStdString());
+//	for (auto& savedSelection : saveListWeapons) {
+//		QList<QTableWidgetItem *> foundItems = ui->shipVarList->findItems(savedSelection.c_str(), Qt::MatchStartsWith);
+//		for (auto& item : foundItems) {
+//			ui->weaponVarList->selectRow(item->row());
+//		}
 //	}
-	
+
+}
+
+void LoadoutDialog::resetLists() {
 	// clear the lists
 	ui->shipVarList->clearContents();
 	ui->weaponVarList->clearContents();
@@ -240,14 +328,11 @@ void LoadoutDialog::updateUI()
 		newShipList = _model->getShipEnablerVariables();
 		newWeaponList = _model->getWeaponEnablerVariables();
 	}
-	
+
 	ui->shipVarList->setRowCount(static_cast<int>(newShipList.size()));
 	ui->weaponVarList->setRowCount(static_cast<int>(newWeaponList.size()));
 
 	int currentRow = 0;
-
-	QTableWidgetItem* nameItem = new QTableWidgetItem("");
-	QTableWidgetItem* countItem = new QTableWidgetItem("");
 
 	// build the ship list...
 	for (auto& newShip : newShipList) {
@@ -287,26 +372,6 @@ void LoadoutDialog::updateUI()
 
 		currentRow++;
 	}
-
-	currentRow = 0;
-
-	// reselect those that were previously selected 
-//	for (auto& savedSelection : saveListShips) {
-//		QList<QTableWidgetItem *> foundItems = ui->shipVarList->findItems(savedSelection.c_str(), Qt::MatchStartsWith);
-//		for (auto& item : foundItems) {
-//			ui->shipVarList->selectRow(item->row());
-//		}
-//	}
-
-//	for (auto& savedSelection : saveListWeapons) {
-//		QList<QTableWidgetItem *> foundItems = ui->shipVarList->findItems(savedSelection.c_str(), Qt::MatchStartsWith);
-//		for (auto& item : foundItems) {
-//			ui->weaponVarList->selectRow(item->row());
-//		}
-//	}
-
-	// TODO! update random spinboxes and comboboxes. if the values differ, clear them out.
-	// it looks like I'm going to need to write a few more lines in the model to do this.
 }
 
 }

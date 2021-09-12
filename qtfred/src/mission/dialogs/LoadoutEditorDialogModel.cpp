@@ -431,14 +431,15 @@ void LoadoutDialogModel::setShipEnablerVariables(SCP_vector<SCP_string> variable
 		for (auto& nameIn : variablesIn) {
 			auto item = _teams[_currentTeam].varShips.begin();
 			while (item != _teams[_currentTeam].varShips.end()) {
-				// check to see if it was already added
+				// check to see if it was already added, and get rid of the info.
 				if (item->name == nameIn) {
+					item->enabled = false;
+					item->extraAllocated = 0;
+					item->infoIndex = -1;
+					item->varCountIndex = get_index_sexp_variable_name(nameIn);
+					item->countInWings = 0;
 					break;
 				}
-			}
-
-			if (item != _teams[_currentTeam].varShips.end()) {
-				_teams[_currentTeam].varShips.erase(item); // inefficient, but order is important here
 			}
 		}
 	}
@@ -488,21 +489,21 @@ void LoadoutDialogModel::setWeaponEnablerVariables(SCP_vector<SCP_string> variab
 		for (auto& nameIn : variablesIn) {
 			auto item = _teams[_currentTeam].varWeapons.begin();
 			while (item != _teams[_currentTeam].varWeapons.end()) {
-				// check to see if it was already added
+				// check to see if it was already added, and get rid of the info.
 				if (item->name == nameIn) {
+					item->enabled = false;
+					item->extraAllocated = 0;
+					item->infoIndex = -1;
+					item->varCountIndex = get_index_sexp_variable_name(nameIn);
+					item->countInWings = 0;
 					break;
 				}
-			}
-
-			if (item != _teams[_currentTeam].varWeapons.end()) {
-				_teams[_currentTeam].varWeapons.erase(item); // inefficient, but order is important here
 			}
 		}
 	}
 
 	modelChanged();
 }
-
 
 bool LoadoutDialogModel::apply() {
 
@@ -638,6 +639,189 @@ void LoadoutDialogModel::buildCurrentLists()
 			_weaponVarList.emplace_back(sexp.variable_name, found);
 		}
 	}
+}
+
+SCP_string LoadoutDialogModel::getCountVarShips(SCP_vector<SCP_string> namesIn) 
+{
+	int tester = -1;
+	SCP_string out = "";
+
+	for (auto& name : namesIn) {
+		for (auto& currentShip : _teams[_currentTeam].ships) {
+			if (currentShip.name == name) {
+				if (tester > -1 && currentShip.varCountIndex != tester) {
+					out = "";
+					return out;
+				}
+				else {
+					out = currentShip.varCountIndex;
+				}
+			}
+		}
+	}
+
+	if (tester > -1) {
+		out = SCP_string(Sexp_variables[tester].text);
+	}
+
+	return out;
+}
+
+SCP_string LoadoutDialogModel::getCountVarWeapons(SCP_vector<SCP_string> namesIn)
+{
+	int tester = -1;
+	SCP_string out = "";
+
+	for (auto& name : namesIn) {
+		for (auto& currentWep : _teams[_currentTeam].weapons) {
+			if (currentWep.name == name) {
+				if (tester > -1 && currentWep.varCountIndex != tester) {
+					out = "";
+					return out;
+				}
+				else {
+					out = currentWep.varCountIndex;
+				}
+			}
+		}
+	}
+
+	if (tester > -1) {
+		out = SCP_string(Sexp_variables[tester].text);
+	}
+
+	return out;
+}
+
+SCP_string LoadoutDialogModel::getCountVarShipEnabler(SCP_vector<SCP_string> namesIn) 
+{
+	int tester = -1;
+	SCP_string out = "";
+
+	for (auto& name : namesIn) {
+		for (auto& currentShip : _teams[_currentTeam].varShips) {
+			if (currentShip.name == name) {
+				if (tester > -1 && currentShip.varCountIndex != tester) {
+					out = "";
+					return out;
+				}
+				else {
+					out = currentShip.varCountIndex;
+				}
+			}
+		}
+	}
+
+	if (tester > -1) {
+		out = SCP_string(Sexp_variables[tester].text);
+	}
+
+	return out;
+}
+
+SCP_string LoadoutDialogModel::getCountVarWeaponEnabler(SCP_vector<SCP_string> namesIn) 
+{
+	int tester = -1;
+	SCP_string out = "";
+
+	for (auto& name : namesIn) {
+		for (auto& currentWep : _teams[_currentTeam].varWeapons) {
+			if (currentWep.name == name) {
+				if (tester > -1 && currentWep.varCountIndex != tester) {
+					out = "";
+					return out;
+				}
+				else {
+					out = currentWep.varCountIndex;
+				}
+			}
+		}
+	}
+
+	if (tester > -1) {
+		out = SCP_string(Sexp_variables[tester].text);
+	}
+
+	return out;
+
+}
+
+int LoadoutDialogModel::getExtraAllocatedShips(SCP_vector<SCP_string> namesIn) 
+{
+	int out = -1;
+
+	for (auto& name : namesIn) {
+		for (auto& currentShip : _teams[_currentTeam].ships) {
+			if (currentShip.name == name) {
+				if (out > -1 && currentShip.extraAllocated != out) {
+					return -1;
+				}
+				else {
+					out = currentShip.extraAllocated;
+				}
+			}
+		}
+	}
+
+	return out;
+}
+
+int LoadoutDialogModel::getExtraAllocatedWeapons(SCP_vector<SCP_string> namesIn) 
+{
+	int out = -1;
+	bool done = false;
+
+	for (auto& name : namesIn) {
+		for (auto& currentWep : _teams[_currentTeam].weapons) {
+			if (currentWep.name == name) {
+				if (out > -1 && currentWep.extraAllocated != out) {
+					return -1;
+				} else {
+					out = currentWep.extraAllocated;
+				}
+			}
+		}
+	}
+
+	return out;
+}
+
+int LoadoutDialogModel::getExtraAllocatedShipEnabler(SCP_vector<SCP_string> namesIn) 
+{
+	int out = -1;
+
+	for (auto& name : namesIn) {
+		for (auto& currentShip : _teams[_currentTeam].varShips) {
+			if (currentShip.name == name) {
+				if (out > -1 && currentShip.extraAllocated != out) {
+					return -1;
+				} else {
+					out = currentShip.extraAllocated;
+				}
+			}
+		}
+	}
+
+	return out;
+}
+
+int LoadoutDialogModel::getExtraAllocatedWeaponEnabler(SCP_vector<SCP_string> namesIn) 
+{
+	int out = -1;
+
+	for (auto& name : namesIn) {
+		for (auto& currentWep : _teams[_currentTeam].varWeapons) {
+			if (currentWep.name == name) {
+				if (out > -1 && currentWep.extraAllocated != out) {
+					return -1;
+				} else {
+					out = currentWep.extraAllocated;
+				}
+			}
+		}
+	}
+
+	return out;
 }
 
 

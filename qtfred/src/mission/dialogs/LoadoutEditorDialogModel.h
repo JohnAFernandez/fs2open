@@ -56,6 +56,17 @@ public:
 	SCP_vector<std::pair<SCP_string,bool>> getShipEnablerVariables();
 	SCP_vector<std::pair<SCP_string,bool>> getWeaponEnablerVariables();
 
+	SCP_string getCountVarShips(SCP_vector<SCP_string> namesIn);
+	SCP_string getCountVarWeapons(SCP_vector<SCP_string> namesIn);
+	SCP_string getCountVarShipEnabler(SCP_vector<SCP_string> namesIn);
+	SCP_string getCountVarWeaponEnabler(SCP_vector<SCP_string> namesIn);
+
+	int getExtraAllocatedShips(SCP_vector<SCP_string> namesIn);
+	int getExtraAllocatedWeapons(SCP_vector<SCP_string> namesIn);
+	int getExtraAllocatedShipEnabler(SCP_vector<SCP_string> namesIn);
+	int getExtraAllocatedWeaponEnabler(SCP_vector<SCP_string> namesIn);
+
+
 	void setShipInfo(SCP_string textIn, bool enabled, int extraAllocated, SCP_string varForCount);
 	void setWeaponInfo(SCP_string textIn, bool enabled, int extraAllocated, SCP_string varForCount);
 	void setShipEnablerVariables(SCP_vector<SCP_string> variablesIn, bool enabled, int extraAllocated, SCP_string varForCount);

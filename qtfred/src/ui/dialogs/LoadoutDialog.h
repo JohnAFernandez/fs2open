@@ -57,8 +57,8 @@ private:
 
 	void sendEditedShips();
 	void sendEditedWeapons();
-	void sendEditedShipVars();
-	void sendEditedWeaponVars();
+
+	void resetLists();
 
 	int _mode;
 };
