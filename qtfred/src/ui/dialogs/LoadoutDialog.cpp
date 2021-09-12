@@ -169,11 +169,8 @@ void LoadoutDialog::sendEditedShips()
 	bool enabled = false;
 
 	for (auto& item : ui->shipVarList->selectedItems()) {
-		SCP_string workingCopy = item->text().toStdString();
-		size_t location = workingCopy.find_last_of(":"); // the character the separates the name and numbers
-		workingCopy.erase(workingCopy.begin() + location, workingCopy.end()-1);
-		namesOut.push_back(workingCopy);
-		enabled = (item->checkState() == Qt::Checked);
+		namesOut.push_back(ui->shipVarList->itemAt(item->row(), 0)->text().toStdString());
+		enabled = (item->checkState() == Qt::Checked); // TODO! Make sure that all items are changed to enabled or disabled before we get here
 	}
 
 	if (_mode == TABLE_MODE) {
@@ -196,10 +193,7 @@ void LoadoutDialog::sendEditedWeapons()
 	bool enabled = false;
 
 	for (auto& item : ui->weaponVarList->selectedItems()) {
-		SCP_string workingCopy = item->text().toStdString();
-		size_t location = workingCopy.find_last_of(":"); // the character the separates the name and numbers
-		workingCopy.erase(workingCopy.begin() + location, workingCopy.end()-1);
-		namesOut.push_back(workingCopy);
+		namesOut.push_back(ui->weaponVarList->itemAt(item->row(), 0)->text().toStdString());
 		enabled = (item->checkState() == Qt::Checked); // TODO! Make sure that all items are changed to enabled or disabled before we get here
 	}
 
@@ -222,13 +216,13 @@ void LoadoutDialog::updateUI()
 	SCP_vector<SCP_string> saveListWeapons;
 
 	// save all currently selected Items
-	for (auto& item : ui->shipVarList->selectedItems()) {
-		saveListShips.push_back(ui->shipVarList->itemAt(item->row(), 0)->text().toStdString());
-	}
+//	for (auto& item : ui->shipVarList->selectedItems()) {
+//		saveListShips.push_back(ui->shipVarList->itemAt(item->row(), 0)->text().toStdString());
+//	}
 
-	for (auto& item : ui->weaponVarList->selectedItems()) {
-		saveListWeapons.push_back(ui->weaponVarList->itemAt(item->row(), 0)->text().toStdString());
-	}
+//	for (auto& item : ui->weaponVarList->selectedItems()) {
+//		saveListWeapons.push_back(ui->weaponVarList->itemAt(item->row(), 0)->text().toStdString());
+//	}
 	
 	// clear the lists
 	ui->shipVarList->clearContents();
@@ -297,19 +291,19 @@ void LoadoutDialog::updateUI()
 	currentRow = 0;
 
 	// reselect those that were previously selected 
-	for (auto& savedSelection : saveListShips) {
-		QList<QTableWidgetItem *> foundItems = ui->shipVarList->findItems(savedSelection.c_str(), Qt::MatchStartsWith);
-		for (auto& item : foundItems) {
-			ui->shipVarList->selectRow(item->row());
-		}
-	}
+//	for (auto& savedSelection : saveListShips) {
+//		QList<QTableWidgetItem *> foundItems = ui->shipVarList->findItems(savedSelection.c_str(), Qt::MatchStartsWith);
+//		for (auto& item : foundItems) {
+//			ui->shipVarList->selectRow(item->row());
+//		}
+//	}
 
-	for (auto& savedSelection : saveListWeapons) {
-		QList<QTableWidgetItem *> foundItems = ui->shipVarList->findItems(savedSelection.c_str(), Qt::MatchStartsWith);
-		for (auto& item : foundItems) {
-			ui->weaponVarList->selectRow(item->row());
-		}
-	}
+//	for (auto& savedSelection : saveListWeapons) {
+//		QList<QTableWidgetItem *> foundItems = ui->shipVarList->findItems(savedSelection.c_str(), Qt::MatchStartsWith);
+//		for (auto& item : foundItems) {
+//			ui->weaponVarList->selectRow(item->row());
+//		}
+//	}
 
 	// TODO! update random spinboxes and comboboxes. if the values differ, clear them out.
 	// it looks like I'm going to need to write a few more lines in the model to do this.
