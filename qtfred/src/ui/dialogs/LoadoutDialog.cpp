@@ -93,6 +93,16 @@ LoadoutDialog::LoadoutDialog(FredView* parent, EditorViewport* viewport)
 	ui->shipVarList->setHorizontalHeaderItem(1, new QTableWidgetItem(KEYHEADER));
 	ui->weaponVarList->setHorizontalHeaderItem(1, new QTableWidgetItem(KEYHEADER));
 
+	// quickly enable or diable the team spin box
+	if (The_mission.game_type & MISSION_TYPE_MULTI){
+		ui->currentTeamSpinbox->setEnabled(true);
+		ui->copyLoadoutToOtherTeamsButton->setEnabled(true);
+	}
+	else {
+		ui->currentTeamSpinbox->setEnabled(false);
+		ui->copyLoadoutToOtherTeamsButton->setEnabled(false);
+	}
+
 	// need to completely rebuild the lists here.
 	resetLists();
 	updateUI();
@@ -123,36 +133,105 @@ void LoadoutDialog::onSwitchViewButtonPressed()
 
 void LoadoutDialog::onShipListEdited()
 {
-	sendEditedShips();
+	sendEditedShips(); // TODO, make sure that info being sent to model is valid (don't want to send a bunch of info, and because more than one is seleted, overwrite things that shouldn't be overwritten)
 }
 
 void LoadoutDialog::onWeaponListEdited()
 {
-	sendEditedWeapons();
+	sendEditedWeapons(); // TODO, make sure that info being sent to model is valid (don't want to send a bunch of info, and because more than one is seleted, overwrite things that shouldn't be overwritten)
 }
 
 void LoadoutDialog::onExtraShipSpinboxUpdated()
 {
+	// if there are no extra allocated here, we need to uncheck the selected items.
+	if (ui->extraShipSpinbox->value() <= 0) {
+		ui->extraShipSpinbox->setValue(0);
+		if (ui->extraShipsViaVarCombo->currentText().isEmpty()) {
+			for (auto& item : ui->shipVarList->selectedItems()) {
+				item->setCheckState(Qt::Unchecked);
+			}
+		}
+	}
+	else {
+		// if we are using the spinbox, the variable needs to be disabled. And everything needs to be enabled
+		ui->extraShipsViaVarCombo->setCurrentText("");
+		for (auto& item : ui->shipVarList->selectedItems()) {
+			item->setCheckState(Qt::Checked);
+		}
+	}
+
 	sendEditedShips();
 }
 
 void LoadoutDialog::onExtraWeaponSpinboxUpdated()
 {
+	// if there are no extra allocated here, we need to uncheck the selected items.
+	if (ui->extraWepSpinbox->value() <= 0) {
+		ui->extraWepSpinbox->setValue(0);
+		if (ui->extraWeaponsViaVarCombo->currentText().isEmpty()) {
+			for (auto& item : ui->weaponVarList->selectedItems()) {
+				item->setCheckState(Qt::Unchecked);
+			}
+		}
+	}
+	else {
+		// if we are using the spinbox, the variable needs to be disabled. And checks needs to be enabled
+		ui->extraWeaponsViaVarCombo->setCurrentText("");
+		for (auto& item : ui->weaponVarList->selectedItems()) {
+			item->setCheckState(Qt::Checked);
+		}
+	}
+
 	sendEditedWeapons();
 }
 
 void LoadoutDialog::onExtraShipComboboxUpdated()
 {
+	// if the variable is replacing the amount, get rid of the amount in the spinbox.
+	if (!ui->extraWeaponsViaVarCombo->currentText().isEmpty() && ui->extraWepSpinbox->value() > 0) {
+		ui->extraWepSpinbox->setValue(0);
+	} // if there are no ships allocated, uncheck the ship
+	else if (ui->extraWeaponsViaVarCombo->currentText().isEmpty() && ui->extraWepSpinbox->value() == 0) {
+		for (auto& item : ui->weaponVarList->selectedItems()) {
+			item->setCheckState(Qt::Unchecked);
+		}
+	} // if we just picked a variable, check mark the ship
+	else if (!ui->extraWeaponsViaVarCombo->currentText().isEmpty()) {
+		for (auto& item : ui->weaponVarList->selectedItems()) {
+			item->setCheckState(Qt::Checked);
+		}
+	}
+
 	sendEditedShips();
 }
 
 void LoadoutDialog::onExtraWeaponComboboxUpdated()
 {
+
+	// if the variable is replacing the amount, get rid of the amount in the spinbox.
+	if (!ui->extraShipsViaVarCombo->currentText().isEmpty() && ui->extraShipSpinbox->value() > 0) {
+		ui->extraShipSpinbox->setValue(0);
+	} // if there are no ships allocated, uncheck the ship
+	else if (ui->extraShipsViaVarCombo->currentText().isEmpty() && ui->extraShipSpinbox->value() == 0) {
+		for (auto& item : ui->shipVarList->selectedItems()) {
+			item->setCheckState(Qt::Unchecked);
+		}
+	} // if we just picked a variable, check mark the ship
+	else if (!ui->extraShipsViaVarCombo->currentText().isEmpty()) {
+		for (auto& item : ui->shipVarList->selectedItems()) {
+			item->setCheckState(Qt::Checked);
+		}
+	}
+
 	sendEditedWeapons();
 }
 
 void LoadoutDialog::onPlayerDelayDoubleSpinBoxUpdated()
 {
+	if (ui->playerDelayDoubleSpinbox->value() < 0) {
+		ui->playerDelayDoubleSpinbox->setValue(0.0f);
+	}
+
 	_model->setPlayerEntryDelay(static_cast<float>(ui->playerDelayDoubleSpinbox->value()));
 }
 
@@ -172,7 +251,7 @@ void LoadoutDialog::sendEditedShips()
 	bool enabled = false;
 
 	for (auto& item : ui->shipVarList->selectedItems()) {
-		namesOut.push_back(ui->shipVarList->itemAt(item->row(), 0)->text().toStdString());
+		namesOut.push_back(item->text().toStdString());
 		enabled = (item->checkState() == Qt::Checked); // TODO! Make sure that all items are changed to enabled or disabled before we get here
 	}
 
@@ -203,11 +282,11 @@ void LoadoutDialog::sendEditedWeapons()
 	if (_mode == TABLE_MODE) {
 		// why did I do it this way?  Bad assumption, sorry. I wrote the model first.
 		for (auto& nameOut : namesOut){
-			_model->setWeaponInfo(nameOut, enabled, ui->extraShipSpinbox->value(), ui->extraShipsViaVarCombo->currentText().toStdString());
+			_model->setWeaponInfo(nameOut, enabled, ui->extraWepSpinbox->value(), ui->extraWeaponsViaVarCombo->currentText().toStdString());
 		}
 	}
 	else {
-		_model->setWeaponEnablerVariables(namesOut, enabled, ui->extraShipSpinbox->value(), ui->extraShipsViaVarCombo->currentText().toStdString());
+		_model->setWeaponEnablerVariables(namesOut, enabled, ui->extraWepSpinbox->value(), ui->extraWeaponsViaVarCombo->currentText().toStdString());
 	}
 
 	updateUI();
@@ -291,23 +370,26 @@ void LoadoutDialog::updateUI()
 	}
 
 	ui->playerDelayDoubleSpinbox->setValue(_model->getPlayerEntryDelay());
-	ui->currentTeamSpinbox->setValue(_model->getCurrentTeam() + 1);
 
+	ui->currentTeamSpinbox->setValue(_model->getCurrentTeam());
 
-	// reselect those that were previously selected 
-//	for (auto& savedSelection : saveListShips) {
-//		QList<QTableWidgetItem *> foundItems = ui->shipVarList->findItems(savedSelection.c_str(), Qt::MatchStartsWith);
-//		for (auto& item : foundItems) {
-//			ui->shipVarList->selectRow(item->row());
-//		}
-//	}
+	if (ui->shipVarList->selectedItems().isEmpty()) {
+		ui->extraShipsViaVarCombo->setEnabled(false);
+		ui->extraShipSpinbox->setEnabled(false);
+	}
+	else {
+		ui->extraShipsViaVarCombo->setEnabled(true);
+		ui->extraShipSpinbox->setEnabled(true);
+	}
 
-//	for (auto& savedSelection : saveListWeapons) {
-//		QList<QTableWidgetItem *> foundItems = ui->shipVarList->findItems(savedSelection.c_str(), Qt::MatchStartsWith);
-//		for (auto& item : foundItems) {
-//			ui->weaponVarList->selectRow(item->row());
-//		}
-//	}
+	if (ui->weaponVarList->selectedItems().isEmpty()) {
+		ui->extraWeaponsViaVarCombo->setEnabled(false);
+		ui->extraWepSpinbox->setEnabled(false);
+	}
+	else {
+		ui->extraWeaponsViaVarCombo->setEnabled(true);
+		ui->extraWepSpinbox->setEnabled(true);
+	}
 
 }
 

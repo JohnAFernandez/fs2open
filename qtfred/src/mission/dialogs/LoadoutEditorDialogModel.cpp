@@ -226,6 +226,8 @@ float LoadoutDialogModel::getPlayerEntryDelay()
 void LoadoutDialogModel::setPlayerEntryDelay(float delay)
 {
 	_playerEntryDelay = delay;
+	modelChanged();
+
 }
 
 int LoadoutDialogModel::getCurrentTeam()
@@ -260,11 +262,10 @@ void LoadoutDialogModel::setShipInfo(SCP_string textIn, bool enabled, int extraA
 
 	for (auto& item : _teams[_currentTeam].ships) {
 		if (textIn == Ship_info[item.infoIndex].name) {
-			previouslyEnabled = !item.enabled;
+			previouslyEnabled = item.enabled;
 			item.enabled = enabled;
 			item.extraAllocated = extraAllocated;
 			item.varCountIndex = get_index_sexp_variable_name(varForCount);
-			SCP_string newstring = createItemString(true, index);
 			found = true;
 
 			// need to check if this ship will hold more than the last highest capacity
@@ -289,8 +290,13 @@ void LoadoutDialogModel::setShipInfo(SCP_string textIn, bool enabled, int extraA
 
 			}
 
+			// now that all the data is correctly set, rebuild the corresponding string.
+			_shipList[index].first = createItemString(true, index);
+			_shipList[index].second = enabled;
+
 			break;
 		}
+		index++;
 	}
 	
 	Assert(found);
@@ -323,6 +329,11 @@ void LoadoutDialogModel::setWeaponInfo(SCP_string textIn, bool enabled, int extr
 			}
 
 			SCP_string newstring = createItemString(false, index);
+
+			// now that all the data is correctly set, rebuild the corresponding string.
+			_weaponList[index].first = createItemString(true, index);
+			_weaponList[index].second = enabled;
+
 			found = true;
 			break;
 		}
@@ -331,6 +342,7 @@ void LoadoutDialogModel::setWeaponInfo(SCP_string textIn, bool enabled, int extr
 
 	Assert(found);
 
+	modelChanged();
 }
 
 SCP_string LoadoutDialogModel::createItemString(bool ship, int itemIndex)
@@ -391,7 +403,7 @@ void LoadoutDialogModel::switchTeam(int teamIn)
 
 void LoadoutDialogModel::setShipEnablerVariables(SCP_vector<SCP_string> variablesIn, bool enabled, int extraAllocated, SCP_string varForCount)
 {
-	for (auto& nameIn : variablesIn) {
+	for (auto& nameIn : variablesIn) { // FIXME, this is trash
 		for (auto& variable : _shipVarList) {
 			if (nameIn == variable.first) {
 				variable.second = enabled;
@@ -501,8 +513,6 @@ void LoadoutDialogModel::setWeaponEnablerVariables(SCP_vector<SCP_string> variab
 			}
 		}
 	}
-
-	modelChanged();
 }
 
 bool LoadoutDialogModel::apply() {
