@@ -133,21 +133,119 @@ void LoadoutDialog::onSwitchViewButtonPressed()
 
 void LoadoutDialog::onShipListEdited()
 {
-	// this is probably insufficient.  Probably need to send a request to the model to see if the items are compatible.
-	auto state = ui->shipVarList->currentItem()->checkState();
-	for (auto& item : ui->shipVarList->selectedItems()) {
-		item->setCheckState(state);
+	SCP_vector<bool> newEnabledStatus;
+	bool newStatus, useNewStatus = false;
+
+	// we need the index anyway, and more efficient to iterate through just the first column.
+	for (int i = 0; i < ui->shipVarList->rowCount(); i++) {
+		bool checkState = (ui->shipVarList->item(i,0)->checkState() == Qt::Checked);
+		newEnabledStatus.push_back(checkState);
+	
+		// compare the old to the new to see if there was a change in check marks.
+		// this would break if the amount of ships or weapons ever became dynamic
+		if (!useNewStatus && !_lastEnabledShips.empty() && (_lastEnabledShips[i] != newEnabledStatus[i])) {
+			newStatus = newEnabledStatus[i];
+			useNewStatus = true;
+		}
+		else if (_lastEnabledShips.empty()) {
+			newStatus = newEnabledStatus[i];
+			useNewStatus = true;
+		}
 	}
 
-	sendEditedShips(); // TODO, make sure that info being sent to model is valid (don't want to send a bunch of info, and because more than one is seleted, overwrite things that shouldn't be overwritten)
+	if (useNewStatus) {
+		// go through the selected cells and check/uncheck the ones in the first column.
+		for (auto& item : ui->shipVarList->selectedItems()) {
+			if (item->column() == 0) {
+				item->setCheckState((newStatus) ? Qt::Checked : Qt::Unchecked);
+			}
+		}
+
+		// redo the _lastEnabledShips vector to reflect the change.
+		for (int i = 0; i < ui->shipVarList->rowCount(); i++) {
+			_lastEnabledShips[i] = (ui->shipVarList->item(i, 0)->checkState() == Qt::Checked);
+		}
+	} // if we ended up here, basically something was probably selected or unselected, but there's a chance that it is an incompatible selection.
+	// because if just one is enabled or disabled, then there is no way to automatically reconcile the info.
+	// IOW, I can't automatically check it for you, FREDer
+	else { 
+		_lastEnabledShips = newEnabledStatus;
+
+		bool newSelectedCheckStatus = (ui->shipVarList->currentItem()->checkState() == Qt::Checked);
+
+		for (auto& item : ui->shipVarList->selectedItems()) {
+			if (item->column() == 0) {
+				bool oldSelectedCheckStatus = (item->checkState() == Qt::Checked);
+
+				// so the newly selected item does not match the rest, and is incompatible. So clear our old selection.
+				if (newSelectedCheckStatus != oldSelectedCheckStatus) {
+					ui->shipVarList->clearSelection();
+					ui->shipVarList->currentItem()->setSelected(true);
+					break;
+				}
+			}
+		}
+	}
+
+	sendEditedShips(); 
 }
 
 void LoadoutDialog::onWeaponListEdited()
 {
-	// this is probably insufficient.  Probably need to send a request to the model to see if the items are compatible.
-	auto state = ui->weaponVarList->currentItem()->checkState();
-	for (auto& item : ui->weaponVarList->selectedItems()) {
-		item->setCheckState(state);
+	SCP_vector<bool> newEnabledStatus;
+	bool newStatus, useNewStatus = false;
+
+	// we need the index anyway, and more efficient to iterate through just the first column.
+	for (int i = 0; i < ui->weaponVarList->rowCount(); i++) {
+		bool checkState = (ui->weaponVarList->item(i,0)->checkState() == Qt::Checked);
+		newEnabledStatus.push_back(checkState);
+
+		// compare the old to the new to see if there was a change in check marks.
+		// this would break if the amount of ships or weapons ever became dynamic
+		if (!useNewStatus && !_lastEnabledWeapons.empty() && (_lastEnabledWeapons[i] != newEnabledStatus[i])) {
+			newStatus = newEnabledStatus[i];
+			useNewStatus = true;
+		}
+		else if (_lastEnabledWeapons.empty()) {
+			newStatus = newEnabledStatus[i];
+			useNewStatus = true;
+		}
+	}
+
+	if (useNewStatus) {
+		// go through the selected cells and check/uncheck the ones in the first column.
+		for (auto& item : ui->weaponVarList->selectedItems()) {
+			if (item->column() == 0) {
+				item->setCheckState((newStatus) ? Qt::Checked : Qt::Unchecked);
+			}
+		}
+
+		// redo the 
+		for (int i = 0; i < ui->weaponVarList->rowCount(); i++) {
+			_lastEnabledWeapons[i] = (ui->weaponVarList->item(i, 0)->checkState() == Qt::Checked);
+		}
+	} // if we ended up here, basically something was probably selected or unselected, but there's a chance that it is an incompatible selection.
+	// because if just one is enabled or disabled, then there is no way to automatically reconcile the info.
+	// IOW, I can't automatically check it for you, FREDer
+	else { 
+		_lastEnabledWeapons = newEnabledStatus;
+
+		bool newSelectedCheckStatus = (ui->weaponVarList->currentItem()->checkState() == Qt::Checked);
+
+		for (auto& item : ui->weaponVarList->selectedItems()) {
+			if (item->column() == 0) {
+				bool oldSelectedCheckStatus = (item->checkState() == Qt::Checked);
+
+				// so the newly selected item does not match the rest, and is incompatible. So clear our old selection.
+				if (newSelectedCheckStatus != oldSelectedCheckStatus) {
+					ui->weaponVarList->clearSelection();
+					// and reselect our new one!
+					ui->weaponVarList->currentItem()->setSelected(true);
+					// nothing actually changed, so return!
+					break;
+				}
+			}
+		}
 	}
 
 	sendEditedWeapons(); // TODO, make sure that info being sent to model is valid (don't want to send a bunch of info, and because more than one is seleted, overwrite things that shouldn't be overwritten)
@@ -160,7 +258,9 @@ void LoadoutDialog::onExtraShipSpinboxUpdated()
 		ui->extraShipSpinbox->setValue(0);
 		if (ui->extraShipsViaVarCombo->currentText().isEmpty()) {
 			for (auto& item : ui->shipVarList->selectedItems()) {
-				item->setCheckState(Qt::Unchecked);
+				if (item->column() == 0) {
+					item->setCheckState(Qt::Unchecked);
+				}
 			}
 		}
 	}
@@ -168,7 +268,9 @@ void LoadoutDialog::onExtraShipSpinboxUpdated()
 		// if we are using the spinbox, the variable needs to be disabled. And everything needs to be enabled
 		ui->extraShipsViaVarCombo->setCurrentText("");
 		for (auto& item : ui->shipVarList->selectedItems()) {
-			item->setCheckState(Qt::Checked);
+			if (item->column() == 0) {
+				item->setCheckState(Qt::Checked);
+			}
 		}
 	}
 
@@ -182,7 +284,9 @@ void LoadoutDialog::onExtraWeaponSpinboxUpdated()
 		ui->extraWepSpinbox->setValue(0);
 		if (ui->extraWeaponsViaVarCombo->currentText().isEmpty()) {
 			for (auto& item : ui->weaponVarList->selectedItems()) {
-				item->setCheckState(Qt::Unchecked);
+				if (item->column() == 0) {
+					item->setCheckState(Qt::Unchecked);
+				}
 			}
 		}
 	}
@@ -205,12 +309,16 @@ void LoadoutDialog::onExtraShipComboboxUpdated()
 	} // if there are no ships allocated, uncheck the ship
 	else if (ui->extraWeaponsViaVarCombo->currentText().isEmpty() && ui->extraWepSpinbox->value() == 0) {
 		for (auto& item : ui->weaponVarList->selectedItems()) {
-			item->setCheckState(Qt::Unchecked);
+			if (item->column() == 0) {
+				item->setCheckState(Qt::Unchecked);
+			}
 		}
 	} // if we just picked a variable, check mark the ship
 	else if (!ui->extraWeaponsViaVarCombo->currentText().isEmpty()) {
 		for (auto& item : ui->weaponVarList->selectedItems()) {
-			item->setCheckState(Qt::Checked);
+			if (item->column() == 0) {
+				item->setCheckState(Qt::Checked);
+			}
 		}
 	}
 
@@ -226,12 +334,16 @@ void LoadoutDialog::onExtraWeaponComboboxUpdated()
 	} // if there are no ships allocated, uncheck the ship
 	else if (ui->extraShipsViaVarCombo->currentText().isEmpty() && ui->extraShipSpinbox->value() == 0) {
 		for (auto& item : ui->shipVarList->selectedItems()) {
-			item->setCheckState(Qt::Unchecked);
+			if (item->column() == 0) {
+				item->setCheckState(Qt::Unchecked);
+			}
 		}
 	} // if we just picked a variable, check mark the ship
 	else if (!ui->extraShipsViaVarCombo->currentText().isEmpty()) {
 		for (auto& item : ui->shipVarList->selectedItems()) {
-			item->setCheckState(Qt::Checked);
+			if (item->column() == 0) {
+				item->setCheckState(Qt::Checked);
+			}
 		}
 	}
 

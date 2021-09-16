@@ -46,6 +46,9 @@ private:
 	void resetLists();
 
 	int _mode;
+
+	SCP_vector<bool> _lastEnabledShips;
+	SCP_vector<bool> _lastEnabledWeapons;
 };
 
 }
