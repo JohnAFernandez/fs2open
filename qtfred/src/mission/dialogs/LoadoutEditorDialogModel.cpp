@@ -358,10 +358,15 @@ SCP_string LoadoutDialogModel::createItemString(bool ship, int itemIndex)
 		stringOut = Weapon_info[ip->infoIndex].name;
 	}
 
-	stringOut += ": ";
+	stringOut += " ";
 	stringOut += std::to_string(ip->countInWings);
 	stringOut += "/";
-	stringOut += std::to_string(ip->extraAllocated);
+	if (ip->extraAllocated > 0 || ip->infoIndex == -1) {
+		stringOut += std::to_string(ip->extraAllocated);
+	}
+	else {
+		stringOut += Sexp_variables[ip->infoIndex].variable_name;
+	}
 	stringOut += "/";
 	stringOut += std::to_string(ip->countInWings + ip->extraAllocated);
 

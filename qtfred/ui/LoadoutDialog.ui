@@ -120,8 +120,14 @@
            <height>0</height>
           </size>
          </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is literally a delay before the player enters the mission.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="whatsThis">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is literally a delay before the player enters the mission.  It uses a very rough 250 ms per frame (much less frequent than gameplay), so it usually better to either have the player jump in just at the start or if you need debris, to mark a ship as destroyed before the mission begins.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
          <property name="text">
-          <string>Player entry delay</string>
+          <string>Player entry delay in ms</string>
          </property>
         </widget>
        </item>
@@ -132,6 +138,12 @@
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is literally a delay before the player enters the mission.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="whatsThis">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is literally a delay before the player enters the mission. It uses a very rough 250 ms per frame (much less frequent than gameplay), so it usually better to either have the player jump in just at the start or if you need debris, to mark a ship as destroyed before the mission begins.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="decimals">
           <number>0</number>

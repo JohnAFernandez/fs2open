@@ -133,11 +133,23 @@ void LoadoutDialog::onSwitchViewButtonPressed()
 
 void LoadoutDialog::onShipListEdited()
 {
+	// this is probably insufficient.  Probably need to send a request to the model to see if the items are compatible.
+	auto state = ui->shipVarList->currentItem()->checkState();
+	for (auto& item : ui->shipVarList->selectedItems()) {
+		item->setCheckState(state);
+	}
+
 	sendEditedShips(); // TODO, make sure that info being sent to model is valid (don't want to send a bunch of info, and because more than one is seleted, overwrite things that shouldn't be overwritten)
 }
 
 void LoadoutDialog::onWeaponListEdited()
 {
+	// this is probably insufficient.  Probably need to send a request to the model to see if the items are compatible.
+	auto state = ui->weaponVarList->currentItem()->checkState();
+	for (auto& item : ui->weaponVarList->selectedItems()) {
+		item->setCheckState(state);
+	}
+
 	sendEditedWeapons(); // TODO, make sure that info being sent to model is valid (don't want to send a bunch of info, and because more than one is seleted, overwrite things that shouldn't be overwritten)
 }
 
