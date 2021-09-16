@@ -25,6 +25,8 @@ void LoadoutDialogModel::initializeData()
 {
 	_currentTeam = 0;
 
+	_spinBoxUpdateRequired = true;
+
 	TeamLoadout defaultEntry;
 	// make sure we have the correct number of teams.
 	for (int i = 0; i < Num_teams; i++) {
@@ -361,11 +363,11 @@ SCP_string LoadoutDialogModel::createItemString(bool ship, int itemIndex)
 	stringOut += " ";
 	stringOut += std::to_string(ip->countInWings);
 	stringOut += "/";
-	if (ip->extraAllocated > 0 || ip->infoIndex == -1) {
+	if (ip->varCountIndex < 0) {
 		stringOut += std::to_string(ip->extraAllocated);
 	}
 	else {
-		stringOut += Sexp_variables[ip->infoIndex].variable_name;
+		stringOut += Sexp_variables[ip->varCountIndex].variable_name;
 	}
 	stringOut += "/";
 	stringOut += std::to_string(ip->countInWings + ip->extraAllocated);
@@ -399,6 +401,7 @@ void LoadoutDialogModel::switchTeam(int teamIn)
 	if (teamIn < 1 || teamIn > static_cast<int>(_teams.size()))
 		return;
 
+	_spinBoxUpdateRequired = true;
 	_currentTeam = teamIn - 1;
 
 	buildCurrentLists();
@@ -593,6 +596,8 @@ bool LoadoutDialogModel::apply() {
 		Team_data[currentTeam].num_weapon_choices;
 	}
 	
+	Entry_delay_time = fl2f(_playerEntryDelay);
+
 	
 	return true; 
 
@@ -765,6 +770,8 @@ int LoadoutDialogModel::getExtraAllocatedShips(SCP_vector<SCP_string> namesIn)
 {
 	int out = -1;
 
+	_spinBoxUpdateRequired = false;
+
 	for (auto& name : namesIn) {
 		for (auto& currentShip : _teams[_currentTeam].ships) {
 			if (currentShip.name == name) {
@@ -785,6 +792,8 @@ int LoadoutDialogModel::getExtraAllocatedWeapons(SCP_vector<SCP_string> namesIn)
 {
 	int out = -1;
 	bool done = false;
+
+	_spinBoxUpdateRequired = false;
 
 	for (auto& name : namesIn) {
 		for (auto& currentWep : _teams[_currentTeam].weapons) {
@@ -839,6 +848,7 @@ int LoadoutDialogModel::getExtraAllocatedWeaponEnabler(SCP_vector<SCP_string> na
 	return out;
 }
 
+bool LoadoutDialogModel::spinBoxUpdateRequired() { return _spinBoxUpdateRequired; };
 
 }
 }

@@ -162,8 +162,9 @@ void LoadoutDialog::onShipListEdited()
 		}
 
 		// redo the _lastEnabledShips vector to reflect the change.
+		_lastEnabledShips.clear();
 		for (int i = 0; i < ui->shipVarList->rowCount(); i++) {
-			_lastEnabledShips[i] = (ui->shipVarList->item(i, 0)->checkState() == Qt::Checked);
+			_lastEnabledShips.push_back(ui->shipVarList->item(i, 0)->checkState() == Qt::Checked);
 		}
 	} // if we ended up here, basically something was probably selected or unselected, but there's a chance that it is an incompatible selection.
 	// because if just one is enabled or disabled, then there is no way to automatically reconcile the info.
@@ -180,7 +181,7 @@ void LoadoutDialog::onShipListEdited()
 				// so the newly selected item does not match the rest, and is incompatible. So clear our old selection.
 				if (newSelectedCheckStatus != oldSelectedCheckStatus) {
 					ui->shipVarList->clearSelection();
-					ui->shipVarList->currentItem()->setSelected(true);
+					ui->shipVarList->selectRow(ui->shipVarList->currentItem()->row());
 					break;
 				}
 			}
@@ -220,9 +221,10 @@ void LoadoutDialog::onWeaponListEdited()
 			}
 		}
 
-		// redo the 
+		// redo the _lastEnabledWeapons vector to reflect the change.
+		_lastEnabledWeapons.clear();
 		for (int i = 0; i < ui->weaponVarList->rowCount(); i++) {
-			_lastEnabledWeapons[i] = (ui->weaponVarList->item(i, 0)->checkState() == Qt::Checked);
+			_lastEnabledWeapons.push_back(ui->weaponVarList->item(i, 0)->checkState() == Qt::Checked);
 		}
 	} // if we ended up here, basically something was probably selected or unselected, but there's a chance that it is an incompatible selection.
 	// because if just one is enabled or disabled, then there is no way to automatically reconcile the info.
@@ -240,7 +242,7 @@ void LoadoutDialog::onWeaponListEdited()
 				if (newSelectedCheckStatus != oldSelectedCheckStatus) {
 					ui->weaponVarList->clearSelection();
 					// and reselect our new one!
-					ui->weaponVarList->currentItem()->setSelected(true);
+					ui->weaponVarList->selectRow(ui->weaponVarList->currentItem()->row());
 					// nothing actually changed, so return!
 					break;
 				}
@@ -248,7 +250,7 @@ void LoadoutDialog::onWeaponListEdited()
 		}
 	}
 
-	sendEditedWeapons(); // TODO, make sure that info being sent to model is valid (don't want to send a bunch of info, and because more than one is seleted, overwrite things that shouldn't be overwritten)
+	sendEditedWeapons();
 }
 
 void LoadoutDialog::onExtraShipSpinboxUpdated()
@@ -376,7 +378,7 @@ void LoadoutDialog::sendEditedShips()
 
 	for (auto& item : ui->shipVarList->selectedItems()) {
 		namesOut.push_back(item->text().toStdString());
-		enabled = (item->checkState() == Qt::Checked); // TODO! Make sure that all items are changed to enabled or disabled before we get here
+		enabled = (item->checkState() == Qt::Checked);
 	}
 
 	if (_mode == TABLE_MODE) {
@@ -392,7 +394,6 @@ void LoadoutDialog::sendEditedShips()
 	updateUI(); // Better to call it here, than over and over with a modelChanged
 }
 
-// to simplify things on our end, send everything about whatever is selected.
 void LoadoutDialog::sendEditedWeapons()
 {
 	SCP_vector<SCP_string> namesOut;
@@ -400,7 +401,7 @@ void LoadoutDialog::sendEditedWeapons()
 
 	for (auto& item : ui->weaponVarList->selectedItems()) {
 		namesOut.push_back(ui->weaponVarList->itemAt(item->row(), 0)->text().toStdString());
-		enabled = (item->checkState() == Qt::Checked); // TODO! Make sure that all items are changed to enabled or disabled before we get here
+		enabled = (item->checkState() == Qt::Checked); 
 	}
 
 	if (_mode == TABLE_MODE) {
@@ -436,7 +437,7 @@ void LoadoutDialog::updateUI()
 	// build the ship list...
 	for (auto& newShip : newShipList) {
 		// need to split the incoming string into the different parts.
-		size_t divider = newShip.first.find_last_of(":");
+		size_t divider = newShip.first.find_last_of(" ");
 
 		// Overwrite the old number text.
 		ui->shipVarList->item(currentRow, 1)->setText(newShip.first.substr(divider + 2).c_str());
@@ -468,14 +469,33 @@ void LoadoutDialog::updateUI()
 		namesOut.push_back(ui->shipVarList->itemAt(item->row(), 0)->text().toStdString());
 	}
 
+	int temp;
+
 	// request info for combo and extra ship box.
-	if (_mode == TABLE_MODE) {
+	if (_mode == TABLE_MODE && _model->spinBoxUpdateRequired()) {
 		ui->extraShipsViaVarCombo->setCurrentText(_model->getCountVarShips(namesOut).c_str()); // TODO in the future, loop through current choices.
-		ui->extraShipSpinbox->setValue(_model->getExtraAllocatedShips(namesOut));
+
+		temp = _model->getExtraAllocatedShips(namesOut);
+
+		if (temp > -1){
+			ui->extraShipSpinbox->setValue(temp);
+		}
+		else {
+			ui->extraShipSpinbox->clear();
+		}
 	}
-	else {
+	else if (_model->spinBoxUpdateRequired()){
 		ui->extraShipsViaVarCombo->setCurrentText(_model->getCountVarShipEnabler(namesOut).c_str());
-		ui->extraShipSpinbox->setValue(_model->getExtraAllocatedShipEnabler(namesOut));
+
+		temp = _model->getExtraAllocatedShipEnabler(namesOut);
+
+		if (temp > -1) {
+			ui->extraShipSpinbox->setValue(temp);
+		}
+		else {
+			ui->extraShipSpinbox->clear();
+		}
+
 	}
 
 	namesOut.clear();
@@ -492,10 +512,6 @@ void LoadoutDialog::updateUI()
 		ui->extraWeaponsViaVarCombo->setCurrentText(_model->getCountVarWeaponEnabler(namesOut).c_str());
 		ui->extraWepSpinbox->setValue(_model->getExtraAllocatedWeaponEnabler(namesOut));
 	}
-
-	ui->playerDelayDoubleSpinbox->setValue(_model->getPlayerEntryDelay());
-
-	ui->currentTeamSpinbox->setValue(_model->getCurrentTeam());
 
 	if (ui->shipVarList->selectedItems().isEmpty()) {
 		ui->extraShipsViaVarCombo->setEnabled(false);

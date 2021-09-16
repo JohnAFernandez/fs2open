@@ -66,7 +66,6 @@ public:
 	int getExtraAllocatedShipEnabler(SCP_vector<SCP_string> namesIn);
 	int getExtraAllocatedWeaponEnabler(SCP_vector<SCP_string> namesIn);
 
-
 	void setShipInfo(SCP_string textIn, bool enabled, int extraAllocated, SCP_string varForCount);
 	void setWeaponInfo(SCP_string textIn, bool enabled, int extraAllocated, SCP_string varForCount);
 	void setShipEnablerVariables(SCP_vector<SCP_string> variablesIn, bool enabled, int extraAllocated, SCP_string varForCount);
@@ -74,6 +73,8 @@ public:
 
 	void switchTeam(int teamIn);
 	void copyToOtherTeam();
+
+	bool spinBoxUpdateRequired();
 
 private:
 
@@ -90,6 +91,8 @@ private:
 	SCP_vector<std::pair<SCP_string,bool>> _shipVarList;
 	SCP_vector<std::pair<SCP_string,bool>> _weaponVarList;
 	SCP_vector<SCP_string> _numberVarList;
+
+	bool _spinBoxUpdateRequired;
 };
 
 
