@@ -440,7 +440,7 @@ void LoadoutDialog::updateUI()
 		size_t divider = newShip.first.find_last_of(" ");
 
 		// Overwrite the old number text.
-		ui->shipVarList->item(currentRow, 1)->setText(newShip.first.substr(divider + 2).c_str());
+		ui->shipVarList->item(currentRow, 1)->setText(newShip.first.substr(divider + 1).c_str());
 
 		// enable the check box, if necessary
 		(newShip.second) ? ui->shipVarList->item(currentRow, 0)->setCheckState(Qt::Checked) : ui->shipVarList->item(currentRow, 0)->setCheckState(Qt::Unchecked);
@@ -452,10 +452,10 @@ void LoadoutDialog::updateUI()
 
 	for (auto& newWeapon : newWeaponList) {
 		// need to split the incoming string into the different parts.
-		size_t divider = newWeapon.first.find_last_of(":");
+		size_t divider = newWeapon.first.find_last_of(" ");
 
 		// Overwrite the old number text.
-		ui->weaponVarList->item(currentRow, 1)->setText(newWeapon.first.substr(divider + 2).c_str());
+		ui->weaponVarList->item(currentRow, 1)->setText(newWeapon.first.substr(divider + 1).c_str());
 
 		// enable the check box, if necessary
 		(newWeapon.second) ? ui->weaponVarList->item(currentRow, 0)->setCheckState(Qt::Checked) : ui->weaponVarList->item(currentRow, 0)->setCheckState(Qt::Unchecked);
@@ -472,7 +472,7 @@ void LoadoutDialog::updateUI()
 	int temp;
 
 	// request info for combo and extra ship box.
-	if (_mode == TABLE_MODE && _model->spinBoxUpdateRequired()) {
+	if (_mode == TABLE_MODE && (_model->spinBoxUpdateRequired() || !ui->extraShipSpinbox->isEnabled())) {
 		ui->extraShipsViaVarCombo->setCurrentText(_model->getCountVarShips(namesOut).c_str()); // TODO in the future, loop through current choices.
 
 		temp = _model->getExtraAllocatedShips(namesOut);
@@ -484,7 +484,7 @@ void LoadoutDialog::updateUI()
 			ui->extraShipSpinbox->clear();
 		}
 	}
-	else if (_model->spinBoxUpdateRequired()){
+	else if (_model->spinBoxUpdateRequired() || !ui->extraShipSpinbox->isEnabled()){
 		ui->extraShipsViaVarCombo->setCurrentText(_model->getCountVarShipEnabler(namesOut).c_str());
 
 		temp = _model->getExtraAllocatedShipEnabler(namesOut);
