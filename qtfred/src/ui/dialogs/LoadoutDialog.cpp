@@ -377,8 +377,10 @@ void LoadoutDialog::sendEditedShips()
 	bool enabled = false;
 
 	for (auto& item : ui->shipVarList->selectedItems()) {
-		namesOut.push_back(item->text().toStdString());
-		enabled = (item->checkState() == Qt::Checked);
+		if (item->column() == 0) {
+			namesOut.push_back(item->text().toStdString());
+			enabled = (item->checkState() == Qt::Checked);
+		}
 	}
 
 	if (_mode == TABLE_MODE) {
@@ -400,8 +402,10 @@ void LoadoutDialog::sendEditedWeapons()
 	bool enabled = false;
 
 	for (auto& item : ui->weaponVarList->selectedItems()) {
-		namesOut.push_back(ui->weaponVarList->itemAt(item->row(), 0)->text().toStdString());
-		enabled = (item->checkState() == Qt::Checked); 
+		if (item->column() == 0) {
+			namesOut.push_back(ui->weaponVarList->itemAt(item->row(), 0)->text().toStdString());
+			enabled = (item->checkState() == Qt::Checked);
+		}
 	}
 
 	if (_mode == TABLE_MODE) {
@@ -559,7 +563,7 @@ void LoadoutDialog::resetLists() {
 	// build the ship list...
 	for (auto& newShip : newShipList) {
 		// need to split the incoming string into the different parts.
-		size_t divider = newShip.first.find_last_of(":");
+		size_t divider = newShip.first.find_last_of(" ");
 
 		// add text to the items
 		QTableWidgetItem* nameItem = new QTableWidgetItem(newShip.first.substr(0, divider).c_str());
@@ -579,7 +583,7 @@ void LoadoutDialog::resetLists() {
 
 	for (auto& newWeapon : newWeaponList) {
 		// need to split the incoming string into the different parts.
-		size_t divider = newWeapon.first.find_last_of(":");
+		size_t divider = newWeapon.first.find_last_of(" ");
 
 		// add text to the items
 		QTableWidgetItem* nameItem = new QTableWidgetItem(newWeapon.first.substr(0, divider).c_str());
