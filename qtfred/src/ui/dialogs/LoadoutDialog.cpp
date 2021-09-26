@@ -82,16 +82,19 @@ LoadoutDialog::LoadoutDialog(FredView* parent, EditorViewport* viewport)
 	// things that must be set for everything to work...
 	_mode = TABLE_MODE;
 	
-	// rows will vary but columns need to be 2
-	ui->shipVarList->setColumnCount(2);
-	ui->weaponVarList->setColumnCount(2);
+	// rows will vary but columns need to be 3
+	ui->shipVarList->setColumnCount(3);
+	ui->weaponVarList->setColumnCount(3);
 	
-	ui->shipVarList->setHorizontalHeaderItem(0, new QTableWidgetItem(SHIPHEADER));
+	ui->shipVarList->setColumnWidth(0,20);
+	ui->weaponVarList->setColumnWidth(0,20);
 
-	ui->weaponVarList->setHorizontalHeaderItem(0, new QTableWidgetItem(WEAPONHEADER));
+	ui->shipVarList->setHorizontalHeaderItem(1, new QTableWidgetItem(SHIPHEADER));
 
-	ui->shipVarList->setHorizontalHeaderItem(1, new QTableWidgetItem(KEYHEADER));
-	ui->weaponVarList->setHorizontalHeaderItem(1, new QTableWidgetItem(KEYHEADER));
+	ui->weaponVarList->setHorizontalHeaderItem(1, new QTableWidgetItem(WEAPONHEADER));
+
+	ui->shipVarList->setHorizontalHeaderItem(2, new QTableWidgetItem(KEYHEADER));
+	ui->weaponVarList->setHorizontalHeaderItem(2, new QTableWidgetItem(KEYHEADER));
 
 	// quickly enable or diable the team spin box
 	if (The_mission.game_type & MISSION_TYPE_MULTI){
@@ -378,9 +381,12 @@ void LoadoutDialog::sendEditedShips()
 
 	for (auto& item : ui->shipVarList->selectedItems()) {
 		if (item->column() == 0) {
-			namesOut.push_back(item->text().toStdString());
 			enabled = (item->checkState() == Qt::Checked);
 		}
+		else if (item->column() == 1) {
+			namesOut.push_back(item->text().toStdString());
+		}
+			
 	}
 
 	if (_mode == TABLE_MODE) {
@@ -403,9 +409,11 @@ void LoadoutDialog::sendEditedWeapons()
 
 	for (auto& item : ui->weaponVarList->selectedItems()) {
 		if (item->column() == 0) {
-			namesOut.push_back(ui->weaponVarList->itemAt(item->row(), 0)->text().toStdString());
 			enabled = (item->checkState() == Qt::Checked);
+		} else if (item->column() == 1){
+			namesOut.push_back(ui->weaponVarList->itemAt(item->row(), 0)->text().toStdString());
 		}
+
 	}
 
 	if (_mode == TABLE_MODE) {
@@ -444,7 +452,7 @@ void LoadoutDialog::updateUI()
 		size_t divider = newShip.first.find_last_of(" ");
 
 		// Overwrite the old number text.
-		ui->shipVarList->item(currentRow, 1)->setText(newShip.first.substr(divider + 1).c_str());
+		ui->shipVarList->item(currentRow, 2)->setText(newShip.first.substr(divider + 1).c_str());
 
 		// enable the check box, if necessary
 		(newShip.second) ? ui->shipVarList->item(currentRow, 0)->setCheckState(Qt::Checked) : ui->shipVarList->item(currentRow, 0)->setCheckState(Qt::Unchecked);
@@ -459,7 +467,7 @@ void LoadoutDialog::updateUI()
 		size_t divider = newWeapon.first.find_last_of(" ");
 
 		// Overwrite the old number text.
-		ui->weaponVarList->item(currentRow, 1)->setText(newWeapon.first.substr(divider + 1).c_str());
+		ui->weaponVarList->item(currentRow, 2)->setText(newWeapon.first.substr(divider + 1).c_str());
 
 		// enable the check box, if necessary
 		(newWeapon.second) ? ui->weaponVarList->item(currentRow, 0)->setCheckState(Qt::Checked) : ui->weaponVarList->item(currentRow, 0)->setCheckState(Qt::Unchecked);
@@ -470,7 +478,7 @@ void LoadoutDialog::updateUI()
 	SCP_vector<SCP_string> namesOut;
 	// get all selected ship items to send to the model
 	for (auto& item : ui->shipVarList->selectedItems()) {
-		namesOut.push_back(ui->shipVarList->itemAt(item->row(), 0)->text().toStdString());
+		namesOut.push_back(ui->shipVarList->itemAt(item->row(), 1)->text().toStdString());
 	}
 
 	int temp;
@@ -566,15 +574,20 @@ void LoadoutDialog::resetLists() {
 		size_t divider = newShip.first.find_last_of(" ");
 
 		// add text to the items
+		QTableWidgetItem* checkItem = new QTableWidgetItem();
 		QTableWidgetItem* nameItem = new QTableWidgetItem(newShip.first.substr(0, divider).c_str());
 		QTableWidgetItem* countItem = new QTableWidgetItem(newShip.first.substr(divider + 2).c_str());
 
+		nameItem->setFlags(nameItem->flags() &  ~Qt::ItemIsEditable);
+		countItem->setFlags(countItem->flags() &  ~Qt::ItemIsEditable);
+
 		// enable the check box, if necessary
-		(newShip.second) ? nameItem->setCheckState(Qt::Checked) : nameItem->setCheckState(Qt::Unchecked);
+		(newShip.second) ? checkItem->setCheckState(Qt::Checked) : checkItem->setCheckState(Qt::Unchecked);
 
 		// overwrite the entry in the table.
-		ui->shipVarList->setItem(currentRow, 0, nameItem);
-		ui->shipVarList->setItem(currentRow, 1, countItem);
+		ui->shipVarList->setItem(currentRow, 0, checkItem);
+		ui->shipVarList->setItem(currentRow, 1, nameItem);
+		ui->shipVarList->setItem(currentRow, 2, countItem);
 
 		currentRow++;
 	}
@@ -586,15 +599,20 @@ void LoadoutDialog::resetLists() {
 		size_t divider = newWeapon.first.find_last_of(" ");
 
 		// add text to the items
+		QTableWidgetItem* checkItem = new QTableWidgetItem();
 		QTableWidgetItem* nameItem = new QTableWidgetItem(newWeapon.first.substr(0, divider).c_str());
 		QTableWidgetItem* countItem = new QTableWidgetItem(newWeapon.first.substr(divider + 2).c_str());
 
+		nameItem->setFlags(nameItem->flags() &  ~Qt::ItemIsEditable);
+		countItem->setFlags(countItem->flags() &  ~Qt::ItemIsEditable);
+
 		// enable the check box, if necessary
-		(newWeapon.second) ? nameItem->setCheckState(Qt::Checked) : nameItem->setCheckState(Qt::Unchecked);
+		(newWeapon.second) ? checkItem->setCheckState(Qt::Checked) : checkItem->setCheckState(Qt::Unchecked);
 
 		// overwrite the entry in the table.
-		ui->weaponVarList->setItem(currentRow, 0, nameItem);
-		ui->weaponVarList->setItem(currentRow, 1, countItem);
+		ui->weaponVarList->setItem(currentRow, 0, checkItem);
+		ui->weaponVarList->setItem(currentRow, 1, nameItem);
+		ui->weaponVarList->setItem(currentRow, 2, countItem);
 
 		currentRow++;
 	}
