@@ -86,17 +86,23 @@ LoadoutDialog::LoadoutDialog(FredView* parent, EditorViewport* viewport)
 	ui->shipVarList->setColumnCount(3);
 	ui->weaponVarList->setColumnCount(3);
 	
-	ui->shipVarList->setColumnWidth(0,20);
-	ui->weaponVarList->setColumnWidth(0,20);
+	// set sizes
+	ui->shipVarList->setColumnWidth(0,10);
+	ui->weaponVarList->setColumnWidth(0,10);
+	ui->shipVarList->setColumnWidth(1,200);
+	ui->weaponVarList->setColumnWidth(1,200);
+	ui->shipVarList->setColumnWidth(2,200);
+	ui->weaponVarList->setColumnWidth(2,200);
 
+	// set headers
+	ui->shipVarList->setHorizontalHeaderItem(0, new QTableWidgetItem(""));
+	ui->weaponVarList->setHorizontalHeaderItem(0, new QTableWidgetItem(""));
 	ui->shipVarList->setHorizontalHeaderItem(1, new QTableWidgetItem(SHIPHEADER));
-
 	ui->weaponVarList->setHorizontalHeaderItem(1, new QTableWidgetItem(WEAPONHEADER));
-
 	ui->shipVarList->setHorizontalHeaderItem(2, new QTableWidgetItem(KEYHEADER));
 	ui->weaponVarList->setHorizontalHeaderItem(2, new QTableWidgetItem(KEYHEADER));
 
-	// quickly enable or diable the team spin box
+	// quickly enable or diable the team spin box (must not get to multiple teams if in SP!)
 	if (The_mission.game_type & MISSION_TYPE_MULTI){
 		ui->currentTeamSpinbox->setEnabled(true);
 		ui->copyLoadoutToOtherTeamsButton->setEnabled(true);
@@ -111,10 +117,12 @@ LoadoutDialog::LoadoutDialog(FredView* parent, EditorViewport* viewport)
 	updateUI();
 }
 
+// a product of competing CI requirements
 LoadoutDialog::~LoadoutDialog(){} // NOLINT
 
 void LoadoutDialog::onSwitchViewButtonPressed()
 {
+	// Change important lables.
 	if (_mode == TABLE_MODE) {
 		ui->tableVarLabel->setText("Enable Via Variable View");
 		ui->startingShipsLabel->setText("Ship-Enabling Variables");
@@ -428,7 +436,7 @@ void LoadoutDialog::sendEditedWeapons()
 		_model->setWeaponEnablerVariables(namesOut, enabled, ui->extraWepSpinbox->value(), ui->extraWeaponsViaVarCombo->currentText().toStdString());
 	}
 
-	updateUI();
+	updateUI(); // Better to call it here, than over and over with a modelChanged
 }
 
 void LoadoutDialog::updateUI()
