@@ -299,7 +299,9 @@ void LoadoutDialog::onExtraWeaponSpinboxUpdated()
 		// if we are using the spinbox, the variable needs to be disabled. And checks needs to be enabled
 		ui->extraWeaponsViaVarCombo->setCurrentText("");
 		for (auto& item : ui->weaponVarList->selectedItems()) {
-			item->setCheckState(Qt::Checked);
+			if (item->column() == 0) {
+				item->setCheckState(Qt::Checked);
+			}
 		}
 	}
 
@@ -482,9 +484,10 @@ void LoadoutDialog::updateUI()
 	}
 
 	int temp;
+	bool spinboxUpdate = _model->spinBoxUpdateRequired();
 
 	// request info for combo and extra ship box.
-	if (_mode == TABLE_MODE && (_model->spinBoxUpdateRequired() || !ui->extraShipSpinbox->isEnabled())) {
+	if (_mode == TABLE_MODE && (spinboxUpdate || !ui->extraShipSpinbox->isEnabled())) {
 		ui->extraShipsViaVarCombo->setCurrentText(_model->getCountVarShips(namesOut).c_str()); // TODO in the future, loop through current choices.
 
 		temp = _model->getExtraAllocatedShips(namesOut);
@@ -496,7 +499,7 @@ void LoadoutDialog::updateUI()
 			ui->extraShipSpinbox->clear();
 		}
 	}
-	else if (_model->spinBoxUpdateRequired() || !ui->extraShipSpinbox->isEnabled()){
+	else if (spinboxUpdate || !ui->extraShipSpinbox->isEnabled()){
 		ui->extraShipsViaVarCombo->setCurrentText(_model->getCountVarShipEnabler(namesOut).c_str());
 
 		temp = _model->getExtraAllocatedShipEnabler(namesOut);
@@ -516,13 +519,29 @@ void LoadoutDialog::updateUI()
 		namesOut.push_back(ui->weaponVarList->itemAt(item->row(), 0)->text().toStdString());
 	}
 
-	if (_mode == TABLE_MODE) {
+	if (_mode == TABLE_MODE && (spinboxUpdate || !ui->extraWepSpinbox->isEnabled())) {
 		ui->extraWeaponsViaVarCombo->setCurrentText(_model->getCountVarWeapons(namesOut).c_str()); // TODO in the future, loop through current choices.
 		ui->extraWepSpinbox->setValue(_model->getExtraAllocatedWeapons(namesOut));
+
+		temp = _model->getExtraAllocatedWeapons(namesOut);
+
+		if (temp > -1) {
+			ui->extraWepSpinbox->setValue(temp);
+		} 
+		else {
+			ui->extraWepSpinbox->clear();
+		}
 	}
-	else {
+	else if (spinboxUpdate || !ui->extraWepSpinbox->isEnabled()) {
 		ui->extraWeaponsViaVarCombo->setCurrentText(_model->getCountVarWeaponEnabler(namesOut).c_str());
 		ui->extraWepSpinbox->setValue(_model->getExtraAllocatedWeaponEnabler(namesOut));
+
+		if (temp > -1) {
+			ui->extraWepSpinbox->setValue(temp);
+		} 
+		else {
+			ui->extraWepSpinbox->clear();
+		}
 	}
 
 	if (ui->shipVarList->selectedItems().isEmpty()) {

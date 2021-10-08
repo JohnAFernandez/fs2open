@@ -429,8 +429,13 @@ void LoadoutDialogModel::setShipEnablerVariables(SCP_vector<SCP_string> variable
 				// check to see if it was already added
 				if (item.name == nameIn) {
 					found = true;
-					item.extraAllocated = extraAllocated;
 					item.varCountIndex = get_index_sexp_variable_name(varForCount);
+					if (extraAllocated == 0 && item.varCountIndex == -1) {
+						item.extraAllocated = ShipVarDefault;
+					}
+					else {
+						item.extraAllocated = extraAllocated;
+					}
 					break;
 				}
 			}

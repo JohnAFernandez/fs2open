@@ -269,7 +269,7 @@
           <number>-1</number>
          </property>
          <property name="editTriggers">
-          <set>QAbstractItemView::AnyKeyPressed</set>
+          <set>QAbstractItemView::AllEditTriggers</set>
          </property>
          <property name="tabKeyNavigation">
           <bool>false</bool>
@@ -320,7 +320,7 @@
           </size>
          </property>
          <property name="editTriggers">
-          <set>QAbstractItemView::AnyKeyPressed</set>
+          <set>QAbstractItemView::AllEditTriggers</set>
          </property>
          <property name="tabKeyNavigation">
           <bool>false</bool>
