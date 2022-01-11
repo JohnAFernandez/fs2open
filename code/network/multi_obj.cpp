@@ -1244,6 +1244,16 @@ int multi_oo_pack_data(net_player *pl, object *objp, ushort oo_flags, ubyte *dat
 			oo_flags |= OO_FULL_PHYSICS;
 		}
 
+		if (MULTIPLAYER_MASTER){
+			mprintf("server_");
+		} else {
+			mprintf("client_");
+		}
+
+		mprintf("sent,%s,%i,%f,%f,%f", shipp->ship_name, objp->net_signature, objp->pos.xyz.x, objp->pos.xyz.y, objp->pos.xyz.z); //pos
+		mprintf(",%f,%f,%f,%f,%f,%f,%f,%f,%f", objp->orient.fvec.x, objp->orient.fvec.y, objp->orient.fvec.z, objp->orient.rvec.x, objp->orient.rvec.y, objp->orient.rvec.z, objp->orient.uvec.x, objp->orient.uvec.y, objp->orient.uvec.z); //ori
+		mprintf(",%f,%f,%f\n", objp->phys_info.vel.xyz.x, objp->phys_info.vel.xyz.y, objp->phys_info.vel.xyz.z); //vel
+
 		// actual packing function, 4 bytes
 		ret = multi_pack_unpack_desired_vel_and_desired_rotvel(1, full_physics, data + packet_size + header_bytes, &objp->phys_info, &local_desired_vel);
 
@@ -1754,6 +1764,18 @@ int multi_oo_unpack_data(net_player* pl, ubyte* data, int seq_num)
 
 		int r3 = multi_pack_unpack_vel(0, data + offset, &new_orient, &new_phys_info);
 		offset += r3;
+
+		if (seq_num > most_recent) {
+			if (MULTIPLAYER_MASTER){
+				mprintf("server_");
+			} else {
+				mprintf("client_");
+			}
+
+			mprintf("received,%s,%i,%f,%f,%f,%f,%f,%f", shipp->ship_name, seq_num, pobjp->pos.xyz.x, pobjp->pos.xyz.y, pobjp->pos.xyz.z, new_pos.xyz.x, new_pos.xyz.y, new_pos.xyz.z); //pos
+			mprintf(",%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f", pobjp->orient.fvec.x, pobjp->orient.fvec.y, pobjp->orient.fvec.z, pobjp->orient.rvec.x, pobjp->orient.rvec.y, pobjp->orient.rvec.z, pobjp->orient.uvec.x, pobjp->orient.uvec.y, pobjp->orient.uvec.z, new_orient.fvec.x, new_orient.fvec.y, new_orient.fvec.z, new_orient.rvec.x, new_orient.rvec.y, new_orient.rvec.z, new_orient.uvec.x, new_orient.uvec.y, new_orient.uvec.z); //ori
+			mprintf(",%f,%f,%f,%f,%f,%f\n", pobjp->phys_info.vel.xyz.x, pobjp->phys_info.vel.xyz.y, pobjp->phys_info.vel.xyz.z, new_phys_info.vel.xyz.x, new_phys_info.vel.xyz.y, new_phys_info.vel.xyz.z); //vel
+		}
 
 		int r4 = multi_pack_unpack_rotvel( 0, data + offset, &new_phys_info );
 		offset += r4;
