@@ -72,7 +72,7 @@ void multi_ship_record_update_all();
 void multi_ship_record_increment_frame();
 
 // find the right frame to start our weapon simulation
-int multi_ship_record_find_frame(int client_frame, int time_elapsed);
+fix multi_ship_record_find_frame(int client_frame, fix time_elapsed);
 
 // a quick lookups for position and orientation
 vec3d multi_ship_record_lookup_position(object* objp, int frame);
@@ -81,10 +81,10 @@ vec3d multi_ship_record_lookup_position(object* objp, int frame);
 matrix multi_ship_record_lookup_orientation(object* objp, int frame);
 
 // figures out how much time has passed bwetween the two frames.
-int multi_ship_record_find_time_after_frame(int client_frame, int frame, int time_elapsed);
+fix multi_ship_record_find_time_after_frame(int client_frame, int frame, fix time_elapsed);
 
 // This stores the information we got from the client to create later.
-void multi_ship_record_add_rollback_shot(object* pobjp, vec3d* pos, matrix* orient, int frame, bool secondary);
+void multi_ship_record_add_rollback_shot(object* pobjp, vec3d* pos, matrix* orient, int frame, fix time_after, bool secondary);
 
 // Lookup whether rollback mode is on
 bool multi_ship_record_get_rollback_wep_mode();
@@ -106,7 +106,7 @@ ushort multi_client_lookup_ref_obj_net_sig();
 int multi_client_lookup_frame_idx();
 
 // Quick lookup for the most recently received timestamp.
-int multi_client_lookup_frame_timestamp();
+fix multi_client_lookup_frame_missiontime();
 
 // reset all the necessary info for respawning player.
 void multi_oo_respawn_reset_info(ushort net_sig);
