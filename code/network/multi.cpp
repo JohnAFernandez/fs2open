@@ -948,7 +948,7 @@ void process_packet_normal(ubyte* data, header *header_info)
 // process_tracker_packet() as defined in MultiTracker.[h,cpp]
 void multi_process_bigdata(ubyte *data, int len, net_addr *from_addr, int reliable)
 {
-	int type, bytes_processed;
+	int bytes_processed;
 	int player_num;
 	header header_info;
 	ubyte *buf;	
@@ -977,16 +977,11 @@ void multi_process_bigdata(ubyte *data, int len, net_addr *from_addr, int reliab
 
       buf = &(data[bytes_processed]);
 
-      type = buf[0];
+      const ubyte type = buf[0];
 
 		// if its coming from an unknown source, there are only certain packets we will actually process
 		if((player_num == -1) && !multi_is_valid_unknown_packet((ubyte)type)){
 			return ;
-		}		
-
-		if ( (type<0) || (type > MAX_TYPE_ID )) {
-			nprintf( ("Network", "multi_process_bigdata: Invalid packet type %d!\n", type ));
-			return;
 		}		
 
 		// perform any special processing checks here		
