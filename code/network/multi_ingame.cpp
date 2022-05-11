@@ -950,11 +950,11 @@ void multi_ingame_handle_timeout()
 	}
 
 	// otherwise, blit how much time we have left
-+	int time_left = ui_timestamp_until(Ingame_time_left) / 1000;
+	int time_left = ui_timestamp_until(Ingame_time_left) / 1000;
 	char tl_string[100];
 	gr_set_color_fast(&Color_bright);
 	memset(tl_string,0,100);
-	sprintf(tl_string,XSTR("Time remaining : %d s\n",682),time_left);	
+	sprintf(tl_string,XSTR("Time remaining : %d s\n",682), time_left);	
 	gr_string(Multi_ingame_timer_coords[gr_screen.res][0], Multi_ingame_timer_coords[gr_screen.res][1], tl_string, GR_RESIZE_MENU);
 }
 
