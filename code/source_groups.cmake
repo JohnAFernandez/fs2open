@@ -70,9 +70,13 @@ add_file_folder("Actions\\\\Types"
 add_file_folder("AI"
 	ai/ai.cpp
 	ai/ai.h
+	ai/ai_pi.cpp
+	ai/ai_pi.h
 	ai/ai_flags.h
 	ai/ai_profiles.cpp
 	ai/ai_profiles.h
+	ai/ai_profiles_pi.cpp
+	ai/ai_profiles_pi.h
 	ai/aibig.cpp
 	ai/aibig.h
 	ai/aicode.cpp
@@ -86,6 +90,8 @@ add_file_folder("AI"
 
 # Anim files
 add_file_folder("Anim"
+	anim/anim_pi.cpp
+	anim/anim_pi.h
 	anim/animplay.cpp
 	anim/animplay.h
 	anim/packunpack.cpp
@@ -96,12 +102,16 @@ add_file_folder("Anim"
 add_file_folder("Asteroid"
 	asteroid/asteroid.cpp
 	asteroid/asteroid.h
+	asteroid/asteroid_pi.cpp
+	asteroid/asteroid_pi.h
 )
 
 # Autopilot files
 add_file_folder("Autopilot"
 	autopilot/autopilot.cpp
 	autopilot/autopilot.h
+	autopilot/autopilot_pi.cpp
+	autopilot/autopilot_pi.h
 )
 
 # Bmpman files
@@ -146,6 +156,8 @@ add_file_folder("CMeasure"
 add_file_folder("ControlConfig"
 	controlconfig/controlsconfig.cpp
 	controlconfig/controlsconfig.h
+	controlconfig/controlsconfig_pi.cpp
+	controlconfig/controlsconfig_pi.h
 	controlconfig/controlsconfigcommon.cpp
 	controlconfig/presets.cpp
 	controlconfig/presets.h
@@ -851,6 +863,8 @@ add_file_folder("MissionUI"
 
 # mod_table files
 add_file_folder("mod_table"
+	mod_table/mod_table_pi.cpp
+	mod_table/mod_table_pi.h
 	mod_table/mod_table.cpp
 	mod_table/mod_table.h
 )
@@ -1037,6 +1051,11 @@ add_file_folder("Parse"
 	parse/encrypt.h
 	parse/generic_log.cpp
 	parse/generic_log.h
+	parse/parse_items.cpp
+	parse/parse_items.h
+	parse/parse_manager.cpp
+	parse/parse_manager.h
+	parse/parse_settings.h
 	parse/parsehi.cpp
 	parse/parsehi.h
 	parse/parselo.cpp

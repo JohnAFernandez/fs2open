@@ -190,6 +190,7 @@
 #include "weapon/muzzleflash.h"
 #include "weapon/shockwave.h"
 #include "weapon/weapon.h"
+#include "parse/parse_manager.h"
 
 
 #include <SDL.h>
@@ -1741,6 +1742,8 @@ void game_init()
 		// now init the standalone server code
 		std_init_standalone();
 	}
+
+	init_parse_tables();					// Init parse items before parsing tables.
 
 	// verify that he has a valid ships.tbl (will Game_ships_tbl_valid if so)
 	verify_ships_tbl();

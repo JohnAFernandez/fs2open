@@ -247,6 +247,7 @@ Flag exe_params[] =
 	{ "-output_scripting",	"Output scripting to scripting.html",		true,	0,									EASY_DEFAULT,					"Dev Tool",		"http://www.hard-light.net/wiki/index.php/Command-Line_Reference#-output_scripting", },
 	{ "-output_script_json",	"Output scripting doc to scripting.json",	true,	0,								EASY_DEFAULT,					"Dev Tool",		"http://www.hard-light.net/wiki/index.php/Command-Line_Reference#-output_script_json", },
 	{ "-controlconfig_tbl",	"Save control presets to table",			true,	0,									EASY_DEFAULT,					"Dev Tool",		"http://www.hard-light.net/wiki/index.php/Command-Line_Reference#-controlconfig_tbl", },
+	{ "-output_parseitems", "Dump items used by tables",				true,	0,									EASY_DEFAULT,					"Dev Tool",		"http://www.hard-light.net/wiki/index.php/Command-Line_Reference#-output_parseitems", },
 	{ "-save_render_target",	"Save render targets to file",			true,	0,									EASY_DEFAULT,					"Dev Tool",		"http://www.hard-light.net/wiki/index.php/Command-Line_Reference#-save_render_target", },
 	{ "-verify_vps",		"Spew VP CRCs to vp_crcs.txt",				true,	0,									EASY_DEFAULT,					"Dev Tool",		"http://www.hard-light.net/wiki/index.php/Command-Line_Reference#-verify_vps", },
 	{ "-reparse_mainhall",	"Reparse mainhall.tbl when loading halls",	false,	0,									EASY_DEFAULT,					"Dev Tool",		"http://www.hard-light.net/wiki/index.php/Command-Line_Reference#-reparse_mainhall", },
@@ -513,6 +514,7 @@ char *Cmdline_start_mission = NULL;
 int Cmdline_dis_collisions = 0;
 int Cmdline_dis_weapons = 0;
 bool Cmdline_output_sexp_info = false;
+bool Output_parse_items = false;
 int Cmdline_noparseerrors = 0;
 #ifdef Allow_NoWarn
 int Cmdline_nowarn = 0; // turn warnings off in FRED
@@ -547,6 +549,7 @@ cmdline_parm output_sexp_arg("-output_sexps", NULL, AT_NONE); //WMC - outputs al
 cmdline_parm output_scripting_arg("-output_scripting", NULL, AT_NONE);	//WMC
 cmdline_parm output_script_json_arg("-output_script_json", nullptr, AT_NONE);	// m!m
 cmdline_parm generate_controlconfig_arg("-controlconfig_tbl", nullptr, AT_NONE);	
+cmdline_parm output_parse_items("-output_parseitems", nullptr, AT_NONE);
 
 // Deprecated flags - CommanderDJ
 cmdline_parm deprecated_spec_arg("-spec", "Deprecated", AT_NONE);
@@ -1932,6 +1935,9 @@ bool SetCmdlineParams()
 
 	if (output_script_json_arg.found() )
 		Output_scripting_json = true;
+
+	if (output_parse_items.found())
+		Output_parse_items = true;
 
 	if (output_sexp_arg.found() ) {
 		Cmdline_output_sexp_info = true;
