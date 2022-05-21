@@ -7726,9 +7726,26 @@ void send_NEW_primary_fired_packet(ship *shipp, int banks_fired)
 	objnum = shipp->objnum;
 	objp = &Objects[objnum];
 
+	bool player = (objp->flags[Object::Object_Flags::Player_ship]);
+
+	if (player) {
+		if (MULTIPLAYER_MASTER){
+			mprintf(("Server attempting old primary packet for a player ship %s.\n", Ships[objp->instance]));
+		} else {
+			mprintf(("Client attempting old primary packet ... "));
+		}
+	}
+
 	// if i'm a multiplayer client, I should never send primary fired packets for anyone except me
 	if (MULTIPLAYER_CLIENT && (Player_obj != objp)){
+		if (player) {
+			mprintf((" but was trying for the wrong ship.\n"));
+		}
 		return;
+	} else if (MULTIPLAYER_CLIENT) {
+		if (player) {
+			mprintf((" and is past the first check.\n"));
+		}
 	}
 
 	np_index = multi_find_player_by_net_signature(objp->net_signature);
@@ -7771,19 +7788,34 @@ void process_NEW_primary_fired_packet(ubyte *data, header *hinfo)
 	objp = multi_get_network_object( shooter_sig );
 	if ( objp == nullptr ) {
 		nprintf(("Network", "Could not find ship for fire primary packet NEW!\n"));
+		mprintf(("An old primary packet that may or may not be for a player ship was rejected because of a bad net_signature.\n"));
 		return;
 	}
+
+	bool player = (objp->flags[Object::Object_Flags::Player_ship]);
+
 	// if this object is not actually a valid ship, don't do anything
 	if(objp->type != OBJ_SHIP){
+		if (player){
+			mprintf(("An old primary packet was rejected because objp->type != OBJ_SHIP \n"));
+		}
 		return;
 	}
 	// Juke - also check (objp->instance >= MAX_SHIPS)
 	if(objp->instance < 0 || objp->instance >= MAX_SHIPS){
+		if (player){
+			mprintf(("An old primary packet was rejected because of a bad instance of %d\n", objp->instance));
+		}
+
 		return;
 	}
 
 	// if we're in client firing mode, ignore ones for myself	
 	if((Player_obj != nullptr) && (Player_obj == objp)){		
+		if (player){
+			mprintf(("An old primary packet was rejected because we're in \"client firing mode.\"\n"));
+		}
+
 		return;
 	}
 		
@@ -7808,6 +7840,7 @@ void send_non_homing_fired_packet(ship* shipp, int banks_or_number_of_missiles_f
 
 	// just in case nothing got fired
 	if (banks_or_number_of_missiles_fired <= 0) {
+			mprintf(("ROLLBACK DIAGNOSE: Stage 1 failed, because no banks actually fired.\n"));
 		return;
 	}
 
@@ -7817,12 +7850,13 @@ void send_non_homing_fired_packet(ship* shipp, int banks_or_number_of_missiles_f
 
 	// I should never send non-homing packets for anyone except me
 	if (Player_obj != objp) {
+		mprintf(("ROLLBACK DIAGNOSE: Stage 1 failed, because object was not the player object.\n"));
 		return;
 	}
 
 	object* ref_objp = multi_get_network_object(multi_client_lookup_ref_obj_net_sig());
 	if (ref_objp == nullptr) {
-		mprintf(("Unable to get accurate reference object for non-homing packet.\n"));
+		mprintf(("ROLLBACK DIAGNOSE: Stage 1 Unable to get accurate reference object for non-homing packet.\n"));
 		if (!secondary) {
 			send_NEW_primary_fired_packet(shipp, banks_or_number_of_missiles_fired);
 		}
@@ -7835,6 +7869,8 @@ void send_non_homing_fired_packet(ship* shipp, int banks_or_number_of_missiles_f
 		flags |= NON_HOMING_PACKET_MISSILE;
 	}
 
+	mprintf(("ROLLBACK DIAGNOSE: Stage 1, obj sig %d, flags %d, reference net sig %d", objp->net_signature, flags, ref_objp->net_signature));
+
 	// Add the shooting object.
 	ADD_USHORT(objp->net_signature);
 	ADD_DATA(flags);
@@ -7843,6 +7879,8 @@ void send_non_homing_fired_packet(ship* shipp, int banks_or_number_of_missiles_f
 	// We need the time elpased, so send the last frame we got from the server and how much time has happened since then.
 	int last_received_frame = multi_client_lookup_frame_idx();
 	auto time_elapsed = (ushort)(timestamp() - multi_client_lookup_frame_timestamp());
+
+	mprintf((" last received frame %d, time elapsed %d, ", last_received_frame, time_elapsed));
 
 	ADD_INT(last_received_frame);
 	ADD_USHORT(time_elapsed);
@@ -7857,6 +7895,8 @@ void send_non_homing_fired_packet(ship* shipp, int banks_or_number_of_missiles_f
 	float distance = vm_vec_normalized_dir(&temp, &objp->pos, &ref_objp->pos);
 
 	ADD_FLOAT(distance);
+
+	mprintf(("distance %f\n", distance));
 
 	// unrotate via transposed matrix. This is an "unrotate", because the matrix has already been transposed.  
 	// This finalized the relative position we will send to the server. 
@@ -7881,6 +7921,9 @@ void send_non_homing_fired_packet(ship* shipp, int banks_or_number_of_missiles_f
 
 void process_non_homing_fired_packet(ubyte* data, header* hinfo)
 {
+
+	mprintf(("ROLLBACK DIAGNOSE: Stage 2 Packet received: "));
+	
 	int offset; // linked;	
 	object* objp;
 	ushort shooter_sig;
@@ -7921,22 +7964,37 @@ void process_non_homing_fired_packet(ubyte* data, header* hinfo)
 
 	PACKET_SET_SIZE();
 
+	if (flags) {
+		mprintf(("missile packet, "));
+	} else {
+		mprintf(("laser packet, "));
+	}
+
+	mprintf(("shooter sig %d, ", shooter_sig));
+
+	mprintf(("target_ref %d, client_frame %d, time_elapsed %d, distance %f, Ref_to_ship vec %f %f %f,", target_ref, client_frame, time_elapsed, distance, ref_to_ship_vec.xyz.x, ref_to_ship_vec.xyz.y, ref_to_ship_vec.xyz.z));
+
 	if (objp == nullptr) {
 		nprintf(("Network", "Could not find ship for fire primary packet NEW!\n"));
+		mprintf(("\nPACKET was rejected!! nullptr shooter.  We should *not* be seeing this!\n"));
 		return;
 	}
 	// if this object is not actually a valid ship, don't do anything
 	if (objp->type != OBJ_SHIP) {
+		mprintf(("\nPACKET was rejected!! Shooter was not a ship.  We should *not* be seeing this!\n"));
 		return;
 	}
 	// Juke - also check (objp->instance >= MAX_SHIPS)
 	if (objp->instance < 0 || objp->instance >= MAX_SHIPS) {
+		mprintf(("\nPACKET was rejected!! shooter had invalid ship index.  We should *not* be seeing this!\n"));
 		return;
 	}
 
 	object* objp_ref = multi_get_network_object(target_ref);
 
 	if (objp_ref == nullptr) {
+		mprintf(("\nPACKET was a partial failure!! The reference object was a nullptr.  Can happen.\n"));
+
 		// new way failed, use the old new way.
 		if (secondary) {
 			// if this is a rollback shot from a dumbfire secondary, we have to mark this as a 
@@ -7990,9 +8048,13 @@ void process_non_homing_fired_packet(ubyte* data, header* hinfo)
 		vm_matrix_x_matrix(&new_player_ori, &old_player_ori, &temp_ori);
 		multi_ship_record_add_rollback_shot(objp, &new_player_pos, &new_player_ori, frame, secondary);
 
+		mprintf(("multi_ship_record_add_rollback_shot called with, new_player_pos %f %f %f, new_player_ori, %f %f %f, %f %f %f, %f %f %f, frame %d\n", new_player_pos.xyz.x, new_player_pos.xyz.y, new_player_pos.xyz.z, new_player_ori.vec.fvec.xyz.x, new_player_ori.vec.fvec.xyz.y, new_player_ori.vec.fvec.xyz.z, new_player_ori.vec.rvec.xyz.x, new_player_ori.vec.rvec.xyz.y, new_player_ori.vec.rvec.xyz.z, new_player_ori.vec.uvec.xyz.x, new_player_ori.vec.uvec.xyz.y, new_player_ori.vec.uvec.xyz.z, frame));
+
 	}	// if the new way fails for some reason, use the old way.
 	else {
 		nprintf(("Network", "Rollback was not performed because the frame sent by the client is either too old or invalid.. Using the old system.\n"));
+		mprintf(("\nPACKET was rejected!! The server couldn't figure out the correct frame to use.\n"));
+
 		if (secondary) {
 			// if this is a rollback shot from a dumbfire secondary, we have to mark this as a 
 			// rollback shot so the client doesn't get an extra missile for free.
