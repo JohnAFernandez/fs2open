@@ -26,6 +26,8 @@
 #include <cstdio>
 #include <climits>
 #include <algorithm>
+#include <sstream>
+
 
 #include "globalincs/pstypes.h"
 #include "network/psnet2.h"
@@ -379,11 +381,21 @@ void PSNET_TOP_LAYER_PROCESS()
 
 		// determine the packet type
 		int packet_type = packet_data[0];
-		Assertion(( (packet_type >= 0) && (packet_type < PSNET_NUM_TYPES) ), "Invalid packet_type found. Packet type %d does not exist", packet_type);
+		// Assertion(( (packet_type >= 0) && (packet_type < PSNET_NUM_TYPES) ), "Invalid packet_type found. Packet type %d does not exist", packet_type);
 
-		if ( (packet_type >= 0) && (packet_type < PSNET_NUM_TYPES) ) {
-			// buffer the packet
-			psnet_buffer_packet(&Psnet_top_buffers[packet_type], packet_data + 1, read_len - 1, &from_addr);
+		if ( (packet_type < 0) || (packet_type >= PSNET_NUM_TYPES) ) {
+			char from_string[INET6_ADDRSTRLEN] = "";
+			std::stringstream dbg_string;
+
+			inet_ntop(AF_INET6, &from_addr.sin6_addr, from_string, sizeof(from_string));
+
+			dbg_string << "WARNING: Invalid packet type " << packet_type << " with length " << read_len << " received from " << from_string << " ... ";
+
+			for (auto i = 0; (i < read_len) && (i < 11); ++i) {
+				dbg_string << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(packet_data[i]);
+			}
+
+			ml_string(dbg_string.str().c_str());		
 		}
 	}
 }
