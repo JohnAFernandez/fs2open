@@ -397,6 +397,11 @@ void PSNET_TOP_LAYER_PROCESS()
 
 			ml_string(dbg_string.str().c_str());		
 		}
+
+		if ( (packet_type >= 0) && (packet_type < PSNET_NUM_TYPES) ) {
+			// buffer the packet
+			psnet_buffer_packet(&Psnet_top_buffers[packet_type], packet_data + 1, read_len - 1, &from_addr);
+		}
 	}
 }
 
