@@ -812,7 +812,7 @@ void multi_oo_restore_frame(int frame_idx)
 		objp->orient = Oo_info.frame_info[objp->net_signature].orientations[frame_idx];
 		objp->phys_info.vel = Oo_info.frame_info[objp->net_signature].velocities[frame_idx];
 		objp->phys_info.rotvel = Oo_info.frame_info[objp->net_signature].rotational_velocities[frame_idx];
-		mprintf(("%s %f %f %f, ", Ships[objp->instance].ship_name, objp->pos.xyz.x, objp->pos.xyz.y, objp->pos.xyz.z));
+		mprintf(("\n%s %f %f %f", Ships[objp->instance].ship_name, objp->pos.xyz.x, objp->pos.xyz.y, objp->pos.xyz.z));
 	}
 	mprintf(("\n"));
 }
