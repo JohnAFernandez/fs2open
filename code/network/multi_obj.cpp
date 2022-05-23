@@ -710,8 +710,6 @@ void multi_ship_record_do_rollback()
 		frame_idx = 0;
 	}
 
-	mprintf(("\nStarting frame %d, ", frame_idx));
-
 	// loop through them
 	while (frame_idx != Oo_info.cur_frame_index) {
 
@@ -732,6 +730,8 @@ void multi_ship_record_do_rollback()
 	if (frame_idx == Oo_info.cur_frame_index) {
 		return;
 	}
+
+	mprintf(("\nStarting frame %d, ending frame %d", frame_idx, Oo_info.cur_frame_index));
 
 	nprintf(("Network","At least one multiplayer rollback shot is being simulated this frame.\n"));
 
@@ -786,7 +786,9 @@ void multi_oo_fire_rollback_shots(int frame_idx)
 		}
 	}
 
-	mprintf(("Weapons "));
+	if (!Oo_info.rollback_weapon_numbers_created_this_frame.empty()){
+		mprintf(("Weapon objnums "));
+	}
 
 	// add the newly created shots to the collision list.
 	for (auto& wep_obj_number : Oo_info.rollback_weapon_numbers_created_this_frame) {
@@ -795,7 +797,9 @@ void multi_oo_fire_rollback_shots(int frame_idx)
 		mprintf(("%d, ", wep_obj_number));
 	}
 
-	mprintf(("added. Finished adding weapons.\n"));
+	if (!Oo_info.rollback_weapon_numbers_created_this_frame.empty()){
+		mprintf(("added. Finished adding weapons.\n"));
+	}
 
 	Oo_info.rollback_weapon_numbers_created_this_frame.clear();
 }
@@ -842,6 +846,7 @@ void multi_oo_simulate_rollback_shots(int frame_idx)
 // restores ships to the positions they were in bedfore rollback.
 void multi_record_restore_positions() 
 {
+	mprintf(("Restore positions is being run, so rollback resim is complete.\n"));
 	for (auto restore_point : Oo_info.restore_points) {
 
 		object* objp = &Objects[restore_point.roll_objnum];

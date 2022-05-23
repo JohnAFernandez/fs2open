@@ -447,11 +447,9 @@ static int ship_weapon_check_collision(object *ship_objp, object *weapon_objp, f
 
 	if ( valid_hit_occurred )
 	{
-		if (multi_ship_record_get_rollback_wep_mode()) {
-			int objnum_weapon = OBJ_INDEX(weapon_objp);
-			mprintf(("Rollback collision detected at %f %f %f, for ship %s, and weapon %d!\n", mc.hit_point_world.xyz.x, mc.hit_point_world.xyz.y, mc.hit_point_world.xyz.z, Ships[ship_objp->instance].ship_name, objnum_weapon));
-		}
-
+		int objnum_weapon = OBJ_INDEX(weapon_objp);
+		mprintf(("Collision detected at %f %f %f, for ship %s, and weapon %d!\n", mc.hit_point_world.xyz.x, mc.hit_point_world.xyz.y, mc.hit_point_world.xyz.z, Ships[ship_objp->instance].ship_name, objnum_weapon));
+	
 		wp->collisionInfo = new mc_info;	// The weapon will free this memory later
 		memcpy(wp->collisionInfo, &mc, sizeof(mc_info));
 
