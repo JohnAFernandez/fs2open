@@ -415,12 +415,10 @@ void multi_ship_record_update_all()
 {
 	Assertion(MULTIPLAYER_MASTER, "Non-server accessed a server only function multi_ship_record_update_all(). Please report!!");
 
-	if (!MULTIPLAYER_MASTER) {
-		return;
-	}
-
 	int net_sig_idx;
 	object* objp;
+
+	mprintf(("Regular ship movement:\n"));
 
 	for (ship & cur_ship : Ships) {
 		// apparently this occasionally happens.
@@ -442,10 +440,25 @@ void multi_ship_record_update_all()
 			 continue;
 		}
 
-		Oo_info.frame_info[net_sig_idx].positions[Oo_info.cur_frame_index] = objp->pos;
-		Oo_info.frame_info[net_sig_idx].orientations[Oo_info.cur_frame_index] = objp->orient;
-		Oo_info.frame_info[net_sig_idx].velocities[Oo_info.cur_frame_index] = objp->phys_info.vel;
-		Oo_info.frame_info[net_sig_idx].rotational_velocities[Oo_info.cur_frame_index] = objp->phys_info.rotvel;
+		mprintf(("%s %f %f %f\n", Ships[objp->instance].ship_name, objp->pos.xyz.x, objp->pos.xyz.y, objp->pos.xyz.z));
+
+		// this is not permanent! IF THIS IS A PR, ping me, this was for debug logging only and is wrong wrong wrong!
+		if (MULTIPLAYER_MASTER) {
+
+
+			Oo_info.frame_info[net_sig_idx].positions[Oo_info.cur_frame_index] = objp->pos;
+			Oo_info.frame_info[net_sig_idx].orientations[Oo_info.cur_frame_index] = objp->orient;
+			Oo_info.frame_info[net_sig_idx].velocities[Oo_info.cur_frame_index] = objp->phys_info.vel;
+			Oo_info.frame_info[net_sig_idx].rotational_velocities[Oo_info.cur_frame_index] = objp->phys_info.rotvel;
+
+			// if we have enough frames, set last position to the prev frame
+			if (Oo_info.number_of_frames > MAX_FRAMES_RECORDED){
+				Oo_info.frame_info[net_sig_idx].first_pos = Oo_info.frame_info[net_sig_idx].positions[(Oo_info.cur_frame_index == MAX_FRAMES_RECORDED - 1) ? 0 : Oo_info.cur_frame_index + 1];
+			} else {
+				Oo_info.frame_info[net_sig_idx].first_pos = Oo_info.frame_info[net_sig_idx].positions[0];
+			}
+			
+		}
 	}
 }
 

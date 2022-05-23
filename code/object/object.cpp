@@ -1745,6 +1745,7 @@ void obj_client_pre_interpolate()
 			continue;
 		}
 
+		mprintf(("Moving weapons ... \n"));
 		// for all non-dead object which are _not_ ships
 		if ( !(objp->flags[Object::Object_Flags::Should_be_dead]) )	{				
 			// pre-move step
@@ -1756,6 +1757,10 @@ void obj_client_pre_interpolate()
 
 			// call physics
 			obj_move_call_physics(objp, flFrametime);
+
+			if (objp->type == OBJ_WEAPON) {
+				mprintf(("%d %f %f %f", OBJ_INDEX(objp), objp->pos.xyz.x, objp->pos.xyz.y, objp->pos.xyz.z));
+			}
 
 			// post-move step
 			obj_move_all_post(objp, flFrametime);
