@@ -509,22 +509,37 @@ int multi_ship_record_find_frame(int client_frame, int time_elapsed)
 	for (int i = Oo_info.cur_frame_index - 2; i > -1; i--) {
 
 		// Check to see if the client's timestamp matches the recorded frames.
-		if ((Oo_info.timestamps[i] <= target_timestamp) && (Oo_info.timestamps[i + 1] > target_timestamp)) {
+		if ((Oo_info.timestamps[i] <= target_timestamp) && (Oo_info.timestamps[i + 1] >= target_timestamp)) {		
+			mprintf(("\nSUCCESS! (part 1) Returning %d!\n", i));
 			return i;
 		}
-		else if (i == frame) {
+		else if (i < frame) {
+			mprintf(("\nBad return (part 1) because i < frame.\n"));
 			return -1;
 		}
 	}
 
 	// Check for an end of the wrap condition.
-	if ((Oo_info.timestamps[MAX_FRAMES_RECORDED - 1] <= target_timestamp) && (Oo_info.timestamps[0] > target_timestamp)) {
+	if ((Oo_info.timestamps[MAX_FRAMES_RECORDED - 1] <= target_timestamp) && (Oo_info.timestamps[0] >= target_timestamp)) {
+	mprintf(("%d %d %d, ", Oo_info.timestamps[MAX_FRAMES_RECORDED - 1], target_timestamp, Oo_info.timestamps[0]));	
+
+	if (frame == 0){
+		return -1;
+		mprintf(("\nBad return (middle) because i is 29 but frame is 0. (bad time elapsed?) \n"));
+
+	}
+
+	// Check for an end of the wrap condition.
+	if ((Oo_info.timestamps[MAX_FRAMES_RECORDED - 1] <= target_timestamp) && (Oo_info.timestamps[0] >= target_timestamp)) {
+		mprintf(("\nSUCCESS! (middle) Returning 29!\n"));
 		return MAX_FRAMES_RECORDED - 1;
 	}
 
 	// Check the oldest frames.
 	for (int i = MAX_FRAMES_RECORDED - 2; i > Oo_info.cur_frame_index; i--) {
-		if ((Oo_info.timestamps[i] <= target_timestamp) && (Oo_info.timestamps[i + 1] > target_timestamp)) {
+		mprintf(("%d %d %d, ", Oo_info.timestamps[i], target_timestamp, Oo_info.timestamps[i+ 1]));	
+		if ((Oo_info.timestamps[i] <= target_timestamp) && (Oo_info.timestamps[i + 1] >= target_timestamp)) {
+			mprintf(("\nSUCCESS! (part 2) Returning %d!\n", i));
 			return i;
 		}
 		else if (i == frame) {
