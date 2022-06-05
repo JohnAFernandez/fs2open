@@ -470,7 +470,7 @@ int multi_ship_record_find_frame(int client_frame, int time_elapsed)
 
 	mprintf(("Need to use target_timestamp %d, comparing: ", target_timestamp));
 
-
+	for (int i = Oo_info.cur_frame_index - 2; i > -1; i--) {
 		mprintf(("%d %d %d, ", Oo_info.timestamps[i], target_timestamp, Oo_info.timestamps[i+ 1]));	
 
 		// need to try to make rollback shot make some kind of sense if we have invalid timestamps,
