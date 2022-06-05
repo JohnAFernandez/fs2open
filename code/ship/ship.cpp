@@ -11289,12 +11289,22 @@ int ship_fire_primary(object * obj, int force, bool rollback_shot)
 										// of the same laser, we only want to play one sound
 	Assert( obj != NULL );
 
+	if (rollback_shot){
+		mprintf(("Rollback primary shot attempted: "));			
+	}
+
 	if(obj == NULL){
+		if (rollback_shot){
+			mprintf(("Failed! Early return obj == NULL\n"));			
+		}
 		return 0;
 	}
 
 	// in the case where the server is an observer, he can fire (which) would be bad - unless we do this.
 	if( obj->type == OBJ_OBSERVER){
+		if (rollback_shot){
+			mprintf(("Failed! Early return obj->type == OBJ_OBSERVER\n"));			
+		}
 		return 0;
 	}
 
@@ -11302,6 +11312,11 @@ int ship_fire_primary(object * obj, int force, bool rollback_shot)
 	Assert( n >= 0 );
 	Assert( Ships[n].objnum == OBJ_INDEX(obj));
 	if((obj->type != OBJ_SHIP) || (n < 0) || (n >= MAX_SHIPS) || (Ships[n].objnum != OBJ_INDEX(obj))){
+		if (rollback_shot){
+			mprintf(("Failed! Early return n >= MAX_SHIPS (all other checks are assertion checked.)\n"));			
+		}
+
+
 		return 0;
 	}
 	
@@ -11310,19 +11325,35 @@ int ship_fire_primary(object * obj, int force, bool rollback_shot)
 
 	// bogus 
 	if((shipp->ship_info_index < 0) || (shipp->ship_info_index >= ship_info_size())){
+		if (rollback_shot){
+			mprintf(("Failed! Invalid ship_info_index of %d\n", shipp->ship_info_index));			
+		}
+
 		return 0;
 	}
 	if((shipp->ai_index < 0) || (shipp->ai_index >= MAX_AI_INFO)){
+		if (rollback_shot){
+			mprintf(("Failed! Early return Invalid ai_index of %d\n", shipp->ai_index));			
+		}
+
 		return 0;
 	}
 	sip = &Ship_info[shipp->ship_info_index];
 	aip = &Ai_info[shipp->ai_index];
 
 	if ( swp->num_primary_banks <= 0 ) {
+		if (rollback_shot){
+			mprintf(("Failed! Early return insufficient num_primary_banks of %d\n", swp->num_primary_banks));			
+		}
+
 		return 0;
 	}
 
 	if ( swp->current_primary_bank < 0 ){
+		if (rollback_shot){
+			mprintf(("Failed! Early return bad current_primary_bank of %d\n", swp->current_primary_bank));			
+		}
+
 		return 0;
 	}	
 
@@ -11330,6 +11361,10 @@ int ship_fire_primary(object * obj, int force, bool rollback_shot)
 	// Unless we're dealing with the player and their ship has the flag set to allow fail sounds when firing locked primaries.
 	if (shipp->flags[Ship_Flags::Primaries_locked] && ! (obj == Player_obj && shipp->flags[Ship_Flags::Fail_sound_locked_primary]))
 	{
+		if (rollback_shot){
+			mprintf(("Failed! Early return, Primaries locked\n"));			
+		}
+
 		return 0;
 	}
 
@@ -11340,13 +11375,24 @@ int ship_fire_primary(object * obj, int force, bool rollback_shot)
 	int	num_primary_banks;
 
 	if ( shipp->flags[Ship_Flags::Primary_linked] ) {
+		if (rollback_shot){
+			mprintf((" Primaries are linked... "));			
+		}
+
 		num_primary_banks = swp->num_primary_banks;
 	} else {
+		if (rollback_shot){
+			mprintf(("Primaries are *not* linked... "));
+		}
 		num_primary_banks = MIN(1, swp->num_primary_banks);
 	}
 
 	Assert(num_primary_banks > 0);
 	if (num_primary_banks < 1){
+		if (rollback_shot){
+			mprintf(("Failed! Insufficient number of primary banks of %d \n", num_primary_banks));			
+		}
+	
 		return 0;
 	}
 
@@ -11723,6 +11769,10 @@ int ship_fire_primary(object * obj, int force, bool rollback_shot)
 				bool no_energy = shipp->weapon_energy < points * numtimes * winfo_p->energy_consumed; //was num_slots
 				if ( no_energy && !force ) {
 
+					if (rollback_shot) {
+						mprintf(("Not enough energy for %s for %d shots, because we need %d, %d", winfo_p->name, numtimes, points * numtimes * winfo_p->energy_consumed, shipp->weapon_energy));
+					}
+
 					swp->next_primary_fire_stamp[bank_to_fire] = timestamp((int)(next_fire_delay));
 					if ( obj == Player_obj )
 					{
@@ -11968,6 +12018,7 @@ int ship_fire_primary(object * obj, int force, bool rollback_shot)
 
 							// maybe add this weapon to the list of those we need to roll forward
 							if ((Game_mode & (GM_MULTIPLAYER | GM_STANDALONE_SERVER )) && rollback_shot) {
+								mprintf(("Rollback weapon fired!  Objnum %d\n", weapon_objnum));
 								multi_ship_record_add_rollback_wep(weapon_objnum);
 							}
 						}
@@ -12047,6 +12098,10 @@ int ship_fire_primary(object * obj, int force, bool rollback_shot)
 		shipp->was_firing_last_frame[bank_to_fire] = 1;
 	}	// end for (go to next primary bank)
 	
+	if (shipp == Player_ship) {
+		
+	}
+
 	// if multiplayer and we're client-side firing, send the packet
 	if(Game_mode & GM_MULTIPLAYER){
 		// if I'm a Host send a primary fired packet packet if it's brand new

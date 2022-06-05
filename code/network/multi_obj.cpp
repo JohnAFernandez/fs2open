@@ -438,16 +438,22 @@ int multi_find_prev_frame_idx()
 // Finds the first frame that is before the incoming timestamp.
 int multi_ship_record_find_frame(int client_frame, int time_elapsed)
 {	
+	mprintf(("\nROLLBACK DIAGNOSE: Stage 2.5 Frame and time eval: "));
+
 	// frame coming in from the client is too old to be used. (The -1 prevents an edge case bug at very high pings)
 	if (Oo_info.number_of_frames - client_frame >= MAX_FRAMES_RECORDED - 1) {
+		mprintf(("Return early because client_frame was too old.  Oo_info.cur_frame_index was %d\n", Oo_info.cur_frame_index));
 		return -1;
 	}
 
 	// figure out the frame index (the frame index wraps every MAX_FRAMES_RECORDED frames)
 	int frame = client_frame % MAX_FRAMES_RECORDED;
 
+	mprintf(("frame is %d. ", frame));
+
 	// Now that the wrap has been verified, if time_elapsed is zero return the frame it gave us.
 	if(time_elapsed == 0){
+		mprintf(("Return frame, %d, because the time elapsed was 0\n", frame));
 		return frame;
 	}
 
@@ -462,17 +468,21 @@ int multi_ship_record_find_frame(int client_frame, int time_elapsed)
 		return frame;
 	};
 
-	for (int i = Oo_info.cur_frame_index - 2; i > -1; i--) {
+	mprintf(("Need to use target_timestamp %d, comparing: ", target_timestamp));
+
+
+		mprintf(("%d %d %d, ", Oo_info.timestamps[i], target_timestamp, Oo_info.timestamps[i+ 1]));	
 
 		// need to try to make rollback shot make some kind of sense if we have invalid timestamps,
 		// and print to debug if it is.	  No need to trigger the Assert in timestamp_in_between, as it is minor here. (i + 1 should be check on previous iteration, most of the time)
 		if (!Oo_info.timestamps[i].isValid() || Oo_info.timestamps[i].isNever()) {
-			mprintf(("timestamps[i] is %s, get ~~Allender~~ Cyborg!\n", (Oo_info.timestamps[i].isValid()) ? "isNever" : "invalid"));
+			mprintf(("\ntimestamps[i] is %s, get ~~Allender~~ Cyborg!\n", (Oo_info.timestamps[i].isValid()) ? "isNever" : "invalid"));
 			return frame;
 		}
 
 		// Check to see if the client's timestamp matches the recorded frames.
 		if (timestamp_in_between(target_timestamp, Oo_info.timestamps[i], Oo_info.timestamps[i + 1])) {		
+			mprintf(("\nSUCCESS! (part 1) Returning %d!\n", i));
 			return i;
 		}
 
@@ -483,18 +493,21 @@ int multi_ship_record_find_frame(int client_frame, int time_elapsed)
 	// need to try to make rollback shot make some kind of sense if we have invalid timestamps,
 	// and print to debug if it is. No need to trigger the Assert in timestamp_in_between, as it is minor here.
 	if (!Oo_info.timestamps[MAX_FRAMES_RECORDED - 1].isValid() || Oo_info.timestamps[MAX_FRAMES_RECORDED - 1].isNever()) {
-			mprintf(("timestamps[MAX_FRAMES_FRAMES_RECORDED - 1] is %s, get ~~Allender~~ Cyborg!\n", (Oo_info.timestamps[MAX_FRAMES_RECORDED - 1].isValid()) ? "isNever" : "invalid"));
+			mprintf(("\ntimestamps[MAX_FRAMES_FRAMES_RECORDED - 1] is %s, get ~~Allender~~ Cyborg!\n", (Oo_info.timestamps[MAX_FRAMES_RECORDED - 1].isValid()) ? "isNever" : "invalid"));
 			return frame;
 	}
 
+	mprintf(("%d %d %d, ", Oo_info.timestamps[MAX_FRAMES_RECORDED - 1], target_timestamp, Oo_info.timestamps[0]));	
 
 	// Check for an end of the wrap condition.
 	if (timestamp_in_between(target_timestamp, Oo_info.timestamps[MAX_FRAMES_RECORDED - 1], Oo_info.timestamps[0])) {
+		mprintf(("\nSUCCESS! (middle) Returning 29!\n"));
 		return MAX_FRAMES_RECORDED - 1;
 	}
 
 	// Check for the received frame being passed
 	if (frame == 0){
+		mprintf(("\nBad return middle. since frame is 0 and cannot be zero"));
 		return -1;
 	}
 
@@ -508,14 +521,19 @@ int multi_ship_record_find_frame(int client_frame, int time_elapsed)
 			return frame;
 		}
 
+		mprintf(("%d %d %d, ", Oo_info.timestamps[i], target_timestamp, Oo_info.timestamps[i+ 1]));	
+
 		if (timestamp_in_between(target_timestamp, Oo_info.timestamps[i], Oo_info.timestamps[i + 1])) {
+			mprintf(("\nSUCCESS! (part 2) Returning %d!\n", i));
 			return i;
 		} else if (i < frame) {
+			mprintf(("\nBad return (part 2) because i < frame\n"));
 			return -1;
 		}
 	}
 
 	// shouldn't be reachable... somehow wasn't caught earlier.  Just let the old system handle this one.
+	mprintf(("\nFinal bad return.\n"));
 	return -1;
 }
 
@@ -606,11 +624,14 @@ void multi_ship_record_do_rollback()
 {	
 	// only rollback if there are shots to simulate.
 	if (!Oo_info.rollback_mode) {
+		mprintf(("ROLLBACK DIAGNOSE: No rollback shots this frame.\n"));
 		return;
 	}
 
 	int net_sig_idx;
 	object* objp;
+
+	mprintf(("ROLLBACK DIAGNOSE: Rollback shots this frame, found ships with net_signatures: "));
 
 	// set up all restore points and ship portion of the collision list
 	for (ship& cur_ship : Ships) {
@@ -639,6 +660,9 @@ void multi_ship_record_do_rollback()
 		if (net_sig_idx == STANDALONE_SHIP_SIG) {
 			continue;
 		}
+
+		mprintf((", %d", net_sig_idx));
+
 
 		Oo_info.rollback_ships.push_back(cur_ship.objnum);
 
@@ -683,6 +707,8 @@ void multi_ship_record_do_rollback()
 	if (frame_idx == Oo_info.cur_frame_index) {
 		return;
 	}
+
+	mprintf(("\nStarting frame %d, ending frame %d", frame_idx, Oo_info.cur_frame_index));
 
 	nprintf(("Network","At least one multiplayer rollback shot is being simulated this frame.\n"));
 
@@ -737,24 +763,37 @@ void multi_oo_fire_rollback_shots(int frame_idx)
 		rollback_shot.shooterp->orient = rollback_shot.orient;
 
 		if (rollback_shot.secondary_shot) {
+			mprintf(("Rollback firing Secondary for %s! ", Ships[rollback_shot.shooterp->instance].ship_name));
 			ship_fire_secondary(rollback_shot.shooterp, 1, true);
 		}
 		else {
+			mprintf(("Rollback firing Primary for %s! ", Ships[rollback_shot.shooterp->instance].ship_name));
 			ship_fire_primary(rollback_shot.shooterp, 1, true);
 		}
+	}
+
+	if (!Oo_info.rollback_weapon_numbers_created_this_frame.empty()){
+		mprintf(("Weapon objnums "));
 	}
 
 	// add the newly created shots to the collision list.
 	for (auto& wep_obj_number : Oo_info.rollback_weapon_numbers_created_this_frame) {
 		Oo_info.rollback_weapon_object_number.push_back(wep_obj_number);
 		Oo_info.rollback_collide_list.push_back(wep_obj_number);
+		mprintf(("%d, ", wep_obj_number));
 	}
+
+	if (!Oo_info.rollback_weapon_numbers_created_this_frame.empty()){
+		mprintf(("added. Finished adding weapons.\n"));
+	}
+
 	Oo_info.rollback_weapon_numbers_created_this_frame.clear();
 }
 
 // moves all rollbacked ships back to the original frame
 void multi_oo_restore_frame(int frame_idx)
 {
+	mprintf(("Restore Frame, Ship movement format: ship name, new pos: "));
 	// set the position, orientation, and velocity for each object
 	for (auto& objnum : Oo_info.rollback_ships) {
 		object* objp = &Objects[objnum];
@@ -776,7 +815,9 @@ void multi_oo_restore_frame(int frame_idx)
 		} else {
 			objp->last_pos = Oo_info.frame_info[objp->net_signature].positions[temp_prev_frame];
 		}
+		mprintf(("\n%s %f %f %f", Ships[objp->instance].ship_name, objp->pos.xyz.x, objp->pos.xyz.y, objp->pos.xyz.z));
 	}
+	mprintf(("\n"));
 }
 
 // pushes the rollback weapons forward for a single rollback frame.
@@ -807,6 +848,7 @@ bool multi_oo_simulate_rollback_shots(int frame_idx)
 			result = true;
 			vm_vec_scale_add2(&objp->pos, &objp->phys_info.vel, frametime);
 			Weapons[objp->instance].lifeleft -= frametime;
+			mprintf(("Weapon %d pushed to %f %f %f, lifeleft %f\n", weap_objnum, objp->pos.xyz.x, objp->pos.xyz.y, objp->pos.xyz.z, Weapons[objp->instance].lifeleft));
 		}
 	}
 
@@ -816,6 +858,7 @@ bool multi_oo_simulate_rollback_shots(int frame_idx)
 // restores ships to the positions they were in bedfore rollback.
 void multi_record_restore_positions() 
 {
+	mprintf(("Restore positions is being run, so rollback resim is complete.\n"));
 	for (auto restore_point : Oo_info.restore_points) {
 
 		object* objp = &Objects[restore_point.roll_objnum];
