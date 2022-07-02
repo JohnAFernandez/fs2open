@@ -3,64 +3,52 @@
 #include "globalincs/globals.h"
 #include "globalincs/pstypes.h"
 #include "globalincs/flagset.h"
+#include "graphics/color.h"
 
 class object;
 
 class model_draw_list;
 
-namespace local_nebula
+namespace Local_nebula
 {
-FLAG_LIST(Nebula_Flags) {
-    
+FLAG_LIST(Local_Nebula_Flags) {
+
+    FULL_NEBULA,
+    NUMBER_VALUES
 }
 
-class l_nebula{
+class L_nebula{
     SCP_string _name;
     float _radius { 0.0f };
 
-    int	_modelnum { -1 };
 	int _objnum { -1 };                 // objnum of this jump node
-	int _polymodel_instance_num {-1}; // polymodel instance number, to allow transformations 
+    int	_modelnum { -1 };
+	int _polymodel_instance_num {-1};   // polymodel instance number, to allow transformations 
 
-    flagset< m_flags {0};
-    color m_display_color;			// Color node will be shown in (Default:0/255/0/255)
-	vec3d m_pos;
+    flagset<Nebula_Flags> _flags;
+    hdr_color _backgound_fog_color;			
 
-	CJumpNode(const CJumpNode&);
-	CJumpNode& operator=(const CJumpNode&);
 public:
     //Constructors
-    CJumpNode();
-    CJumpNode(const vec3d *position);
-	CJumpNode(CJumpNode&& other) noexcept;
+    L_nebula();
+    L_nebula(vec3d const &position);
 
-	CJumpNode& operator=(CJumpNode&&) noexcept;
-    
-    //Destructor
-    ~CJumpNode();
-	
 	//Getting
-    const char *GetName();
+    SCP_string GetName();
     int GetModelNumber();
     int GetSCPObjectNumber();
 	int GetPolymodelInstanceNum(); 
     object *GetSCPObject();
-    color GetColor();
-    vec3d *GetPosition();
-
+    hdr_color GetColor();
+ 
     //Setting
-    void SetAlphaColor(int r, int g, int b, int alpha);
-    void SetModel(const char *model_name, bool show_polys=false);
-    void SetName(const char *new_name);
-    void SetVisibility(bool enabled);
+    void SetBackgroundColor(int const r, int const g, int const b, int const alpha);
+    void SetModel(const char *model_name);
+    void SetName(SCP_string const new_name);
     
-    //Query
-    bool IsHidden();
-    bool IsColored();
-    bool IsSpecialModel();
-
     //Rendering
-	void Render(vec3d *pos, vec3d *view_pos = NULL);
-	void Render(model_draw_list *scene, vec3d *pos, vec3d *view_pos = NULL);
+	void Render(vec3d *pos, vec3d *view_pos = nullptr);
+	void Render(model_draw_list *scene, vec3d *pos, vec3d *view_pos = nullptr);
 }
-} // end of namespace
+
+} // Local_nebula namespace
