@@ -1852,6 +1852,28 @@ I_Done:
 	return i;
 }
 
+// Helper function to filter out messages should be sent in dogfight mode.
+bool message_filter_dogfight(int id)
+{
+	Assertion ((Game_mode & GM_MULTIPLAYER) && (Netgame.type_flags & NG_TYPE_DOGFIGHT), "Game is in the wrong mode to filter messages for dogfight games. Raw game mode var: %d, Raw netgame type flags", Game_mode, Netgame.type_flags);
+
+	switch (id) {
+		// *don't* filter these out
+		case MESSAGE_ARRIVE_ENEMY:
+		case MESSAGE_PRAISE:
+		case MESSAGE_NOSIR:
+		case MESSAGE_STRAY:
+		case MESSAGE_STRAY_WARNING:
+		case MESSAGE_STRAY_WARNING_FINAL:
+		case MESSAGE_PRAISE_SELF:
+		case MESSAGE_HIGH_PRAISE:
+			return false;
+			break;
+	}
+
+	return true;
+}
+
 // given a message id#, should it be filtered for me?
 int message_filter_multi(int id)
 {
@@ -1868,6 +1890,9 @@ int message_filter_multi(int id)
 
 	// builtin messages
 	if(id < Num_builtin_messages){
+		// we only filter built in messages when in dogfight mode.
+		if ((Netgame.type_flags & NG_TYPE_DOGFIGHT) && (message_filter_dogfight(id)))
+			return 1;
 	}
 	// mission-specific messages
 	else {
