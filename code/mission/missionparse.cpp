@@ -7376,10 +7376,12 @@ void mission_eval_arrivals()
 	// better effect
 	if (timestamp_valid(Arrival_message_delay_timestamp) && timestamp_elapsed(Arrival_message_delay_timestamp) && !MULTI_TEAM)
 	{
-		int use_terran_cmd;
+		int use_terran_cmd = 0;
 
-		// use terran command 25% of time
-		use_terran_cmd = ((frand() - 0.75) > 0.0f)?1:0;
+		// use terran command 25% of time, when not in multiplayer dogfight
+		if (MULTI_DOGFIGHT || ((frand() - 0.75) > 0.0f)) {
+			use_terran_cmd = 1;
+		}
 
 		rship = ship_get_random_player_wing_ship( SHIP_GET_UNSILENCED );
 		if ((rship < 0) || use_terran_cmd)
