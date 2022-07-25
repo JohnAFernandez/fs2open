@@ -150,8 +150,7 @@ p_object *Player_start_pobject;
 
 // name of all ships to use while parsing a mission (since a ship might be referenced by
 // something before that ship has even been loaded yet)
-char Parse_names[MAX_SHIPS + MAX_WINGS][NAME_LENGTH];
-int Num_parse_names;
+SCP_vector<SCP_string> Parse_names;
 
 SCP_vector<texture_replace> Fred_texture_replacements;
 
@@ -4112,18 +4111,18 @@ int parse_wing_create_ships( wing *wingp, int num_to_create, int force, int spec
 		// (or will exist).
 		if ( wingp->arrival_location == ARRIVE_FROM_DOCK_BAY ) {
 			int shipnum;
-			char *name;
+			SCP_string name;
 
 			Assert( wingp->arrival_anchor >= 0 );
 			name = Parse_names[wingp->arrival_anchor];
 
 			// see if ship is in mission.
-			shipnum = ship_name_lookup( name );
+			shipnum = ship_name_lookup( name.c_str() );
 			if ( shipnum == -1 ) {
 				int num_remaining;
 
 				// see if ship is yet to arrive.  If so, then return 0 so we can evaluate again later.
-				if (mission_check_ship_yet_to_arrive(name))
+				if (mission_check_ship_yet_to_arrive(name.c_str()))
 					return 0;
 
 				// since this wing cannot arrive from this place, we need to mark the wing as destroyed and
@@ -4138,9 +4137,9 @@ int parse_wing_create_ships( wing *wingp, int num_to_create, int force, int spec
 				wingp->total_arrived_count += num_remaining;
 				wingp->current_wave = wingp->num_waves;
 
-				if ( mission_log_get_time(LOG_SHIP_DESTROYED, name, NULL, NULL) || mission_log_get_time(LOG_SELF_DESTRUCTED, name, NULL, NULL) ) {
+				if ( mission_log_get_time(LOG_SHIP_DESTROYED, name.c_str(), NULL, NULL) || mission_log_get_time(LOG_SELF_DESTRUCTED, name.c_str(), NULL, NULL) ) {
 					wingp->total_destroyed += num_remaining;
-				} else if ( mission_log_get_time(LOG_SHIP_DEPARTED, name, NULL, NULL) ) {
+				} else if ( mission_log_get_time(LOG_SHIP_DEPARTED, name.c_str(), NULL, NULL) ) {
 					wingp->total_departed += num_remaining;
 				} else {
 					wingp->total_vanished += num_remaining;
@@ -4893,7 +4892,7 @@ void resolve_path_masks(int anchor, int *path_mask)
 
 		// get anchor ship
 		Assert(!(anchor & SPECIAL_ARRIVAL_ANCHOR_FLAG));
-		parent_pobjp = mission_parse_get_parse_object(Parse_names[anchor]);
+		parent_pobjp = mission_parse_get_parse_object(Parse_names[anchor].c_str());
 
 		// Load the anchor ship model with subsystems and all; it'll need to be done for this mission anyway
 		ship_info *sip = &Ship_info[parent_pobjp->ship_class];
@@ -6131,7 +6130,8 @@ bool parse_mission(mission *pm, int flags)
 bool post_process_mission()
 {
 	int			i;
-	int			indices[MAX_SHIPS], objnum;
+	SCP_vector<int>	indices;
+	int objnum;
 	ship_weapon	*swp;
 	ship_obj *so;
 
@@ -6205,10 +6205,10 @@ bool post_process_mission()
 
 	// convert all ship name indices to ship indices now that mission has been loaded
 	if (Fred_running) {
-		for (i=0; i<Num_parse_names; i++) {
-			indices[i] = ship_name_lookup(Parse_names[i], 1);
-			if (indices[i] < 0)
-				Warning(LOCATION, "Ship name \"%s\" referenced, but this ship doesn't exist", Parse_names[i]);
+		for (auto& name : Parse_names) {
+			indices.push_back(ship_name_lookup(name, true));
+			if (indices.back() < 0)
+				Warning(LOCATION, "Ship name \"%s\" referenced, but this ship doesn't exist", name.c_str());
 		}
 
 		for (i=0; i<MAX_SHIPS; i++) {
@@ -6460,7 +6460,6 @@ bool parse_main(const char *mission_name, int flags)
 	Num_unknown_loadout_classes = 0;
 
 	// fill in Ship_class_names array with the names from the ship_info struct;
-	Num_parse_names = 0;
 	Num_path_restrictions = 0;
 	Assert(Ship_info.size() <= MAX_SHIP_CLASSES);
 
@@ -7219,26 +7218,26 @@ int mission_did_ship_arrive(p_object *objp)
 		// doesn't exist, don't create.
 		if ( objp->arrival_location == ARRIVE_FROM_DOCK_BAY ) {
 			int shipnum;
-			char *name;
+			SCP_string name;
 
 			Assert( objp->arrival_anchor >= 0 );
 			name = Parse_names[objp->arrival_anchor];
 	
 			// see if ship is in mission.
-			shipnum = ship_name_lookup( name );
+			shipnum = ship_name_lookup( name.c_str() );
 			if ( shipnum == -1 ) {
 				// see if ship is yet to arrive.  If so, then return -1 so we can evaluate again later.
-				if (mission_check_ship_yet_to_arrive(name))
+				if (mission_check_ship_yet_to_arrive(name.c_str()))
 					return -1;
 
 				mission_parse_mark_non_arrival(objp);	// Goober5000
-				WarningEx(LOCATION, "Warning: Ship %s cannot arrive from docking bay of destroyed or departed %s.\n", objp->name, name);
+				WarningEx(LOCATION, "Warning: Ship %s cannot arrive from docking bay of destroyed or departed %s.\n", objp->name, name.c_str());
 				return -1;
 			}
 
 			// Goober5000: aha - also don't create if fighterbay is destroyed
 			if (ship_fighterbays_all_destroyed(&Ships[shipnum])) {
-				WarningEx(LOCATION, "Warning: Ship %s cannot arrive from destroyed docking bay of %s.\n", objp->name, name);
+				WarningEx(LOCATION, "Warning: Ship %s cannot arrive from destroyed docking bay of %s.\n", objp->name, name.c_str());
 				return -1;
 			}
 		}
@@ -7602,31 +7601,31 @@ int mission_do_departure(object *objp, bool goal_is_to_warp)
 	if (location == DEPART_AT_DOCK_BAY)
 	{
 		int anchor_shipnum;
-		char *name;
+		SCP_string name;
 
 		Assert(anchor >= 0);
 		name = Parse_names[anchor];
 
 		// see if ship is yet to arrive.  If so, then warp.
-		if (mission_check_ship_yet_to_arrive(name))
+		if (mission_check_ship_yet_to_arrive(name.c_str()))
 		{
-			mprintf(("Anchor ship %s hasn't arrived yet!  Trying to warp...\n", name));
+			mprintf(("Anchor ship %s hasn't arrived yet!  Trying to warp...\n", name.c_str()));
 			goto try_to_warp;
 		}
 
 		// see if ship is in mission.  If not, then we can assume it was destroyed or departed since
 		// it is not on the arrival list (as shown by above if statement).
-		anchor_shipnum = ship_name_lookup(name);
+		anchor_shipnum = ship_name_lookup(name.c_str());
 		if (anchor_shipnum < 0)
 		{
-			mprintf(("Anchor ship %s not found!  Trying to warp...\n", name));
+			mprintf(("Anchor ship %s not found!  Trying to warp...\n", name.c_str()));
 			goto try_to_warp;
 		}
 
 		// see if we can actually depart to the ship
 		if (!ship_useful_for_departure(anchor_shipnum, shipp->departure_path_mask))
 		{
-			mprintf(("Anchor ship %s not suitable for departure (dying, departing, bays destroyed, etc.).  Trying to warp...\n", name));
+			mprintf(("Anchor ship %s not suitable for departure (dying, departing, bays destroyed, etc.).  Trying to warp...\n", name.c_str()));
 			goto try_to_warp;
 		}
 
@@ -7883,16 +7882,18 @@ subsys_status *parse_get_subsys_status(p_object *pobjp, const char *subsys_name)
 // find (or add) the name in the list and return an index to it.
 int get_parse_name_index(const char *name)
 {
-	int i;
+	int i = 0;
 
-	for (i=0; i<Num_parse_names; i++)
-		if (!stricmp(name, Parse_names[i]))
+	for (auto& parse_name : Parse_names){
+		if (!stricmp(name, parse_name.c_str())) {
 			return i;
+		}
+		i++;
+	}
 
-	Assert(i < MAX_SHIPS + MAX_WINGS);
 	Assert(strlen(name) < NAME_LENGTH);
-	strcpy_s(Parse_names[i], name);
-	return Num_parse_names++;
+	Parse_names.emplace_back(name);
+	return i;
 }
 
 // Goober5000

@@ -13556,6 +13556,27 @@ int ship_name_lookup(const char *name, int inc_players)
 	return -1;
 }
 
+/**
+ * Return the ship index of the ship with name *name.
+ */
+int ship_name_lookup(SCP_string name, bool inc_players)
+{
+	Assertion(name.length() < NAME_LENGTH, "Name \"%s\" passed to ship_name_lookup is too long", name.c_str());
+
+	for (int i=0; i<MAX_SHIPS; i++){
+		if (Ships[i].objnum >= 0){
+			if (Objects[Ships[i].objnum].type == OBJ_SHIP || (Objects[Ships[i].objnum].type == OBJ_START && inc_players)){
+				if (!stricmp(name.c_str(), Ships[i].ship_name)){
+					return i;
+				}
+			}
+		}
+	}
+	
+	// couldn't find it
+	return -1;
+}
+
 int ship_type_name_lookup_sub(const char *name)
 {
 	Assertion(name != nullptr, "NULL name passed to ship_type_name_lookup");

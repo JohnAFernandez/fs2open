@@ -20662,17 +20662,20 @@ void sexp_set_support_ship(int n)
 	{
 		// anchor must exist - look for it
 		temp_val = -1;
-		for (i = 0; i < Num_parse_names; i++)
+		i = 0;
+		for (auto& parse_name : Parse_names)
 		{
-			if (!stricmp(CTEXT(n), Parse_names[i]))
+			if (!stricmp(CTEXT(n), parse_name.c_str())){
 				temp_val = i;
+				break;
+			}
+			i++;
 		}
 		// if not found, make a new entry
 		if (temp_val < 0)
 		{
-			strcpy_s(Parse_names[Num_parse_names], CTEXT(n));
-			temp_val = Num_parse_names;
-			Num_parse_names++;
+			temp_val = static_cast<int>(Parse_names.size());
+			Parse_names.emplace_back(CTEXT(n));
 		}
 		The_mission.support_ships.arrival_anchor = temp_val;
 	}
@@ -20703,17 +20706,19 @@ void sexp_set_support_ship(int n)
 	{
 		// anchor must exist - look for it
 		temp_val = -1;
-		for (i = 0; i < Num_parse_names; i++)
+		for (auto& parse_name : Parse_names)
 		{
-			if (!stricmp(CTEXT(n), Parse_names[i]))
+			if (!stricmp(CTEXT(n), parse_name.c_str())){
 				temp_val = i;
+				break;
+			}
+			i++;
 		}
 		// if not found, make a new entry
 		if (temp_val < 0)
 		{
-			strcpy_s(Parse_names[Num_parse_names], CTEXT(n));
-			temp_val = Num_parse_names;
-			Num_parse_names++;
+			temp_val = static_cast<int>(Parse_names.size());
+			Parse_names.emplace_back(CTEXT(n));
 		}
 		The_mission.support_ships.departure_anchor = temp_val;
 	}
@@ -20787,18 +20792,21 @@ void sexp_set_arrival_info(int node)
 	}
 	else
 	{
+		i = 0;
 		// anchor must exist - look for it
-		for (i=0; i<Num_parse_names; i++)
+		for (auto& parse_name : Parse_names)
 		{
-			if (!stricmp(CTEXT(n), Parse_names[i]))
+			if (!stricmp(CTEXT(n), parse_name.c_str())){
 				arrival_anchor = i;
+				break;
+			}
+			i++;
 		}
 		// if not found, make a new entry
 		if (arrival_anchor < 0)
 		{
-			strcpy_s(Parse_names[Num_parse_names], CTEXT(n));
-			arrival_anchor = Num_parse_names;
-			Num_parse_names++;
+			arrival_anchor = static_cast<int>(Parse_names.size());
+			Parse_names.emplace_back(CTEXT(n));
 		}
 	}
 	n = CDR(n);
@@ -20894,18 +20902,21 @@ void sexp_set_departure_info(int node)
 	}
 	else
 	{
+		i = 0;
 		// anchor must exist - look for it
-		for (i=0; i<Num_parse_names; i++)
+		for (auto& parse_name : Parse_names)
 		{
-			if (!stricmp(CTEXT(n), Parse_names[i]))
+			if (!stricmp(CTEXT(n), parse_name.c_str())){
 				departure_anchor = i;
+				break;
+			}
+			i++;
 		}
 		// if not found, make a new entry
 		if (departure_anchor < 0)
 		{
-			strcpy_s(Parse_names[Num_parse_names], CTEXT(n));
-			departure_anchor = Num_parse_names;
-			Num_parse_names++;
+			departure_anchor = static_cast<int>(Parse_names.size());
+			Parse_names.emplace_back(CTEXT(n));
 		}
 	}
 	n = CDR(n);

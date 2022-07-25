@@ -472,8 +472,7 @@ extern int Mission_arrival_timestamp;
 extern int Mission_departure_timestamp;
 extern fix Mission_end_time;
 
-extern char Parse_names[MAX_SHIPS + MAX_WINGS][NAME_LENGTH];
-extern int Num_parse_names;
+extern SCP_vector<SCP_string> Parse_names;
 extern int Num_teams;
 
 extern char			Player_start_shipname[NAME_LENGTH];

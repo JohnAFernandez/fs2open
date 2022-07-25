@@ -1652,6 +1652,7 @@ extern int get_subsystem_pos(vec3d *pos, object *objp, ship_subsys *subsysp);
 
 extern int ship_info_lookup(const char *name);
 extern int ship_name_lookup(const char *name, int inc_players = 0);	// returns the index into Ship array of name
+extern int ship_name_lookup(SCP_string const name, bool inc_player = false); // SCP string version
 extern int ship_type_name_lookup(const char *name);
 
 inline int ship_info_size()
