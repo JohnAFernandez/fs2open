@@ -99,6 +99,7 @@ struct rollback_unsimulated_shots {
 	vec3d pos;				// the relative position calculated from the non-homing packet.
 	matrix orient;			// the relative orientation from the non-homing packet.
 	bool secondary_shot;	// is this a dumbfire missile shot?
+	float extra_frame_time; // How much time after the found frame was this shot?
 };
 
 // our main struct for keeping track of all interpolation and oo packet info.
@@ -436,15 +437,17 @@ int multi_find_prev_frame_idx()
 }
 
 // Finds the first frame that is before the incoming timestamp.
-int multi_ship_record_find_frame(int client_frame, int time_elapsed)
+std::pair<int, float> multi_ship_record_find_frame(int client_frame, int time_elapsed)
 {	
+	std::pair<int, float> frame_and_time = {-1, 0.0f};
+	
 	// frame coming in from the client is too old to be used. (The -1 prevents an edge case bug at very high pings)
 	if (Oo_info.number_of_frames - client_frame >= MAX_FRAMES_RECORDED - 1) {
-		return -1;
+		return frame;
 	}
 
 	// figure out the frame index (the frame index wraps every MAX_FRAMES_RECORDED frames)
-	int frame = client_frame % MAX_FRAMES_RECORDED;
+	frame.first = client_frame % MAX_FRAMES_RECORDED;
 
 	// Now that the wrap has been verified, if time_elapsed is zero return the frame it gave us.
 	if(time_elapsed == 0){
@@ -453,10 +456,10 @@ int multi_ship_record_find_frame(int client_frame, int time_elapsed)
 
 	// Now we look for the frame that the client is saying to look for. 
 	// get the timestamp we are looking for.
-	TIMESTAMP target_timestamp = timestamp_delta(Oo_info.timestamps[frame], time_elapsed);
+	TIMESTAMP target_timestamp = timestamp_delta(Oo_info.timestamps[frame.first], time_elapsed);
 
 	// need to try to make rollback shot make some kind of sense if we have invalid timestamps,
-	// and print to debugif it is.
+	// and print to debug if it is.
 	if (!target_timestamp.isValid() || target_timestamp.isNever()) {
 		mprintf(("Nonsense timestamp in multi_ship_record_find_frame of %s. Get ~~Allender~~ Cyborg!\n", (target_timestamp.isValid()) ? "isNever" : "NOT isValid"));
 		return frame;
@@ -472,11 +475,13 @@ int multi_ship_record_find_frame(int client_frame, int time_elapsed)
 		}
 
 		// Check to see if the client's timestamp matches the recorded frames.
-		if (timestamp_in_between(target_timestamp, Oo_info.timestamps[i], Oo_info.timestamps[i + 1])) {		
-			return i;
+		if (timestamp_in_between(target_timestamp, Oo_info.timestamps[i], Oo_info.timestamps[i + 1])) {
+			frame.first = i;
+			frame.second = static_cast<float>(target_timestamp.value()) - static_cast<float>(Oo_info.timestamps[MAX_FRAMES_RECORDED - 1].value());		
+			return frame;
 		}
 
-		// there is no need to check for an invalid frame here because, logically, the search cannot reach frame until the next section
+		// there is no need to check for an invalid frame here because, logically, the search cannot reach frame.first until the next section
 	}
 
 
@@ -490,12 +495,14 @@ int multi_ship_record_find_frame(int client_frame, int time_elapsed)
 
 	// Check for an end of the wrap condition.
 	if (timestamp_in_between(target_timestamp, Oo_info.timestamps[MAX_FRAMES_RECORDED - 1], Oo_info.timestamps[0])) {
-		return MAX_FRAMES_RECORDED - 1;
+		frame.first = MAX_FRAMES_RECORDED - 1;
+		frame.second = static_cast<float>(target_timestamp.value()) - static_cast<float>(Oo_info.timestamps[MAX_FRAMES_RECORDED - 1].value());
+		return frame;
 	}
 
 	// Check for the received frame being passed
-	if (frame == 0){
-		return -1;
+	if (frame.first == 0){
+		return frame;
 	}
 
 
@@ -509,30 +516,39 @@ int multi_ship_record_find_frame(int client_frame, int time_elapsed)
 		}
 
 		if (timestamp_in_between(target_timestamp, Oo_info.timestamps[i], Oo_info.timestamps[i + 1])) {
-			return i;
+			frame.first = i;
+			frame.second = static_cast<float>(target_timestamp.value()) - static_cast<float>(Oo_info.timestamps[i].value());		
+			return frame;
 		} else if (i < frame) {
-			return -1;
+			return frame;
 		}
 	}
 
 	// shouldn't be reachable... somehow wasn't caught earlier.  Just let the old system handle this one.
-	return -1;
+	return frame;
 }
 
 // Quick lookup for the record of position.
-vec3d multi_ship_record_lookup_position(object* objp, int frame) 
+vec3d multi_ship_record_lookup_position(object* objp, int frame, float time_after) 
 {
 	Assertion(objp != nullptr, "nullptr given to multi_ship_record_lookup_position. \nThis should be handled earlier in the code, please report!");
+	if (objp == nullptr) {
+		return vmd_zero_vector;
+	}
+
+
+
 	return Oo_info.frame_info[objp->net_signature].positions[frame];
 }
 
 // Quick lookup for the record of orientation.
-matrix multi_ship_record_lookup_orientation(object* objp, int frame) 
+matrix multi_ship_record_lookup_orientation(object* objp, int frame, float time_after) 
 {
 	Assertion(objp != nullptr, "nullptr given to multi_ship_record_lookup_position. \nThis should be handled earlier in the code, please report!");
 	if (objp == nullptr) {
 		return vmd_identity_matrix;
 	}
+
 	return Oo_info.frame_info[objp->net_signature].orientations[frame];
 }
 
@@ -588,7 +604,7 @@ void multi_oo_remove_colliders()
 }
 
 // This stores the information we got from the client to create later.
-void multi_ship_record_add_rollback_shot(object* pobjp, vec3d* pos, matrix* orient, int frame, bool secondary) 
+void multi_ship_record_add_rollback_shot(object* pobjp, vec3d* pos, matrix* orient, int frame, bool secondary, float time_after) 
 {
 	Oo_info.rollback_mode = true;
 
