@@ -72,19 +72,16 @@ void multi_ship_record_update_all();
 void multi_ship_record_increment_frame();
 
 // find the right frame to start our weapon simulation
-int multi_ship_record_find_frame(int client_frame, int time_elapsed);
+std::pair<int, float> multi_ship_record_find_frame_and_time(int client_frame, int time_elapsed);
 
 // a quick lookups for position and orientation
-vec3d multi_ship_record_lookup_position(object* objp, int frame);
+vec3d multi_ship_record_lookup_position(object* objp, int frame, float percent = 0.0f);
 
 // a quick lookups for orientation
-matrix multi_ship_record_lookup_orientation(object* objp, int frame);
-
-// figures out how much time has passed bwetween the two frames.
-int multi_ship_record_find_time_after_frame(int client_frame, int frame, int time_elapsed);
+matrix* multi_ship_record_lookup_orientation(object* objp, int frame, float percent = 0.0f);
 
 // This stores the information we got from the client to create later.
-void multi_ship_record_add_rollback_shot(object* pobjp, vec3d* pos, matrix* orient, int frame, bool secondary);
+void multi_ship_record_add_rollback_shot(object* pobjp, vec3d* pos, matrix* orient, int frame, float time_after, bool secondary);
 
 // Lookup whether rollback mode is on
 bool multi_ship_record_get_rollback_wep_mode();
