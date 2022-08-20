@@ -8,7 +8,7 @@
 // seeks through the packets to find the one that we need, starting from the end, notice we cannot use MULTIPLAYER_CLIENT macro here.  We cannot include multi.h
 void interpolation_manager::reassess_packet_index(vec3d* pos, matrix* ori, physics_info* pip) 
 {
-	auto current_time = Multi_Timing_Info.get_current_time();	
+	auto current_time = TIMESTAMP(Multi_Timing_Info.get_current_time());	
 	int current_index = static_cast<int>(_packets.size()) - 2;
 	int prev_index = static_cast<int>(_packets.size()) - 1;
 
@@ -16,7 +16,7 @@ void interpolation_manager::reassess_packet_index(vec3d* pos, matrix* ori, physi
 	for (; current_index > -1; current_index--, prev_index--) {
 
 		// did we find where we should interpolate?
-		if ((_packets[current_index].remote_missiontime >= current_time) && (_packets[prev_index].remote_missiontime <= current_time)) {
+		if (timestamp_in_between(current_time, _packets[prev_index].remote_missiontime, _packets[current_index].remote_missiontime)) {
 			_upcoming_packet_index = current_index;
 			_prev_packet_index = prev_index;
 
@@ -24,7 +24,7 @@ void interpolation_manager::reassess_packet_index(vec3d* pos, matrix* ori, physi
 			// and we now need to go back, pretend that the position we were in *was* our old packet
 			// and we are now going towards our new packet's physics.
 			if (_simulation_mode) {
-				replace_packet(prev_index, pos, ori, pip); // TODO, if simulation mode was forced by the collision code, this method regresses a bug where collisions instantly kill
+				replace_packet(prev_index, pos, ori, pip);
 				_simulation_mode = false;
 			}
 
@@ -76,7 +76,7 @@ void interpolation_manager::interpolate(vec3d* pos, matrix* ori, physics_info* p
 			pip->rotvel = _packets.front().rotational_velocity;
 			pip->desired_rotvel = _packets.front().desired_rotational_velocity;
 
-			sim_time -= (static_cast<float>(_packets.front().remote_missiontime) - static_cast<float>(Multi_Timing_Info.get_last_time())) / TIMESTAMP_FREQUENCY;
+			sim_time -= (static_cast<float>(_packets.front().remote_missiontime.value()) - static_cast<float>(Multi_Timing_Info.get_last_time())) / TIMESTAMP_FREQUENCY;
 			_packets_expended = true;
 		}
 
@@ -209,7 +209,7 @@ void interpolation_manager::replace_packet(int index, vec3d* pos, matrix* orient
 	// and we lose our intended effect of interpolating the simulation error away.
 	_packets[index].frame = _packets[index - 1].frame - 1;
 
-	_packets[index].remote_missiontime = Multi_Timing_Info.get_last_time();
+	_packets[index].remote_missiontime = TIMESTAMP(Multi_Timing_Info.get_last_time());
 	_packets[index].position = *pos;
 	_packets[index].velocity = pip->vel;
 	_packets[index].desired_velocity = pip->desired_vel;

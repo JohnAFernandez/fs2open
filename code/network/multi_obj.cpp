@@ -2451,7 +2451,6 @@ void multi_oo_process_update(ubyte *data, header *hinfo)
 	int timestamp;
 	ubyte stop;	
 
-	// TODO: ADD COMPLICATED TIMESTAMP LOGIC HERE
 	GET_INT(seq_num);
 	GET_INT(timestamp);
 	GET_DATA(stop);

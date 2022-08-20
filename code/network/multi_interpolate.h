@@ -9,7 +9,7 @@ constexpr int PACKET_INFO_LIMIT = 4; // we should never need more than 4 packets
 typedef struct packet_info {
 
 	int frame;							// this allows us to directly compare one packet to another.  
-	int remote_missiontime;	// the remote timestamp that matches this packet.
+	TIMESTAMP remote_missiontime;	// the remote timestamp that matches this packet.
 	vec3d position;						// what it says on the tin
 	vec3d velocity;						// what it says on the tin
 	vec3d rotational_velocity;			// what it says on the tin
@@ -22,7 +22,7 @@ typedef struct packet_info {
 		const angles* angles_in = &vmd_zero_angles) 
 	{	
 		frame = frame_in;
-		remote_missiontime = time_in;
+		remote_missiontime = TIMESTAMP(time_in);
 		position = *position_in;
 		velocity = *velocity_in;
 		rotational_velocity = *rotational_velocity_in;
