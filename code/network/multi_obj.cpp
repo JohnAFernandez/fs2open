@@ -447,16 +447,17 @@ std::pair<int, float> multi_ship_record_find_frame_and_time(int client_frame, in
 	}
 
 	// figure out the frame index (the frame index wraps every MAX_FRAMES_RECORDED frames)
-	frame.first = client_frame % MAX_FRAMES_RECORDED;
+	int initial_frame_index = client_frame % MAX_FRAMES_RECORDED;
 
 	// Now that the wrap has been verified, if time_elapsed is zero return the frame it gave us.
 	if(time_elapsed == 0){
+		frame.first = initial_frame_index;
 		return frame;
 	}
 
 	// Now we look for the frame that the client is saying to look for. 
 	// get the timestamp we are looking for.
-	TIMESTAMP target_timestamp = timestamp_delta(Oo_info.timestamps[frame.first], time_elapsed);
+	TIMESTAMP target_timestamp = timestamp_delta(Oo_info.timestamps[initial_frame_index], time_elapsed);
 
 	// need to try to make rollback shot make some kind of sense if we have invalid timestamps,
 	// and print to debug if it is.
@@ -477,7 +478,7 @@ std::pair<int, float> multi_ship_record_find_frame_and_time(int client_frame, in
 		// Check to see if the client's timestamp matches the recorded frames.
 		if (timestamp_in_between(target_timestamp, Oo_info.timestamps[i], Oo_info.timestamps[i + 1])) {
 			frame.first = i;
-			frame.second = static_cast<float>(target_timestamp.value()) - static_cast<float>(Oo_info.timestamps[MAX_FRAMES_RECORDED - 1].value());		
+			frame.second = timestamp_percent_between(target_timestamp, Oo_info.timestamps[i], Oo_info.timestamps[i + 1]);		
 			return frame;
 		}
 
@@ -496,12 +497,12 @@ std::pair<int, float> multi_ship_record_find_frame_and_time(int client_frame, in
 	// Check for an end of the wrap condition.
 	if (timestamp_in_between(target_timestamp, Oo_info.timestamps[MAX_FRAMES_RECORDED - 1], Oo_info.timestamps[0])) {
 		frame.first = MAX_FRAMES_RECORDED - 1;
-		frame.second = static_cast<float>(target_timestamp.value()) - static_cast<float>(Oo_info.timestamps[MAX_FRAMES_RECORDED - 1].value());
+		frame.second = timestamp_percent_between(target_timestamp, Oo_info.timestamps[MAX_FRAMES_RECORDED - 1], Oo_info.timestamps[0]);		
 		return frame;
 	}
 
 	// Check for the received frame being passed
-	if (frame.first == 0){
+	if (initial_frame_index == 0){
 		return frame;
 	}
 
@@ -517,9 +518,9 @@ std::pair<int, float> multi_ship_record_find_frame_and_time(int client_frame, in
 
 		if (timestamp_in_between(target_timestamp, Oo_info.timestamps[i], Oo_info.timestamps[i + 1])) {
 			frame.first = i;
-			frame.second = static_cast<float>(target_timestamp.value()) - static_cast<float>(Oo_info.timestamps[i].value());		
+			frame.second = timestamp_percent_between(target_timestamp, Oo_info.timestamps[i], Oo_info.timestamps[i + 1]);		
 			return frame;
-		} else if (i < frame) {
+		} else if (i < initial_frame_index) {
 			return frame;
 		}
 	}
