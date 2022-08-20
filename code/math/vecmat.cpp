@@ -2954,6 +2954,28 @@ void vm_interpolate_angles_quick(angles *dest0, angles *src0, angles *src1, floa
 	dest0->b = src0->b + (arc_measures.b * interp_perc);
 }
 
+// derived by Asteroth from our AI code
+matrix* vm_interpolate_matrices(matrix* curr_orient, matrix* goal_orient, float t) 
+{
+	matrix Mtemp1;
+ 
+	vm_copy_transpose(&Mtemp1, curr_orient);                // Mtemp1 = curr ^-1
+ 
+	matrix rot_matrix;        // rotation matrix from curr_orient to goal_orient
+ 
+	vm_matrix_x_matrix(&rot_matrix, &Mtemp1, goal_orient);    // R = goal * Mtemp1
+	vm_orthogonalize_matrix(&rot_matrix);
+ 
+	vec3d rot_axis;            // vector indicating direction of rotation axis
+	float theta;                // magnitude of rotation about the rotation axis
+	matrix out_orient;
+
+    vm_matrix_to_rot_axis_and_angle(&rot_matrix, &theta, &rot_axis);        // determines angle and rotation axis from curr to goal
+    vm_quaternion_rotate(&out_orient, t * theta, &rot_axis);
+
+	return &out_orient;
+}
+
 std::ostream& operator<<(std::ostream& os, const vec3d& vec)
 {
 	os << "vec3d<" << vec.xyz.x << ", " << vec.xyz.y << ", " << vec.xyz.z << ">";
