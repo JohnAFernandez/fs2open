@@ -452,6 +452,56 @@ bool ui_timestamp_in_between(UI_TIMESTAMP stamp, UI_TIMESTAMP before, UI_TIMESTA
 	return ui_timestamp_compare(before, stamp) >= 0 && ui_timestamp_compare(stamp, after) >= 0;
 }
 
+// returns what percentage of time that stamp is elapsed between before and after.
+// will *not* check if stamp is between the other two timestamps first.
+// if any stamp is invalid, it will return 0.0f. if before == after, return 1.0f,
+// because 100% of the 0 amount of time has elapsed, automatically
+float timestamp_percent_between(TIMESTAMP stamp, TIMESTAMP before, TIMESTAMP after){
+	Assertion(stamp.isValid() && !stamp.isNever(), "timestamp_percent_between was called with a%s 'stamp' timestamp!", !stamp.isValid() ? "n invalid" : " Never");
+	Assertion(before.isValid() && !before.isNever(), "timestamp_percent_between was called with a%s 'before' timestamp!", !before.isValid() ? "n invalid" : " Never");
+	Assertion(after.isValid() && !after.isNever(), "timestamp_percent_between was called with a%s 'after' timestamp!", !after.isValid() ? "n invalid" : " Never");
+
+	if (!stamp.isValid() || !before.isValid() || !after.isValid())
+		return 0.0f;
+
+	// this would cause our denominator to be zero (bahd!), so return an "of course stamp got to the end of time period, the time period has no length!"
+	if (before.value() == after.value()){
+		return 1.0f;
+	}
+
+	// calculate our denominator
+	float basis_delta = static_cast<float>(after.value()) - static_cast<float>(before.value());
+	// calucluate our numerator
+	float elapsed_delta = static_cast<float>(stamp.value()) - static_cast<float>(before.value());
+
+	return elapsed_delta / basis_delta;
+}
+
+// returns what percentage of time that stamp is elapsed between before and after.
+// will *not* check if stamp is between the other two timestamps first.
+// if any stamp is invalid, it will return 0.0f. if before == after, return 1.0f,
+// because 100% of the 0 amount of time has elapsed, automatically
+float ui_timestamp_percent_between(UI_TIMESTAMP stamp, UI_TIMESTAMP before, UI_TIMESTAMP after){
+	Assertion(stamp.isValid() && !stamp.isNever(), "ui_timestamp_percent_between was called with a%s 'stamp' timestamp!", !stamp.isValid() ? "n invalid" : " Never");
+	Assertion(before.isValid() && !before.isNever(), "ui_timestamp_percent_between was called with a%s 'before' timestamp!", !before.isValid() ? "n invalid" : " Never");
+	Assertion(after.isValid() && !after.isNever(), "ui_timestamp_percent_between was called with a%s 'after' timestamp!", !after.isValid() ? "n invalid" : " Never");
+
+	if (!stamp.isValid() || !before.isValid() || !after.isValid())
+		return 0.0f;
+
+	// this would cause our denominator to be zero (bahd!), so return an "of course stamp got to the end of time period, the time period has no length!"
+	if (before.value() == after.value()){
+		return 1.0f;
+	}
+
+	// calculate our denominator
+	float basis_delta = static_cast<float>(after.value()) - static_cast<float>(before.value());
+	// calucluate our numerator
+	float elapsed_delta = static_cast<float>(stamp.value()) - static_cast<float>(before.value());
+
+	return elapsed_delta / basis_delta;
+}
+
 bool timestamp_has_time_elapsed(int stamp, int time) {
 	int t;
 
