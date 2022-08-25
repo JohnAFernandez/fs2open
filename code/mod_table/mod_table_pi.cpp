@@ -24,15 +24,11 @@ void init_mod_table_parse_items()
 {
 	auto factory = parse_item_builder(&Mod_table_parse_items, PI_Settings::Table_Types::GAME_SETTINGS);
 
-	factory->set_initial_miscellaneous();
-
-	factory->new_parse_item(SCP_string("Mod Table"))
+	factory.new_parse_item(SCP_string("Mod Table"))
 		->set_description(SCP_string("Parse items for Mod_settings.tbl have not been complete."))
 		->set_type(PI_Settings::Item_Types::STRING)
 		->set_required(true)
 		->set_implementation_version(2, 0, 0)
 		->set_special_parse_behavior(PI_Settings::Item_Flags::ENTRY_IDENTIFIER)
-		->finalize(&Mod_table_parse_items);
-
-	factory;
+		->finalize();
 }

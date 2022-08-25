@@ -19,14 +19,14 @@ void parse_item::reset_fields()
 	_minor_version_number_deprecated  = INVALID_VERSION;
 	_revision_number_deprecated		  = INVALID_VERSION;
 	_deprecation_message			  = "";
-	SCP_string _parent_entry = "";
+	_parent_entry = "";
 
 	_parse_flags.reset(); 
 	_entry_type = PI_Settings::Entry_Types::NONE;
 
 	_checks.clear(); 
-	SCP_vector<SCP_string> _tags.clear(); 
-    agnostic_ptr _data_target = nullptr;
+	_tags.clear(); 
+    _data_target = nullptr;
 
 }
 
@@ -99,11 +99,6 @@ int parse_item::get_revision_number_deprecated()
 SCP_string parse_item::get_deprecation_message()
 {
 	return _deprecation_message;
-}
-
-parse_item_builder::parse_item_builder()
-{
-	_product.reset_fields();
 }
 
 // ====== Factory functions ======

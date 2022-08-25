@@ -9,11 +9,11 @@
 #include "osapi/osapi.h"
 #include "cfile/cfilesystem.h"
 #include "parse_manager.h"
-#include "asteroid/asteroid_info.h"
+#include "asteroid/asteroid_pi.h"
 
 extern table_manager Asteroid_parse_items; 	// temporary
 
-void parse_item_builder::parse_item_builder(table_manager* target_table, PI_Settings::Table_Types type)
+parse_item_builder::parse_item_builder(table_manager* target_table, PI_Settings::Table_Types type)
 {
 	// This really, really should never happen, and should only happen during testing when a developer goofed
 	// and the cause should be clear. So I think an assert instead of assertion is fine.
@@ -24,6 +24,11 @@ void parse_item_builder::parse_item_builder(table_manager* target_table, PI_Sett
 
 	// not set from arguments
 	_target_table->_indexed = false;
+}
+
+void parse_item_builder::index_search_strings()
+{
+	_target_table->index_search_strings();
 }
 
 // need two functions defined here because we need to reference the target table.
@@ -336,12 +341,18 @@ void table_manager::_add_data(SCP_string option)
 		switch (item.get_type()) {
 			case PI_Settings::Item_Types::STRING:
 			{
-				SCP_string out;
-				stuff_string(out, F_NAME);
+				SCP_string string_out;
+				stuff_string(string_out, F_NAME);
+
+				table_entry_options temp_options;
+
+				temp_options.type = _current_entry_address.type;
+				temp_options.entry_name = string_out;
+				temp_options.inheritance_target = "";
 
 				//Warning(LOCATION, "STRING %s!", out.c_str());table_data(size_t count_in, SCP_string filep_in, size_t line_in, T data_in){
 				if (item.get_parse_behaviors()[PI_Settings::Item_Flags::ENTRY_IDENTIFIER]) {
-					_current_entry_address.entry_name = out;
+					_current_entry_address.entry_name = string_out;
 
 					// have to use find here, because it needs to be initialized to zero
 					if (_entry_type_counts.find(_current_entry_address.type) != _entry_type_counts.end()) {
@@ -353,24 +364,18 @@ void table_manager::_add_data(SCP_string option)
 					bool found = false;
 					// use [] because we can just insert if we don't already have an item of that type
 					for(auto& entry : _table_entries[_current_entry_address.type]){
-						if (entry.entry_name == out) {
+						if (entry.entry_name == string_out) {
 							found = true;
 							break;
 						}
 					}
 
 					if (!found) {
-						_table_entries[_current_entry_address.type]
-							.emplace_back(_current_entry_address.type, out, flagset<PI_Settings::Entry_Flags>(), SCP_string(""));
+						_table_entries[_current_entry_address.type].push_back(temp_options);
 					}
 
 				} else {
-					_accepted_data.strings[_current_entry_address]
-						emplace_back(_entry_type_counts[_current_entry_address.type], 
-						_current_filepath,
-						_current_line,
-						empty_flagset,
-						out);
+					_accepted_data.strings[_current_entry_address].push_back(temp_options);
 				}
 
 				break;
@@ -378,21 +383,21 @@ void table_manager::_add_data(SCP_string option)
 
 			case PI_Settings::Item_Types::INT:
 			{
-				int out;
-				stuff_int(&out);
+				int int_out;
+				stuff_int(&int_out);
 				//Warning(LOCATION, "Int %d", out);
 				_accepted_data.ints[_current_entry_address].
 					emplace_back(_entry_type_counts[_current_entry_address.type], 
 					_current_filepath,
 					_current_line,
 					empty_flagset,
-					out);
+					int_out);
 				break;
 			}
 
 			case PI_Settings::Item_Types::XSTR:
 			{
-				SCP_string out;
+				SCP_string xstr_out;
 				Warning(LOCATION, "XSTR, No implementation!");
 				// TODO: find xstr parsing function 
 				_accepted_data.strings[_current_entry_address].
@@ -400,7 +405,7 @@ void table_manager::_add_data(SCP_string option)
 					_current_filepath,
 					_current_line,
 					empty_flagset,
-					out);
+					xstr_out);
 				break;
 			}					
 
@@ -412,28 +417,28 @@ void table_manager::_add_data(SCP_string option)
 			}
 			case PI_Settings::Item_Types::LONG:
 			{
-				long out = 0;
-				mprintf(("Parsing long in parse items code, but no long parsing function.  Please implement.\n"))
+				long long_out = 0;
+				mprintf(("Parsing long in parse items code, but no long parsing function.  Please implement.\n"));
 				_accepted_data.longs[_current_entry_address].
 					emplace_back(_entry_type_counts[_current_entry_address.type], 
 					_current_filepath,
 					_current_line,
 					empty_flagset,
-					out);
+					long_out);
 				break;
 			}
 
 			case PI_Settings::Item_Types::FLOAT:
 			{
-				float out;
-				stuff_float(&out);
-				//Warning(LOCATION, "Float! %f", out);
+				float float_out;
+				stuff_float(&float_out);
+				//Warning(LOCATION, "Float! %f", float_out);
 				_accepted_data.floats[_current_entry_address].
 				emplace_back(_entry_type_counts[_current_entry_address.type], 
 					_current_filepath,
 					_current_line,
 					empty_flagset,
-					out);
+					float_out);
 				break;
 			}
 
@@ -453,15 +458,15 @@ void table_manager::_add_data(SCP_string option)
 
 			case PI_Settings::Item_Types::VEC3:
 			{
-				vec3d out;
-				stuff_vec3d(&out);
-				Warning(LOCATION, "Vec3, %f %f %f", out.xyz.x, out.xyz.y, out.xyz.z);
+				vec3d vec_out;
+				stuff_vec3d(&vec_out);
+				Warning(LOCATION, "Vec3, %f %f %f", vec_out.xyz.x, vec_out.xyz.y, vec_out.xyz.z);
 				_accepted_data.vec3s[_current_entry_address].
 				emplace_back(_entry_type_counts[_current_entry_address.type], 
 					_current_filepath,
 					_current_line,
 					empty_flagset,
-					out);
+					vec_out);
 				break;	
 			}
 
@@ -474,15 +479,15 @@ void table_manager::_add_data(SCP_string option)
 
 			case PI_Settings::Item_Types::BOOL:
 			{
-				bool out;
-				stuff_boolean(&out);
+				bool bool_out;
+				stuff_boolean(&bool_out);
 //				Warning(LOCATION, "Bool! %s!", (out) ? "true" : "false");
 				_accepted_data.bools[_current_entry_address].
 					emplace_back(_entry_type_counts[_current_entry_address.type], 
 					_current_filepath,
 					_current_line,
 					empty_flagset,
-					out);
+					bool_out);
 				break;
 			}
 
@@ -492,29 +497,34 @@ void table_manager::_add_data(SCP_string option)
 				mprintf(("Unimplemented parsing type. Temp message\n"));
 				break;
 			}
+
 			case PI_Settings::Item_Types::MODEL_FILENAME:
 			{
-				SCP_string out;
-				stuff_string(out, F_NAME);
-				Warning(LOCATION, "Model filename! %s!", out.c_str());
+				SCP_string model_out;
+				stuff_string(model_out, F_NAME);
+				Warning(LOCATION, "Model filename! %s!", model_out.c_str());
 				_accepted_data.strings[_current_entry_address].
 					emplace_back(_entry_type_counts[_current_entry_address.type], 
 					_current_filepath,
 					_current_line,
 					empty_flagset,
-					out);
+					model_out);
 				break;
 			}
+
 			case PI_Settings::Item_Types::TEXTURE_FILENAME:
 			{
 				Warning(LOCATION, "Texture Filename! - No Implementation!");
 				mprintf(("Unimplemented parsing type. Temp message\n"));
 				break;
 			}
+
 			case PI_Settings::Item_Types::SOUND_FILENAME:
+			{
 				Warning(LOCATION, "Sound Filename! - No Implementation!");
 				mprintf(("Unimplemented parsing type. Temp message\n"));
 				break;
+			}
 			case PI_Settings::Item_Types::DAMAGE_TYPE_INDEX:
 			{
 				// Special type. Table writer places the name, later on the index is populated.

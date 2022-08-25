@@ -25,7 +25,6 @@ void init_asteroid_parse_items()
 {
 	auto factory = parse_item_builder(&Asteroid_parse_items, PI_Settings::Table_Types::ASTEROID);
 	Warning(LOCATION, "Starting to parse asteroid parse items."); // temporary
-	parse_item_builder::set_initial_miscellaneous();
 
 	factory.new_parse_item(SCP_string("#Asteroid Types"))
 		->set_description(SCP_string("The starting text for the asteroid table section."))
@@ -175,7 +174,7 @@ void init_asteroid_parse_items()
 
 	// once all options have been added, loop through them to add them to the map to allow
 	// out of order parsing.
-	Asteroid_parse_items.index_search_strings();
+	factory.index_search_strings();
 
 	if (Output_parse_items){
 		mprintf(("PARSE ITEMS: Outputting items from Asteroid.tbl \n"));

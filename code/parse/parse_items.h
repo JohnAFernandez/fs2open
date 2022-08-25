@@ -75,7 +75,7 @@ class parse_item_builder {
 	parse_item _product;
 	table_manager* _target_table;
 public:
-	parse_item_builder(table_manager target_table);
+	parse_item_builder(table_manager* target_table, PI_Settings::Table_Types type);
 
 	parse_item_builder* new_parse_item(SCP_string name);
 	parse_item_builder* set_description(SCP_string description);
@@ -93,6 +93,7 @@ public:
 	parse_item_builder* set_entry_type(PI_Settings::Entry_Types type_in);	
     parse_item_builder* set_data_target(agnostic_ptr destination);
 
+	void index_search_strings();
 	void finalize();
 
 };
