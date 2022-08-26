@@ -2352,73 +2352,31 @@ static poly_list buffer_list_internal;
 
 void poly_list::make_index_buffer(SCP_vector<int> &vertex_list)
 {
-	int nverts = 0;
-	int j, z = 0;
-	ubyte *nverts_good = NULL;
-
 	// calculate tangent space data (must be done early)
 	calculate_tangent();
-
-	// using vm_malloc() here rather than 'new' so we get the extra out-of-memory check
-	nverts_good = (ubyte *) vm_malloc(n_verts);
-
-    Assert( nverts_good != NULL );
-	if ( nverts_good == NULL )
-		return;
     
-	memset( nverts_good, 0, n_verts );
-
-	vertex_list.reserve(n_verts);
-
 	generate_sorted_index_list();
 
-	for (j = 0; j < n_verts; j++) {
-		if (find_first_vertex_fast(j) == j) {
-			nverts++;
-			nverts_good[j] = 1;
-			vertex_list.push_back(j);
+	int offset = 0;
+
+	for (int j = 0; j < n_verts; j++) {
+
+		// only copy if this vertex is good
+		if (find_first_vertex_fast(j) != j) {
+			++offset;
+		} else if (offset != 0){
+			vert[j - offset] = vert[j];
+			norm[j - offset] = norm[j];
+
+			if (Cmdline_normal) {
+				tsb[j - offset] = tsb[j];
+			}
+
+			submodels[j - offset] = submodels[j];
 		}
 	}
 
-	// if there is nothig to change then bail
-	if (n_verts == nverts) {
-		if (nverts_good != NULL) {
-			vm_free(nverts_good);
-		}
-
-		return;
-	}
-
-	buffer_list_internal.n_verts = 0;
-	buffer_list_internal.allocate(nverts);
-
-	for (j = 0; j < n_verts; j++) {
-		if ( !nverts_good[j] ) {
-			continue;
-		}
-
-		buffer_list_internal.vert[z] = vert[j];
-		buffer_list_internal.norm[z] = norm[j];
-
-		if (Cmdline_normal) {
-			buffer_list_internal.tsb[z] = tsb[j];
-		}
-
-		buffer_list_internal.submodels[z] = submodels[j];
-
-		buffer_list_internal.n_verts++;
-		z++;
-	}
-
-	Assert(nverts == buffer_list_internal.n_verts);
-
-	if (nverts_good != NULL) {
-		vm_free(nverts_good);
-	}
-
-	buffer_list_internal.generate_sorted_index_list();
-
-	(*this) = buffer_list_internal;
+	n_verts -= offset; 
 }
 
 poly_list& poly_list::operator = (const poly_list &other_list)
