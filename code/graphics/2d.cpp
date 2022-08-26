@@ -2359,24 +2359,40 @@ void poly_list::make_index_buffer(SCP_vector<int> &vertex_list)
 
 	int offset = 0;
 
+	// the original code would just ignore entries that didn't meet the criteria, so follow suite
+	// and just copy over the good entries.  This should be logically equivalent to the very round
+	// about way it used to do this.
 	for (int j = 0; j < n_verts; j++) {
 
-		// only copy if this vertex is good
-		if (find_first_vertex_fast(j) != j) {
+		// look for a "bad" index.  When offset is zero, everything has been perfect up to that point
+		// once offset is something besides zero, we should start using find_first_vertex_fast
+		if (offset == 0 && sorted_indices[j] != j) {
+			// start off offset because we have our first bad entry
 			++offset;
+
+		// only copy if this vertex is good	and we have bad entries we have to eliminate
 		} else if (offset != 0){
-			vert[j - offset] = vert[j];
-			norm[j - offset] = norm[j];
+			if (find_first_vertex_fast(j) != j){
+				++offset;
+			} else {
+				vert[j - offset] = vert[j];
+				norm[j - offset] = norm[j];
 
-			if (Cmdline_normal) {
-				tsb[j - offset] = tsb[j];
+				if (Cmdline_normal) {
+					tsb[j - offset] = tsb[j];
+				}
+
+				submodels[j - offset] = submodels[j];
 			}
-
-			submodels[j - offset] = submodels[j];
 		}
 	}
 
-	n_verts -= offset; 
+	// if something changed, change the size and sort the index list again and re-sort, 
+	// as the original code did
+	if (offset != 0){
+		n_verts -= offset; 
+		generate_sorted_index_list();
+	}
 }
 
 poly_list& poly_list::operator = (const poly_list &other_list)
