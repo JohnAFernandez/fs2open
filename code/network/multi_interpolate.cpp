@@ -160,6 +160,17 @@ void interpolation_manager::interpolate(vec3d* pos, matrix* ori, physics_info* p
 	vm_quaternion_rotate(&rotate_to_previous, -mag * flFrametime, &normalized_rotvel);
 	vm_matrix_x_matrix(last_orient, &rotate_to_previous, ori);
 
+
+	angles temp_test;
+
+	vm_extract_angles_matrix_alternate(&temp_test, &last_orient);
+	mprintf(("ZZZ Previous orient new method testing:"));
+	mprintf(("ZZZ Curr Orient in Angles: %f %f %f . Time elapsed%f", temp_test.b, temp_test.h, temp_test.p, flFrametime));
+	vm_extract_angles_matrix_alternate(&temp_test, &last_orient);
+	mprintf(("ZZZ Last Orient in Angles: %f %f %f\n", temp_test.b, temp_test.h, temp_test.p));
+
+
+
 	// duplicate the rest of the physics engine's calls here to make the simulation more exact.
 	pip->speed = vm_vec_mag(&pip->vel);
 	pip->fspeed = vm_vec_dot(&ori->vec.fvec, &pip->vel);
