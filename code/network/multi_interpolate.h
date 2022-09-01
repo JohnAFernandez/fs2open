@@ -107,9 +107,11 @@ public:
 		_shields_comparison_frame = -1;
 		_source_player_index = -1;
 
+		
+
 		// if we are resetting, that means that the ship may be respawning, so don't clear it out, just set the values to invalid.
-		for (auto& frame : _subsystems_comparison_frame) {
-			frame = -1;
+		for (int i = 0; i < MAX_MODEL_SUBSYSTEMS; i++) {
+			_subsystems_comparison_frame.push_back(-1);
 		}
 
 		_ai_comparison_frame = -1;
