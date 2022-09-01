@@ -163,10 +163,10 @@ void interpolation_manager::interpolate(vec3d* pos, matrix* ori, physics_info* p
 
 	angles temp_test;
 
-	vm_extract_angles_matrix_alternate(&temp_test, &last_orient);
+	vm_extract_angles_matrix_alternate(&temp_test, ori);
 	mprintf(("ZZZ Previous orient new method testing:"));
 	mprintf(("ZZZ Curr Orient in Angles: %f %f %f . Time elapsed%f", temp_test.b, temp_test.h, temp_test.p, flFrametime));
-	vm_extract_angles_matrix_alternate(&temp_test, &last_orient);
+	vm_extract_angles_matrix_alternate(&temp_test, last_orient);
 	mprintf(("ZZZ Last Orient in Angles: %f %f %f\n", temp_test.b, temp_test.h, temp_test.p));
 
 

@@ -1898,18 +1898,21 @@ int multi_oo_unpack_data(net_player* pl, ubyte* data, int seq_num, int time_delt
 
 				// the current subsystem had no info, so try the next subsystem.
 				if (flags[i] == 0) {
-					mprintf(("YYY Skipping subsystem."));
+					mprintf(("YYY Skipping subsystem %d.\n", i));
 					subsysp = GET_NEXT(subsysp);
 					continue;
+				} else {
+					mprintf(("YYY found %d flags for subsystem %d\n", flags[i], i));
 				}
 
 				// update health
 				if (flags[i] & OO_SUBSYS_HEALTH) {
+					mprintf(("YYY Found health change for %d subsystem\n", i));
 					if (seq_num > pobjp->interp_info.get_subsystem_comparison_frame(i)) {
 						pobjp->interp_info.set_subsystem_comparison_frames(i, seq_num);
 						subsysp->current_hits = subsys_data[data_idx] * subsysp->max_hits;
 
-						mprintf(("YYY Subsystem health of %f applied to subsystem %d.", subsys_data[data_idx], i));
+						mprintf(("YYY Subsystem health of %f applied to subsystem %d.\n", subsys_data[data_idx], i));
 
 						// Aggregate if necessary.
 						if (!(subsysp->flags[Ship::Subsystem_Flags::No_aggregate])) {
@@ -1939,49 +1942,49 @@ int multi_oo_unpack_data(net_player* pl, ubyte* data, int seq_num, int time_delt
 				if (flags[i] & OO_SUBSYS_ROTATION_1b) {
 					prev_angs_1->b = angs_1->b;
 					angs_1->b = (subsys_data[data_idx] * PI2);
-					mprintf(("YYY %f applied to ang1b of d .", subsys_data[data_idx], i));
+					mprintf(("YYY %f applied to ang1b of %d .\n", subsys_data[data_idx], i));
 					data_idx++;
 				}
 
 				if (flags[i] & OO_SUBSYS_ROTATION_1h) {
 					prev_angs_1->h = angs_1->h;
 					angs_1->h = (subsys_data[data_idx] * PI2);
-					mprintf(("YYY %f applied to ang1h of d .", subsys_data[data_idx], i));
+					mprintf(("YYY %f applied to ang1h of %d .\n", subsys_data[data_idx], i));
 					data_idx++;
 				}
 
 				if (flags[i] & OO_SUBSYS_ROTATION_1p) {
 					prev_angs_1->p = angs_1->p;
 					angs_1->p = (subsys_data[data_idx] * PI2);
-					mprintf(("YYY %f applied to ang1p of d .", subsys_data[data_idx], i));					
+					mprintf(("YYY %f applied to ang1p of %d .\n", subsys_data[data_idx], i));					
 					data_idx++;
 				}
 
 				if (flags[i] & OO_SUBSYS_ROTATION_2b) {
 					prev_angs_2->b = angs_2->b;
 					angs_2->b = (subsys_data[data_idx] * PI2);
-					mprintf(("YYY %f applied to ang2b of d .", subsys_data[data_idx], i));					
+					mprintf(("YYY %f applied to ang2b of %d .\n", subsys_data[data_idx], i));					
 					data_idx++;
 				}
 
 				if (flags[i] & OO_SUBSYS_ROTATION_2h) {
 					prev_angs_2->h = angs_2->h;
 					angs_2->h = (subsys_data[data_idx] * PI2);
-					mprintf(("YYY %f applied to ang2h of d .", subsys_data[data_idx], i));					
+					mprintf(("YYY %f applied to ang2h of %d .\n", subsys_data[data_idx], i));					
 					data_idx++;
 				}
 
 				if (flags[i] & OO_SUBSYS_ROTATION_2p) {
 					prev_angs_2->p = angs_2->p;
 					angs_2->p = (subsys_data[data_idx] * PI2);
-					mprintf(("YYY %f applied to ang2p of d .", subsys_data[data_idx], i));					
+					mprintf(("YYY %f applied to ang2p of %d .\n", subsys_data[data_idx], i));					
 					data_idx++;
 				}
 
 				if (flags[i] & OO_SUBSYS_TRANSLATION_x) {
 					subsysp->submodel_instance_1->canonical_prev_offset.xyz.x = subsysp->submodel_instance_1->canonical_offset.xyz.x;
 					subsysp->submodel_instance_1->canonical_offset.xyz.x = subsys_data[data_idx];
-					mprintf(("YYY %f applied to transx of d . Shouldn't be happenin.", subsys_data[data_idx], i));					
+					mprintf(("YYY %f applied to transx of %d . Shouldn't be happenin.\n", subsys_data[data_idx], i));					
 
 					data_idx++;
 				}
@@ -1989,14 +1992,14 @@ int multi_oo_unpack_data(net_player* pl, ubyte* data, int seq_num, int time_delt
 				if (flags[i] & OO_SUBSYS_TRANSLATION_y) {
 					subsysp->submodel_instance_1->canonical_prev_offset.xyz.y = subsysp->submodel_instance_1->canonical_offset.xyz.y;
 					subsysp->submodel_instance_1->canonical_offset.xyz.y = subsys_data[data_idx];
-					mprintf(("YYY %f applied to transy of d . Shouldn't be happenin.", subsys_data[data_idx], i));					
+					mprintf(("YYY %f applied to transy of %d . Shouldn't be happenin.\n", subsys_data[data_idx], i));					
 					data_idx++;
 				}
 
 				if (flags[i] & OO_SUBSYS_TRANSLATION_z) {
 					subsysp->submodel_instance_1->canonical_prev_offset.xyz.z = subsysp->submodel_instance_1->canonical_offset.xyz.z;
 					subsysp->submodel_instance_1->canonical_offset.xyz.z = subsys_data[data_idx];
-					mprintf(("YYY %f applied to transz of d . Shouldn't be happenin.", subsys_data[data_idx], i));					
+					mprintf(("YYY %f applied to transz of %d . Shouldn't be happenin.\n", subsys_data[data_idx], i));					
 					data_idx++;
 				}
 
@@ -2012,7 +2015,7 @@ int multi_oo_unpack_data(net_player* pl, ubyte* data, int seq_num, int time_delt
 
 				if (prev_angs_1 != nullptr) {
 					delete prev_angs_1;
-					prev_angs_1 = nullptr
+					prev_angs_1 = nullptr;
 				}
 
 				if (angs_1 != nullptr) { 
