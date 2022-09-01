@@ -1408,6 +1408,20 @@ int multi_oo_pack_data(net_player *pl, object *objp, ushort oo_flags, ubyte *dat
 		// Only send info if the count is greater than zero and if we're *not* on the very first frame when everything is already synced, anyway.
 		if (!subsys_data.empty() && Oo_info.number_of_frames != 0){
 
+			if (MULTIPLAYER_MASTER){
+				mprintf(("XXX packing this info to send to the client"));
+				int j = 0;
+				for (auto& info : subsys_data){
+					if (j == 5){
+						mprintf(("\n"));
+						j = 0;						
+					}
+					mprintf(("%f ", info));	
+					++j;
+				}
+				mprintf(("\n"));
+			}
+
 			Assertion(i <= MAX_MODEL_SUBSYSTEMS, "Object Update packet exceeded limit for number of subsystems. This is a coder error, please report!\n");
 			ret = multi_pack_unpack_subsystem_list(true, data + packet_size + header_bytes, &flags, &subsys_data);
 
@@ -1855,9 +1869,21 @@ int multi_oo_unpack_data(net_player* pl, ubyte* data, int seq_num, int time_delt
 		int ret7 = multi_pack_unpack_subsystem_list(false, data + offset, &flags, &subsys_data);
 		offset += ret7;
 
+		mprintf(("YYY Data found in subsystem subpacket:\n"));
+		int i = 0;
+		for (auto & data : subsys_data){
+			mprintf(("%f ", data));
+			++i;
+			if (i == 5){
+				i = 0;
+				mprintf(("\n"));
+			}
+		}
+		mprintf(("\n"));
+
 		if (NOT_EMPTY(&shipp->subsys_list)) {
 
-			// Before we start the loop, we need to get the first subsystem, to make sure that it's set up to avoid issues.
+			// Before we start the  loop, we need to get the first subsystem, to make sure that it's set up to avoid issues.
 			ship_subsys* subsysp = GET_FIRST(&shipp->subsys_list);
 
 			// and the index to use in the subsys_data vector
@@ -1872,6 +1898,7 @@ int multi_oo_unpack_data(net_player* pl, ubyte* data, int seq_num, int time_delt
 
 				// the current subsystem had no info, so try the next subsystem.
 				if (flags[i] == 0) {
+					mprintf(("YYY Skipping subsystem."));
 					subsysp = GET_NEXT(subsysp);
 					continue;
 				}
@@ -1881,6 +1908,8 @@ int multi_oo_unpack_data(net_player* pl, ubyte* data, int seq_num, int time_delt
 					if (seq_num > pobjp->interp_info.get_subsystem_comparison_frame(i)) {
 						pobjp->interp_info.set_subsystem_comparison_frames(i, seq_num);
 						subsysp->current_hits = subsys_data[data_idx] * subsysp->max_hits;
+
+						mprintf(("YYY Subsystem health of %f applied to subsystem %d.", subsys_data[data_idx], i));
 
 						// Aggregate if necessary.
 						if (!(subsysp->flags[Ship::Subsystem_Flags::No_aggregate])) {
@@ -1910,54 +1939,64 @@ int multi_oo_unpack_data(net_player* pl, ubyte* data, int seq_num, int time_delt
 				if (flags[i] & OO_SUBSYS_ROTATION_1b) {
 					prev_angs_1->b = angs_1->b;
 					angs_1->b = (subsys_data[data_idx] * PI2);
+					mprintf(("YYY %f applied to ang1b of d .", subsys_data[data_idx], i));
 					data_idx++;
 				}
 
 				if (flags[i] & OO_SUBSYS_ROTATION_1h) {
 					prev_angs_1->h = angs_1->h;
 					angs_1->h = (subsys_data[data_idx] * PI2);
+					mprintf(("YYY %f applied to ang1h of d .", subsys_data[data_idx], i));
 					data_idx++;
 				}
 
 				if (flags[i] & OO_SUBSYS_ROTATION_1p) {
 					prev_angs_1->p = angs_1->p;
 					angs_1->p = (subsys_data[data_idx] * PI2);
+					mprintf(("YYY %f applied to ang1p of d .", subsys_data[data_idx], i));					
 					data_idx++;
 				}
 
 				if (flags[i] & OO_SUBSYS_ROTATION_2b) {
 					prev_angs_2->b = angs_2->b;
 					angs_2->b = (subsys_data[data_idx] * PI2);
+					mprintf(("YYY %f applied to ang2b of d .", subsys_data[data_idx], i));					
 					data_idx++;
 				}
 
 				if (flags[i] & OO_SUBSYS_ROTATION_2h) {
 					prev_angs_2->h = angs_2->h;
 					angs_2->h = (subsys_data[data_idx] * PI2);
+					mprintf(("YYY %f applied to ang2h of d .", subsys_data[data_idx], i));					
 					data_idx++;
 				}
 
 				if (flags[i] & OO_SUBSYS_ROTATION_2p) {
 					prev_angs_2->p = angs_2->p;
 					angs_2->p = (subsys_data[data_idx] * PI2);
+					mprintf(("YYY %f applied to ang2p of d .", subsys_data[data_idx], i));					
 					data_idx++;
 				}
 
 				if (flags[i] & OO_SUBSYS_TRANSLATION_x) {
 					subsysp->submodel_instance_1->canonical_prev_offset.xyz.x = subsysp->submodel_instance_1->canonical_offset.xyz.x;
 					subsysp->submodel_instance_1->canonical_offset.xyz.x = subsys_data[data_idx];
+					mprintf(("YYY %f applied to transx of d . Shouldn't be happenin.", subsys_data[data_idx], i));					
+
 					data_idx++;
 				}
 
 				if (flags[i] & OO_SUBSYS_TRANSLATION_y) {
 					subsysp->submodel_instance_1->canonical_prev_offset.xyz.y = subsysp->submodel_instance_1->canonical_offset.xyz.y;
 					subsysp->submodel_instance_1->canonical_offset.xyz.y = subsys_data[data_idx];
+					mprintf(("YYY %f applied to transy of d . Shouldn't be happenin.", subsys_data[data_idx], i));					
 					data_idx++;
 				}
 
 				if (flags[i] & OO_SUBSYS_TRANSLATION_z) {
 					subsysp->submodel_instance_1->canonical_prev_offset.xyz.z = subsysp->submodel_instance_1->canonical_offset.xyz.z;
 					subsysp->submodel_instance_1->canonical_offset.xyz.z = subsys_data[data_idx];
+					mprintf(("YYY %f applied to transz of d . Shouldn't be happenin.", subsys_data[data_idx], i));					
 					data_idx++;
 				}
 
@@ -1965,14 +2004,30 @@ int multi_oo_unpack_data(net_player* pl, ubyte* data, int seq_num, int time_delt
 				if (flags[i] & OO_SUBSYS_ROTATION_1) {
 					vm_angles_2_matrix(&subsysp->submodel_instance_1->canonical_prev_orient, prev_angs_1);
 					vm_angles_2_matrix(&subsysp->submodel_instance_1->canonical_orient, angs_1);
-					delete prev_angs_1;
-					delete angs_1;
 				}
 				if (flags[i] & OO_SUBSYS_ROTATION_2) {
 					vm_angles_2_matrix(&subsysp->submodel_instance_2->canonical_prev_orient, prev_angs_2);
 					vm_angles_2_matrix(&subsysp->submodel_instance_2->canonical_orient, angs_2);
+				}
+
+				if (prev_angs_1 != nullptr) {
+					delete prev_angs_1;
+					prev_angs_1 = nullptr
+				}
+
+				if (angs_1 != nullptr) { 
+					delete angs_1;
+					angs_1 = nullptr;
+				}
+
+				if (prev_angs_2 != nullptr) {
 					delete prev_angs_2;
+					prev_angs_2 = nullptr;
+				}
+				
+				if (angs_2 != nullptr){
 					delete angs_2;
+					angs_2 = nullptr;
 				}
 
 				subsysp = GET_NEXT(subsysp);
@@ -1980,6 +2035,8 @@ int multi_oo_unpack_data(net_player* pl, ubyte* data, int seq_num, int time_delt
 			}
 			// recalculate all ship subsystems
 			ship_recalc_subsys_strength(shipp);
+		} else {
+			mprintf(("YYY Apparently, there are no Subsystems to put info into.\n"));
 		}
 
 	}
