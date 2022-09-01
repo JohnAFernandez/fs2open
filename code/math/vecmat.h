@@ -590,7 +590,7 @@ void vm_interpolate_angles_quick(angles* dest0, angles* src0, angles* src1, floa
 
 // Interpolate between two matrices, using t as a percentage between them.
 // derived by Asteroth from our AI code
-void vm_interpolate_matrices(matrix* curr_orient, matrix* goal_orient, float t);
+void vm_interpolate_matrices(matrix* out_orient, matrix* curr_orient, matrix* goal_orient, float t);
 
 // generates a well distributed quasi-random position in a -1 to 1 cube
 // the caller must provide and increment the seed for each call for proper results
