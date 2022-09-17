@@ -77,6 +77,7 @@
 #include "network/multi_mdns.h"
 #include "mission/missiongoals.h"
 #include "network/multi_interpolate.h"
+#include "network/multi_anim_manager.h"
 
 // #define _MULTI_SUPER_WACKY_COMPRESSION
 
