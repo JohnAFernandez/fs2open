@@ -3268,7 +3268,7 @@ void process_secondary_fired_packet(ubyte* data, header* hinfo, int from_player)
 	if ( starting_sig != 0 ){
 		multi_set_network_signature( starting_sig, MULTI_SIG_NON_PERMANENT );
 	} else {
-		shipp->weapons.detonate_weapon_time = timestamp(0);		// signature of -1 say detonate remote weapon
+		shipp->weapons.detonate_weapon_time = timestamp(0);		// signature of 0 say detonate remote weapon
 	}
 
 	ship_fire_secondary( objp, allow_swarm );

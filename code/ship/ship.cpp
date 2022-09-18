@@ -12453,7 +12453,7 @@ int ship_fire_secondary( object *obj, int allow_swarm, bool rollback_shot )
 	}
 
 	if (ship_fire_secondary_detonate(obj, swp)) {
-		// in multiplayer, master sends a secondary fired packet with starting signature of -1 -- indicates
+		// in multiplayer, master sends a secondary fired packet with starting signature of 0 -- indicates
 		// to client code to set the detonate timer to 0.
 		if ( MULTIPLAYER_MASTER ) {
 			send_secondary_fired_packet( shipp, 0, starting_bank_count, 1, allow_swarm );
