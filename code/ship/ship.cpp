@@ -12665,7 +12665,8 @@ int ship_fire_secondary( object *obj, int allow_swarm, bool rollback_shot )
 		// and if I am a client in multiplayer
 		check_ammo = 1;
 
-		if ( MULTIPLAYER_CLIENT && (obj != Player_obj) ){
+		// another reminder that clients need to check that there is enough ammo if they are using dumbfires.
+		if ( MULTIPLAYER_CLIENT && (obj != Player_obj || Weapon_info[swp->secondary_bank_weapons[bank]].is_homing()) ){
 			check_ammo = 0;
 		}
 
