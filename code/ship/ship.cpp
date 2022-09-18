@@ -12807,8 +12807,13 @@ int ship_fire_secondary( object *obj, int allow_swarm, bool rollback_shot )
 
 				// subtract the number of missiles fired
 				if ( !Weapon_energy_cheat ){
-					if(!Weapon_info[swp->secondary_bank_weapons[bank]].wi_flags[Weapon::Info_Flags::SecondaryNoAmmo])
-						swp->secondary_bank_ammo[bank]--;
+					if(!Weapon_info[swp->secondary_bank_weapons[bank]].wi_flags[Weapon::Info_Flags::SecondaryNoAmmo]) {
+						// Cyborg - every once in a while a MP client weapon selection can get out of sync.  So let's at least keep ammo count
+						// from being nonsense, even if other things are going wrong.  This *is* a bandaid for a very rare issue, but a refactor *is* planned.
+						if (!MULTIPLAYER_CLIENT || swp->secondary_bank_ammo[bank] > 0) {
+							swp->secondary_bank_ammo[bank]--;
+						}
+					}
 
 					shipp->weapon_energy -= wip->energy_consumed;
 				}
