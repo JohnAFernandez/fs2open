@@ -67,16 +67,7 @@ struct oo_info_sent_to_players {
 	int ai_submode;					// what ai submode was last sent.
 	int target_signature;			// what target_signature was last sent (used for AI portion of OO packet)
 
-	SCP_vector<float> subsystem_health;	// We need vectors to keep track of all subsystem health and subsystem angles.
-	SCP_vector<float> subsystem_1b;
-	SCP_vector<float> subsystem_1h;
-	SCP_vector<float> subsystem_1p;
-	SCP_vector<float> subsystem_2b;
-	SCP_vector<float> subsystem_2h;
-	SCP_vector<float> subsystem_2p;
-	SCP_vector<float> subsystem_x;
-	SCP_vector<float> subsystem_y;
-	SCP_vector<float> subsystem_z;
+	SCP_vector<float> subsystem_health;	// We need vectors to keep track of all subsystem health.
 };
 
 struct oo_netplayer_records{
@@ -133,8 +124,6 @@ struct oo_general_info {
 	SCP_vector<rollback_unsimulated_shots> 
 		rollback_shots_to_be_fired[MAX_FRAMES_RECORDED];				// the shots we will need to fire and simulate during rollback, organized into the frames they will be fired
 	SCP_vector<int>rollback_collide_list;					// the list of ships and weapons that we need to pass to collision detection during rollback.
-														
-	SCP_vector<const ship_registry_entry*> rotation_list;	// subsystem rotation
 };
 
 oo_general_info Oo_info;
@@ -179,8 +168,6 @@ float multi_oo_calc_pos_time_difference(int player_id, int net_sig_idx);
 #define OO_PRIMARY_LINKED			(1<<9)		// if this is set, banks are linked
 #define OO_TRIGGER_DOWN				(1<<10)		// if this is set, trigger is DOWN
 #define OO_SUPPORT_SHIP				(1<<11)		// Send extra info for the support ship.
-
-#define OO_SBUSYS_ROTATION_CUTOFF	0.1f		// if the squared difference between the old and new angles is less than this, don't send.
 
 #define OO_VIEW_CONE_DOT			(0.1f)
 #define OO_VIEW_DIFF_TOL			(0.15f)			// if the dotproducts differ this far between frames, he's coming into view
@@ -351,15 +338,6 @@ void multi_rollback_ship_record_add_ship(int obj_num)
 
 		for (int i = 0; i < MAX_PLAYERS; i++) {
 			Oo_info.player_frame_info[i].last_sent[net_sig_idx].subsystem_health.push_back(-1.0f);
-			Oo_info.player_frame_info[i].last_sent[net_sig_idx].subsystem_1b.push_back(-1.0f);
-			Oo_info.player_frame_info[i].last_sent[net_sig_idx].subsystem_1h.push_back(-1.0f);
-			Oo_info.player_frame_info[i].last_sent[net_sig_idx].subsystem_1p.push_back(-1.0f);
-			Oo_info.player_frame_info[i].last_sent[net_sig_idx].subsystem_2b.push_back(-1.0f);
-			Oo_info.player_frame_info[i].last_sent[net_sig_idx].subsystem_2h.push_back(-1.0f);
-			Oo_info.player_frame_info[i].last_sent[net_sig_idx].subsystem_2p.push_back(-1.0f);
-			Oo_info.player_frame_info[i].last_sent[net_sig_idx].subsystem_x.push_back(0.0f);
-			Oo_info.player_frame_info[i].last_sent[net_sig_idx].subsystem_y.push_back(0.0f);
-			Oo_info.player_frame_info[i].last_sent[net_sig_idx].subsystem_z.push_back(0.0f);
 		}
 	}
 
@@ -909,15 +887,6 @@ void multi_oo_respawn_reset_info(object* objp)
 		player_record.last_sent[objp->net_signature].perfect_shields_sent = false;
 		for (int i = 0; i < (int)player_record.last_sent[objp->net_signature].subsystem_health.size(); i++) {
 			player_record.last_sent[objp->net_signature].subsystem_health[i] = -1.0f;
-			player_record.last_sent[objp->net_signature].subsystem_1b[i] = -1.0f;
-			player_record.last_sent[objp->net_signature].subsystem_1h[i] = -1.0f;
-			player_record.last_sent[objp->net_signature].subsystem_1p[i] = -1.0f;
-			player_record.last_sent[objp->net_signature].subsystem_2b[i] = -1.0f;
-			player_record.last_sent[objp->net_signature].subsystem_2h[i] = -1.0f;
-			player_record.last_sent[objp->net_signature].subsystem_2p[i] = -1.0f;
-			player_record.last_sent[objp->net_signature].subsystem_x[i] = 0.0f;
-			player_record.last_sent[objp->net_signature].subsystem_y[i] = 0.0f;
-			player_record.last_sent[objp->net_signature].subsystem_z[i] = 0.0f;
 		}
 	}
 
@@ -1310,111 +1279,42 @@ int multi_oo_pack_data(net_player *pl, object *objp, ushort oo_flags, ubyte *dat
 	}	
 
 	// Cyborg17 - add the subsystem data, now with packer function.
-	if ((MULTIPLAYER_MASTER || objp->flags[Object::Object_Flags::Player_ship]) && shipp->ship_info_index >= 0) {
-		SCP_vector<ubyte> flags;
-		SCP_vector<float> subsys_data;
-		ubyte i = 0;
+	if (MULTIPLAYER_MASTER && shipp->ship_info_index >= 0 && Oo_info.number_of_frames != 0) {
 
-		flags.reserve(MAX_MODEL_SUBSYSTEMS);
-		subsys_data.reserve(MAX_MODEL_SUBSYSTEMS); // propbably won't exceed this, and even if it does, it will get cut off.
+		ubyte i = 0;
+		int count = 0;
 
 		for (ship_subsys* subsystem = GET_FIRST(&shipp->subsys_list); subsystem != END_OF_LIST(&shipp->subsys_list);
 			subsystem = GET_NEXT(subsystem)) {
-			flags.push_back(0);
+
+			// avoid iterating twice by saving the pointer and index. This is safe because we're not writing to or removing from the list.
+			SCP_vector<std::pair<ship_subsys*, ubyte>> subsystems_to_update;
+
 			// Don't send destroyed subsystems, (another packet handles that), but check to see if the subsystem changed since the last update. 
 			if (MULTIPLAYER_MASTER && (subsystem->current_hits != 0.0f) && (subsystem->current_hits != Oo_info.player_frame_info[pl->player_id].last_sent[objp->net_signature].subsystem_health[i])) {
-				flags[i] |= OO_SUBSYS_HEALTH;
-				subsys_data.push_back(subsystem->current_hits / subsystem->max_hits);
+				// now that animations are handled separately, just do it the easy way.
+				subsystems_to_update.emplace_back(subsystem, i);
+
 				// good thing this cheap because we have to calculate this twice to avoid iterating through the whole system list twice.
 				Oo_info.player_frame_info[pl->player_id].last_sent[objp->net_signature].subsystem_health[i] = subsystem->current_hits;
-
-				// this should be safe because we only work with subsystems that have health.
-				// and also track the list of subsystems that we packed by index
-			}
-			
-
-			// retrieve the submodel for rotation info.
-			if (subsystem->system_info->flags[Model::Subsystem_Flags::Rotates]) {
-				angles *angs_1 = nullptr;
-				angles *angs_2 = nullptr;
-				if (subsystem->submodel_instance_1) {
-					angs_1 = new angles;
-					vm_extract_angles_matrix_alternate(angs_1, &subsystem->submodel_instance_1->canonical_orient);
-				}
-				if (subsystem->submodel_instance_2) {
-					angs_2 = new angles;
-					vm_extract_angles_matrix_alternate(angs_2, &subsystem->submodel_instance_2->canonical_orient);
-				}
-
-				// here we're checking to see if the subsystems rotated enough to send.
-				if (angs_1 != nullptr && angs_1->b != Oo_info.player_frame_info[pl->player_id].last_sent[objp->net_signature].subsystem_1b[i]) {
-					flags[i] |= OO_SUBSYS_ROTATION_1b;
-					subsys_data.push_back(angs_1->b / PI2);
-				}
-
-				if (angs_1 != nullptr && angs_1->h != Oo_info.player_frame_info[pl->player_id].last_sent[objp->net_signature].subsystem_1h[i]) {
-					flags[i] |= OO_SUBSYS_ROTATION_1h;
-					subsys_data.push_back(angs_1->h / PI2);
-				}
-
-				if (angs_1 != nullptr && angs_1->p != Oo_info.player_frame_info[pl->player_id].last_sent[objp->net_signature].subsystem_1p[i]) {
-					flags[i] |= OO_SUBSYS_ROTATION_1p;
-					subsys_data.push_back(angs_1->p / PI2);
-				}
-
-				if (angs_2 != nullptr && angs_2->b != Oo_info.player_frame_info[pl->player_id].last_sent[objp->net_signature].subsystem_2b[i]) {
-					flags[i] |= OO_SUBSYS_ROTATION_2b;
-					subsys_data.push_back(angs_2->b / PI2);
-				}
-
-				if (angs_2 != nullptr && angs_2->h != Oo_info.player_frame_info[pl->player_id].last_sent[objp->net_signature].subsystem_2h[i]) {
-					flags[i] |= OO_SUBSYS_ROTATION_2h;
-					subsys_data.push_back(angs_2->h / PI2);
-				}
-
-				if (angs_2 != nullptr && angs_2->p != Oo_info.player_frame_info[pl->player_id].last_sent[objp->net_signature].subsystem_2p[i]) {
-					flags[i] |= OO_SUBSYS_ROTATION_2p;
-					subsys_data.push_back(angs_2->p / PI2);
-				}
-
-				// clang says deleting null pointer has no effect
-				delete angs_1;
-				delete angs_2;
 			}
 
-			// ditto for translation
-			if (subsystem->system_info->flags[Model::Subsystem_Flags::Translates]) {
-				auto smi = subsystem->submodel_instance_1;
-
-				if (smi && smi->canonical_offset.xyz.x != Oo_info.player_frame_info[pl->player_id].last_sent[objp->net_signature].subsystem_x[i]) {
-					flags[i] |= OO_SUBSYS_TRANSLATION_x;
-					subsys_data.push_back(smi->canonical_offset.xyz.x);
-				}
-
-				if (smi && smi->canonical_offset.xyz.y != Oo_info.player_frame_info[pl->player_id].last_sent[objp->net_signature].subsystem_y[i]) {
-					flags[i] |= OO_SUBSYS_TRANSLATION_y;
-					subsys_data.push_back(smi->canonical_offset.xyz.y);
-				}
-
-				if (smi && smi->canonical_offset.xyz.z != Oo_info.player_frame_info[pl->player_id].last_sent[objp->net_signature].subsystem_z[i]) {
-					flags[i] |= OO_SUBSYS_TRANSLATION_z;
-					subsys_data.push_back(smi->canonical_offset.xyz.z);
-				}
-			}
-
-			i++;
+			++i;
 		}
 
-		// Only send info if the count is greater than zero and if we're *not* on the very first frame when everything is already synced, anyway.
-		if (!subsys_data.empty() && Oo_info.number_of_frames != 0){
-
-			Assertion(i <= MAX_MODEL_SUBSYSTEMS, "Object Update packet exceeded limit for number of subsystems. This is a coder error, please report!\n");
-			ret = multi_pack_unpack_subsystem_list(true, data + packet_size + header_bytes, &flags, &subsys_data);
-
+		if (!subsystems_to_update.empty()) {
 			// Check that we are not sending too much data, if so, don't actually send.
-			if (packet_size + ret <= OO_MAX_DATA_SIZE) {
-				oo_flags |= OO_SUBSYSTEMS_NEW;		
-				packet_size += ret;
+			if (packet_size + (static_cast<int>(subsystems_to_update.size()) * 2) <= OO_MAX_DATA_SIZE) {
+
+				oo_flags |= OO_SUBSYSTEMS_NEW;
+				PACK_BYTE(static_cast<ubyte>(subsystems_to_update.size()));				
+
+				for (auto& pair : subsystems_to_update){
+					float health = pair.first->current_hits / pair.first->subsystem->max_hits;
+					PACK_BYTE(subsystems_to_update.second);
+					PACK_PERCENT(health);
+				}
+
 			} else {
 				nprintf(("Network","Had to remove subsystems section from data packet for %s\n", shipp->ship_name));
 			}
@@ -1849,139 +1749,46 @@ int multi_oo_unpack_data(net_player* pl, ubyte* data, int seq_num, int time_delt
 
 	// get the subsystem info
 	if (oo_flags & OO_SUBSYSTEMS_NEW) {
-		SCP_vector<ubyte> flags;  flags.reserve(MAX_MODEL_SUBSYSTEMS);
-		SCP_vector<float> subsys_data;  subsys_data.reserve(MAX_MODEL_SUBSYSTEMS); // couldn't think of a better constant to put here
-		
-		int ret7 = multi_pack_unpack_subsystem_list(false, data + offset, &flags, &subsys_data);
-		offset += ret7;
 
-		if (NOT_EMPTY(&shipp->subsys_list)) {
+		ubyte size, index;
+		GET_BYTE(size);
 
-			// Before we start the loop, we need to get the first subsystem, to make sure that it's set up to avoid issues.
-			ship_subsys* subsysp = GET_FIRST(&shipp->subsys_list);
+		ship_subsys* subsysp = nullptr;
+		bool not_empty = NOT_EMPTY(&shipp->subsys_list);
 
-			// and the index to use in the subsys_data vector
-			int data_idx = 0;
+		int subsystem_index = -1;
 
-			// look for a match, in order to set values.
-			for (int i = 0; i < (int)flags.size(); i++) {
-
-				if (subsysp == END_OF_LIST(&shipp->subsys_list)) {
-					break;
-				}
-
-				// the current subsystem had no info, so try the next subsystem.
-				if (flags[i] == 0) {
-					subsysp = GET_NEXT(subsysp);
-					continue;
-				}
-
-				// update health
-				if (flags[i] & OO_SUBSYS_HEALTH) {
-					if (seq_num > pobjp->interp_info.get_subsystem_comparison_frame(i)) {
-						pobjp->interp_info.set_subsystem_comparison_frames(i, seq_num);
-						subsysp->current_hits = subsys_data[data_idx] * subsysp->max_hits;
-
-						// Aggregate if necessary.
-						if (!(subsysp->flags[Ship::Subsystem_Flags::No_aggregate])) {
-							shipp->subsys_info[subsysp->system_info->type].aggregate_current_hits += subsysp->current_hits;
-						}
-					}
-					data_idx++;
-				}
-
-				angles *prev_angs_1 = nullptr;
-				angles *prev_angs_2 = nullptr;
-				angles *angs_1 = nullptr;
-				angles *angs_2 = nullptr;
-				if (subsysp->submodel_instance_1) {
-					prev_angs_1 = new angles;
-					angs_1 = new angles;
-					vm_extract_angles_matrix_alternate(prev_angs_1, &subsysp->submodel_instance_1->canonical_prev_orient);
-					vm_extract_angles_matrix_alternate(angs_1, &subsysp->submodel_instance_1->canonical_orient);
-				}
-				if (subsysp->submodel_instance_2) {
-					prev_angs_2 = new angles;
-					angs_2 = new angles;
-					vm_extract_angles_matrix_alternate(prev_angs_2, &subsysp->submodel_instance_2->canonical_prev_orient);
-					vm_extract_angles_matrix_alternate(angs_2, &subsysp->submodel_instance_2->canonical_orient);
-				}
-
-				if (flags[i] & OO_SUBSYS_ROTATION_1b) {
-					prev_angs_1->b = angs_1->b;
-					angs_1->b = (subsys_data[data_idx] * PI2);
-					data_idx++;
-				}
-
-				if (flags[i] & OO_SUBSYS_ROTATION_1h) {
-					prev_angs_1->h = angs_1->h;
-					angs_1->h = (subsys_data[data_idx] * PI2);
-					data_idx++;
-				}
-
-				if (flags[i] & OO_SUBSYS_ROTATION_1p) {
-					prev_angs_1->p = angs_1->p;
-					angs_1->p = (subsys_data[data_idx] * PI2);
-					data_idx++;
-				}
-
-				if (flags[i] & OO_SUBSYS_ROTATION_2b) {
-					prev_angs_2->b = angs_2->b;
-					angs_2->b = (subsys_data[data_idx] * PI2);
-					data_idx++;
-				}
-
-				if (flags[i] & OO_SUBSYS_ROTATION_2h) {
-					prev_angs_2->h = angs_2->h;
-					angs_2->h = (subsys_data[data_idx] * PI2);
-					data_idx++;
-				}
-
-				if (flags[i] & OO_SUBSYS_ROTATION_2p) {
-					prev_angs_2->p = angs_2->p;
-					angs_2->p = (subsys_data[data_idx] * PI2);
-					data_idx++;
-				}
-
-				if (flags[i] & OO_SUBSYS_TRANSLATION_x) {
-					subsysp->submodel_instance_1->canonical_prev_offset.xyz.x = subsysp->submodel_instance_1->canonical_offset.xyz.x;
-					subsysp->submodel_instance_1->canonical_offset.xyz.x = subsys_data[data_idx];
-					data_idx++;
-				}
-
-				if (flags[i] & OO_SUBSYS_TRANSLATION_y) {
-					subsysp->submodel_instance_1->canonical_prev_offset.xyz.y = subsysp->submodel_instance_1->canonical_offset.xyz.y;
-					subsysp->submodel_instance_1->canonical_offset.xyz.y = subsys_data[data_idx];
-					data_idx++;
-				}
-
-				if (flags[i] & OO_SUBSYS_TRANSLATION_z) {
-					subsysp->submodel_instance_1->canonical_prev_offset.xyz.z = subsysp->submodel_instance_1->canonical_offset.xyz.z;
-					subsysp->submodel_instance_1->canonical_offset.xyz.z = subsys_data[data_idx];
-					data_idx++;
-				}
-
-				// fix up the matrixes
-				if (flags[i] & OO_SUBSYS_ROTATION_1) {
-					vm_angles_2_matrix(&subsysp->submodel_instance_1->canonical_prev_orient, prev_angs_1);
-					vm_angles_2_matrix(&subsysp->submodel_instance_1->canonical_orient, angs_1);
-					delete prev_angs_1;
-					delete angs_1;
-				}
-				if (flags[i] & OO_SUBSYS_ROTATION_2) {
-					vm_angles_2_matrix(&subsysp->submodel_instance_2->canonical_prev_orient, prev_angs_2);
-					vm_angles_2_matrix(&subsysp->submodel_instance_2->canonical_orient, angs_2);
-					delete prev_angs_2;
-					delete angs_2;
-				}
-
-				subsysp = GET_NEXT(subsysp);
-
-			}
-			// recalculate all ship subsystems
-			ship_recalc_subsys_strength(shipp);
+		if (not_empty) {
+			subsysp = GET_FIRST(&shipp->subsys_list);
+			subsystem_index = 0;
 		}
 
+		float percent;
+
+		for (int i = 0; i < size; i++) {
+			GET_BYTE(index);		
+			UNPACK_PERCENT(percent);
+
+			if (subsystem_index > -1){
+
+				while (subsystem_index < index){
+					subsysp = GET_NEXT(subsysp);
+					++subsystem_index;
+				}
+
+				if (seq_num > pobjp->interp_info.get_subsystem_comparison_frame(i)) {
+					subsysp->current_hits = percent * subsysp->max_hits;
+
+					// Aggregate if necessary.
+					if (!(subsysp->flags[Ship::Subsystem_Flags::No_aggregate])) {
+						shipp->subsys_info[subsysp->system_info->type].aggregate_current_hits += subsysp->current_hits;
+					}
+				}
+			}
+		}
+		
+		// recalculate all ship subsystems
+		ship_recalc_subsys_strength(shipp);
 	}
 
 	// ---------------------------------------------------------------------------------------------------------------
