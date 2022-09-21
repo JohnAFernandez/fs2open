@@ -4033,8 +4033,12 @@ void submodel_stepped_rotate(model_subsystem *psub, submodel_instance *smi)
 
 	if ( sm->rotation_type != MOVEMENT_TYPE_REGULAR ) return;
 
-	if (!smi->stepped_rotation_started.isValid())
+	bool register_instance = false;
+
+	if (!smi->stepped_rotation_started.isValid()){
 		smi->stepped_rotation_started = _timestamp();
+		register_instance = true;
+	}
 
 	float elapsed_time = timestamp_since(smi->stepped_rotation_started) / static_cast<float>(MILLISECONDS_PER_SECOND);
 
