@@ -5,6 +5,14 @@
 #include "network/multi_time_manager.h"
 #include "network/multiutil.h"
 
+constexpr ubyte REG_ROTATION 		= 1 << 0;
+constexpr ubyte STEPPED_ROTATION 	= 1 << 1;
+constexpr ubyte TURRET				= 1 << 2;
+constexpr ubyte DUMB_ROTATE		 	= 1 << 3;
+constexpr ubyte LOOK_AT			 	= 1 << 4;
+constexpr ubyte REG_TRANSLATION  	= 1 << 5;
+constexpr ubyte STEPPED_TRANSLATION = 1 << 6;
+
 struct last_animation_info {
 	TIMESTAMP time;
 	vec3d velocity;
@@ -144,5 +152,7 @@ class multi_subobject_animation_manager {
 	void client_frame();
 
 	void reset();
+
+	void update_packet();
 
 };
