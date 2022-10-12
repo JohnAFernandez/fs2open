@@ -110,7 +110,6 @@ class player;
 #define MAX_RESPAWN_POINTS					25				// the max # of respawn points we'll keep track of for any mission
 
 // player information defines
-#define BUTTON_INFO_SAVE_COUNT			30				// how many buttons infos we keep track of for sending critical keypresses to the server
 #define MAX_PINGS								10				// how many pings we keep track of for averaging player pings
 
 // reliable connect wait
@@ -178,7 +177,6 @@ class player;
 #define MISSION_SYNC_DATA        0x11		// this is a unique packet from the host to the server in a standalone game
 #define STORE_MISSION_STATS      0x12		// sent to client indicating the host has hit "accept" and they should update their alltime stats
 #define DEBRIS_UPDATE            0x13		// debris position, velocity, orientation, etc update
-#define SHIP_WSTATE_CHANGE			0x14		// used to tell clients that a ship's primary/secondary state changed	
 #define WSS_REQUEST_PACKET			0x15		// from client to server, requesting to do an operation
 #define WSS_UPDATE_PACKET			0x16		// from server to client, given any update
 #define KICK_PLAYER					0x17		// kick a specific player (sent to server by those who are allowed to do this)
@@ -208,7 +206,6 @@ class player;
 #define SECONDARY_FIRED_PLR		0xA1		// fired a secondary weapon (player ship)
 #define COUNTERMEASURE_FIRED		0xA2		// countermeasure was fired
 #define FIRE_TURRET_WEAPON			0xA3		// a turret weapon was fired
-#define SHIP_STATUS_CHANGE       0xA4     // any of the relevant ship status buttons have been hit (need ack from server)
 #define PLAYER_ORDER_PACKET      0xA5     // ship and wing commands sent from client to server
 #define AI_INFO_UPDATE				0xA6		// update ai information for the given ship
 #define CAMPAIGN_UPDATE				0xA7		// one of several campaign informational packets
@@ -400,10 +397,6 @@ typedef struct net_player_server_info {
 	int				wing_index;											// index of the next wing data item to be sent
 	int				ingame_join_flags;								// status flags for an ingame joiner
 	int				invul_timestamp;									// invulnerability flag timestamp (for respawning after dying)
-	button_info		last_buttons[BUTTON_INFO_SAVE_COUNT];		// button info for sending critical control packets to the server
-	int				last_buttons_id[BUTTON_INFO_SAVE_COUNT];	//
-	fix				last_buttons_time[BUTTON_INFO_SAVE_COUNT];//
-	int				num_last_buttons;									//
 	UI_TIMESTAMP	last_full_update_time;							// time when server last updated this player position/orientation
 	int				xfer_handle;										// handle to the file xfer handle (-1 if no file xfer is taking place)
 	UI_TIMESTAMP	kick_timestamp;									// timestamp with which we'll disconnect a player if he hasn't reponded to a kick packet
@@ -454,10 +447,6 @@ typedef struct net_player_server_info {
 		wing_index = -1;
 		ingame_join_flags = 0;
 		invul_timestamp = 0;
-		memset(&last_buttons, 0, sizeof(last_buttons));
-		memset(&last_buttons_id, 0, sizeof(last_buttons_id));
-		memset(&last_buttons_time, 0, sizeof(last_buttons_time));
-		num_last_buttons = 0;
 		xfer_handle = -1;
 		kick_reason = 0;
 		reliable_connect_time = 0;
@@ -878,7 +867,6 @@ extern ushort Next_waypoint_signature;								// next waypoint signature for dyn
 extern netgame_info Netgame;											// netgame information
 extern int Multi_mission_loaded;										// flag, so that we don't load the mission more than once client side
 extern ushort Multi_ingame_join_sig;									// signature for the player obj for use when joining ingame
-extern int Multi_button_info_ok;										// flag saying it is ok to apply critical button info on a client machine
 extern int Multi_button_info_id;										// identifier of the stored button info to be applying
 
 // low level networking vars

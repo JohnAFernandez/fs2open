@@ -107,7 +107,6 @@ net_player *Net_player;												// pointer to console's net_player entry
 netgame_info Netgame;												// netgame information
 int Multi_mission_loaded = 0;										// flag, so that we don't load the mission more than once client side
 int Ingame_join_net_signature = -1;								// signature for the player obj for use when joining ingame
-int Multi_button_info_ok = 0;										// flag saying it is ok to apply critical button info on a client machine
 int Multi_button_info_id = 0;										// identifier of the stored button info to be applying
 
 // misc data
@@ -214,7 +213,6 @@ void multi_vars_init()
 	Next_waypoint_signature = WAYPOINT_SIG_MIN;
 	
 	// server-client critical stuff
-	Multi_button_info_ok = 0;
 	Multi_button_info_id = 0;
 
 	// Ingame join stuff
@@ -666,10 +664,6 @@ void process_packet_normal(ubyte* data, header *header_info)
 			process_netplayer_slot_packet(data, header_info);
 			break;
 
-		case SHIP_STATUS_CHANGE:
-			process_ship_status_packet(data, header_info);
-			break;
-
 		case PLAYER_ORDER_PACKET:
 			process_player_order_packet(data, header_info);
 			break;
@@ -721,10 +715,6 @@ void process_packet_normal(ubyte* data, header *header_info)
 		case DEBRIS_UPDATE:
 			process_debris_update_packet(data, header_info);
 			break;		
-
-		case SHIP_WSTATE_CHANGE:
-			process_ship_weapon_change( data, header_info );
-			break;
 
 		case WSS_UPDATE_PACKET:
 			process_wss_update_packet(data, header_info);

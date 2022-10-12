@@ -131,7 +131,6 @@ void process_netgame_descript_packet( ubyte *data, header *hinfo );
 // process an incoming netplayer state update. if we're the server, we should rebroadcast
 void process_netplayer_update_packet( ubyte *data, header *hinfo );
 
-void process_ship_status_packet(ubyte *data, header *hinfo);
 void process_player_order_packet(ubyte *data, header *hinfo);
 
 // process an object update packet.  See send_object_update for information on how
@@ -213,9 +212,6 @@ void process_mission_sync_packet(ubyte *data, header *hinfo);
 void process_store_stats_packet(ubyte *data, header *hinfo);
 
 void process_debris_update_packet(ubyte *data, header *hinfo);
-
-void process_ship_weapon_state_packet(ubyte *data, header *hinfo );
-void process_ship_weapon_change( ubyte *data, header *hinfo );
 
 void process_firing_info_packet( ubyte *data, header *hinfo );
 
@@ -388,8 +384,6 @@ void send_store_stats_packet(int accept);
 
 void send_debris_create_packet(object *objp, ushort net_signature, int model_num, vec3d exp_center );
 void send_debris_update_packet(object *objp,int code);
-
-void send_ship_weapon_change( ship *shipp, int what, int new_bank, int link_status );
 
 // ALAN BEGIN
 

@@ -794,7 +794,7 @@ void multi_create_player( int net_player_num, player *pl, const char* name, net_
 	pl->reset();
 
 	// set up the net_player structure
-	stuff_netplayer_info( &Net_players[net_player_num], addr, player_ship_class, pl );	Net_players[net_player_num].s_info.num_last_buttons = 0;
+	stuff_netplayer_info( &Net_players[net_player_num], addr, player_ship_class, pl );
 
 	// Net_players[net_player_num].respawn_count = 0;
 	Net_players[net_player_num].last_heard_time = timer_get_fixed_seconds();
@@ -1138,132 +1138,6 @@ void multi_do_client_warp(float frame_time)
 		moveup = GET_NEXT(moveup);
 	}	
 }	
-
-// ------------------------------------------------------------------------------------
-// ship status change stuff
-
-int lookup_ship_status(net_player *p,int unique_id,int remove)
-{
-	int idx;
-	
-	for(idx=0;idx<p->s_info.num_last_buttons;idx++){
-		if(p->s_info.last_buttons_id[idx] == unique_id){
-			if(remove){
-				remove_ship_status_item(p,idx);
-				p->s_info.num_last_buttons--;
-			}
-			return 1;
-		}
-	}
-	return 0;
-}
-
-void remove_ship_status_item(net_player *p,int id)
-{
-	int idx;
-	for(idx=id;idx<BUTTON_INFO_SAVE_COUNT-1;idx++){
-		p->s_info.last_buttons[idx] = p->s_info.last_buttons[idx+1];
-		p->s_info.last_buttons_id[idx] = p->s_info.last_buttons_id[idx+1];
-		p->s_info.last_buttons_time[idx] = p->s_info.last_buttons_time[idx+1];
-	}
-}
-
-// 
-void add_net_button_info(net_player *p,button_info *bi,int unique_id)
-{
-   int lookup,idx;
-	fix earliest;
-
-	// if the list is full, put it in the oldest slot since it's probably a lost packet anyway
-   if(p->s_info.num_last_buttons < BUTTON_INFO_SAVE_COUNT-1){
-		p->s_info.last_buttons[p->s_info.num_last_buttons] = *bi;
-		p->s_info.last_buttons_id[p->s_info.num_last_buttons] = unique_id;
-		p->s_info.last_buttons_time[p->s_info.num_last_buttons] = timer_get_fixed_seconds();
-		p->s_info.num_last_buttons++;
-	} else {
-		earliest = 0;
-      lookup = -1;
-		for(idx=0;idx<BUTTON_INFO_SAVE_COUNT;idx++){
-			if((p->s_info.last_buttons_time[idx] < earliest) || (earliest == 0)){
-				earliest = p->s_info.last_buttons_time[idx];
-				lookup = idx;
-			}
-		}
-		if(lookup != -1){
-			p->s_info.last_buttons[lookup] = *bi;
-			p->s_info.last_buttons_id[lookup] = unique_id;
-			p->s_info.last_buttons_time[lookup] = timer_get_fixed_seconds();
-		}
-	}		
-}
-
-extern int button_function_critical(int n,net_player *p = nullptr);
-void multi_apply_ship_status(net_player *p,button_info *bi,int locally)
-{
-	int i, j;
-	Multi_button_info_ok=1;
-	for ( i = 0; i < NUM_BUTTON_FIELDS; i++ ) {
-		if ( bi->status[i] == 0 )
-			continue;
-		// at least one bit is set in the status integer
-		for ( j = 0; j < 32; j++ ) {
-
-			// check if the bit is set. If button_function returns 1 (implying the action was taken), then unset the bit
-			if ( bi->status[i] & (1<<j) ) {
-            if(locally){
-					if(button_function_critical(32*i + j,nullptr))   // will apply to this console
-						bi->status[i] &= ~(1<<j);
-				} else {
-					if(button_function_critical(32*i + j,p))      // will only apply to a net-player
-						bi->status[i] &= ~(1<<j);
-				}
-			}
-		}
-	}
-	Multi_button_info_ok=0;
-}
-
-// send 10x a second MAX
-#define MULTI_SHIP_STATUS_TIME			350
-int Multi_ship_status_stamp = -1;
-button_info Multi_ship_status_bi;
-
-void multi_maybe_send_ship_status()
-{
-	int idx;
-	button_info *bi = &Player->bi;
-
-	// strip out noncritical button presses
-	button_strip_noncritical_keys(bi);
-
-	// xor all fields into the accum button info
-	for(idx=0; idx<NUM_BUTTON_FIELDS; idx++){		
-		Multi_ship_status_bi.status[idx] |= bi->status[idx];		
-	}
-
-	// check timestamp
-	if((Multi_ship_status_stamp < 0) || timestamp_elapsed_safe(Multi_ship_status_stamp, MULTI_SHIP_STATUS_TIME*2)){
-		int should_send = 0;
-		for(idx=0; idx<NUM_BUTTON_FIELDS; idx++){			
-			// we have at least something to send
-			if(Multi_ship_status_bi.status[idx] != 0){
-				should_send = 1;			
-			}		
-		}
-
-		// do we have something to send
-		if(should_send){
-			// add_net_button_info(Net_player, &Multi_ship_status_bi, Multi_button_info_id);
-			send_ship_status_packet(Net_player, &Multi_ship_status_bi, Multi_button_info_id++);
-		}
-
-		// zero it out
-		memset(&Multi_ship_status_bi, 0, sizeof(button_info));
-
-		// reset timestamp
-		Multi_ship_status_stamp = timestamp(MULTI_SHIP_STATUS_TIME);
-	}
-}
 
 int multi_find_player_by_callsign(const char *callsign)
 {
@@ -2768,7 +2642,6 @@ void multi_flush_mission_stuff()
 
 			// misc
 			multi_ping_reset(&Net_players[idx].s_info.ping);				
-			Net_players[idx].s_info.num_last_buttons = 0;
 			Net_players[idx].s_info.wing_index_backup = 0;
 			Net_players[idx].s_info.wing_index = 0;
 			Net_players[idx].p_info.ship_class = -1;

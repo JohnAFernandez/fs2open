@@ -468,13 +468,6 @@ void multi_respawn_player(net_player *pl, char cur_primary_bank, char cur_second
 	pl->m_player->ci.forward_cruise_percent = (float)pobjp->initial_velocity;
 	CLAMP(pl->m_player->ci.forward_cruise_percent, 0.0f, 100.0f);
 
-	// if this is me, clear accum button info
-	if(pl == Net_player){
-		// clear multiplayer button info			
-		extern button_info Multi_ship_status_bi;
-		memset(&Multi_ship_status_bi, 0, sizeof(button_info));
-	}
-
 	// notify other players of the respawn
 	if ( MULTIPLAYER_MASTER ){
 		multi_respawn_broadcast(pl);

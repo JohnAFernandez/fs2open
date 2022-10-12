@@ -3999,11 +3999,6 @@ void game_frame(bool paused)
 					game_process_keys();
 					read_player_controls( Player_obj, flFrametime);
 				}
-				
-				// if we're not the master, we may have to send the server-critical ship status button_info bits
-				if (MULTIPLAYER_CLIENT && !(Net_player->flags & NETINFO_FLAG_OBSERVER)){
-					multi_maybe_send_ship_status();
-				}
 			}
 		}
 	
@@ -4732,10 +4727,6 @@ void game_process_event( int current_state, int event )
 			} else {
 				gameseq_set_state(GS_STATE_GAME_PLAY, 1);
 			}
-
-			// clear multiplayer button info
-			extern button_info Multi_ship_status_bi;
-			memset(&Multi_ship_status_bi, 0, sizeof(button_info));
 
 			// Make hv.Player available in "On Gameplay Start" hook -zookeeper
 			if(Player_obj)
@@ -5885,10 +5876,6 @@ void mouse_force_pos(int x, int y);
 			sound_env_set(&Game_sound_env);
 			joy_ff_mission_init(Ship_info[Player_ship->ship_info_index].rotation_time);
 
-			// clear multiplayer button info
-			extern button_info Multi_ship_status_bi;
-			memset(&Multi_ship_status_bi, 0, sizeof(button_info));
-			
 			io::mouse::CursorManager::get()->showCursor(false, true);
 
 			tracing::async::begin(tracing::MainFrame, tracing::MainFrameScope);

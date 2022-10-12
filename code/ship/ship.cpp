@@ -16928,17 +16928,6 @@ void ship_primary_changed(ship *sp)
 			}
 		}
 	}
-
-#if 0
-	// we only need to deal with multiplayer issues for now, so bail it not multiplayer
-	if ( !(Game_mode & GM_MULTIPLAYER) )
-		return;
-
-	Assert(sp);
-
-	if ( MULTIPLAYER_MASTER )
-		send_ship_weapon_change( sp, MULTI_PRIMARY_CHANGED, swp->current_primary_bank, (sp->flags[Ship::Ship_Flags::Primary_linked])?1:0 );
-#endif
 }
 
 // The current secondary weapon or dual-fire status for a ship has changed.. notify clients if multiplayer
@@ -16974,18 +16963,6 @@ void ship_secondary_changed(ship *sp)
 			}
 		}
 	}
-
-#if 0
-	// we only need to deal with multiplayer issues for now, so bail it not multiplayer
-	if ( !(Game_mode & GM_MULTIPLAYER) ){
-		return;
-	}
-
-	Assert(sp);
-
-	if ( MULTIPLAYER_MASTER )
-		send_ship_weapon_change( sp, MULTI_SECONDARY_CHANGED, swp->current_secondary_bank, (sp->flags[Ship::Ship_Flags::Secondary_dual_fire])?1:0 );
-#endif
 }
 
 flagset<Ship::Info_Flags> ship_get_SIF(ship *shipp)

@@ -83,20 +83,6 @@ void multi_do_client_warp(float frame_time);
 
 void multi_assign_player_ship( int net_player_num, object *objp, int ship_class );
 
-// -------------------------------------------------------------------
-// ship status change functions (used both client and server side)
-int lookup_ship_status(net_player *p, int unique_id, int remove=0);        // auto-remove if remove == 1
-void remove_ship_status_item(net_player *p, int id);     
-void add_net_button_info(net_player *p, button_info *bi, int unique_id);
-
-// called client-side every frame
-void multi_maybe_send_ship_status();
-
-// will be used server side _and_ client side. 
-void multi_apply_ship_status(net_player *p,button_info *bi, int locally);
-
-void multiplayer_match_target_speed(net_player *p);
-
 void server_verify_filesig(short player_id, ushort sum_sig, int length_sig);
 int server_all_filesigs_ok();
 
