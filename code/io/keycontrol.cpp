@@ -1722,6 +1722,11 @@ int button_function_critical(int n)
 		return 0;
 	}
 	
+	// Clients will need to update the server if ETS controls are used.
+	// Weapon bank and link status will communicated with each primary fired or secondary fired packet.
+	// So if an update is required mark this as true:
+	bool update_required = false;
+
 	switch (n) {
 		// cycle num primaries to fire at once
 		case CYCLE_PRIMARY_WEAPON_SEQUENCE:
@@ -1801,7 +1806,7 @@ int button_function_critical(int n)
 
 		// cycle number of missiles
 		case CYCLE_NUM_MISSLES: {
-				control_used(CYCLE_NUM_MISSLES);
+			control_used(CYCLE_NUM_MISSLES);
 
 			if ( Ships[objp->instance].weapons.num_secondary_banks <= 0 ) {
 				if ( objp == Player_obj ) {
@@ -1846,6 +1851,8 @@ int button_function_critical(int n)
 				Assert(npl != nullptr);
 				multi_server_update_player_weapons(npl,&Ships[objp->instance]);										
 			}
+
+			update_required = true;
 			break;
 
 		// decrease weapon recharge rate
@@ -1858,6 +1865,8 @@ int button_function_critical(int n)
 				Assert(npl != nullptr);
 				multi_server_update_player_weapons(npl,&Ships[objp->instance]);										
 			}
+
+			update_required = true;
 			break;
 
 		// increase shield recharge rate
@@ -1871,6 +1880,8 @@ int button_function_critical(int n)
 				Assert(npl != nullptr);
 				multi_server_update_player_weapons(npl,&Ships[objp->instance]);										
 			}
+
+			update_required = true;
 			break;
 
 		// decrease shield recharge rate
@@ -1883,6 +1894,8 @@ int button_function_critical(int n)
 				Assert(npl != nullptr);
 				multi_server_update_player_weapons(npl,&Ships[objp->instance]);										
 			}
+
+			update_required = true;
 			break;
 
 		// increase energy to engines
@@ -1895,59 +1908,70 @@ int button_function_critical(int n)
 				Assert(npl != nullptr);
 				multi_server_update_player_weapons(npl,&Ships[objp->instance]);										
 			}
+
+			update_required = true;
 			break;
 
 		// decrease energy to engines
 		case DECREASE_ENGINE:
    			control_used(DECREASE_ENGINE);
 			decrease_recharge_rate(objp, ENGINES);
+			update_required = true;
 
 		// equalize recharge rates
 		case ETS_EQUALIZE:
    			control_used(ETS_EQUALIZE);
 			set_default_recharge_rates(objp);
 			snd_play( gamesnd_get_game_sound(GameSounds::ENERGY_TRANS) );
+			update_required = true;
 
 		// equalize shield energy to all quadrants
 		case SHIELD_EQUALIZE:
 			control_used(SHIELD_EQUALIZE);			
 			hud_shield_equalize(objp, pl);
+			update_required = true;
 			break;
 
 		// transfer shield energy to front
 		case SHIELD_XFER_TOP:
    			control_used(SHIELD_XFER_TOP);
 			hud_augment_shield_quadrant(objp, FRONT_QUAD);
+			update_required = true;
 			break;
 
 		// transfer shield energy to rear
 		case SHIELD_XFER_BOTTOM:
 			control_used(SHIELD_XFER_BOTTOM);
 			hud_augment_shield_quadrant(objp, REAR_QUAD);
+			update_required = true;
 			break;
 
 		// transfer shield energy to left
 		case SHIELD_XFER_LEFT:
 			control_used(SHIELD_XFER_LEFT);
 			hud_augment_shield_quadrant(objp, LEFT_QUAD);
+			update_required = true;
 			break;
 			
 		// transfer shield energy to right
 		case SHIELD_XFER_RIGHT:
 			control_used(SHIELD_XFER_RIGHT);
 			hud_augment_shield_quadrant(objp, RIGHT_QUAD);
+			update_required = true;
 			break;
 
 		// transfer energy to shield from weapons
 		case XFER_SHIELD:
 			control_used(XFER_SHIELD);
 			transfer_energy_to_shields(objp);
+			update_required = true;
 			break;
 
 		// transfer energy to weapons from shield
 		case XFER_LASER:
 			control_used(XFER_LASER);
 			transfer_energy_to_weapons(objp);
+			update_required = true;
 			break;
 
 		// following are not handled here, but we need to bypass the Int3()
@@ -1974,6 +1998,11 @@ int button_function_critical(int n)
 			Int3(); // bad bad bad
 			break;
 	}
+
+	if (MULTIPLAYER_CLIENT){
+		Multi_Ets_Manager.signal_update();
+	}
+
 
 	return 1;
 }
