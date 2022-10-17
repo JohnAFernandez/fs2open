@@ -171,7 +171,7 @@ class player;
 #define RESPAWN_POINTS           0x0B     // from server to ingame joiners, giving respawn data
 #define CLIENT_REPAIR_INFO       0x0C     // passing various data to clients indicating their repair status
 #define CARGO_REVEALED				0x0E		// cargo is known
-#define SHIELD_EXPLOSION			0x0F		// shield explosion
+#define SHIELD_EXPLOSION			0x0F		// shield explosion - Cyborg, NOT USED!
 
 #define SUBSYSTEM_DESTROYED		0x10		// update about a subsystem update
 #define MISSION_SYNC_DATA        0x11		// this is a unique packet from the host to the server in a standalone game
@@ -183,7 +183,7 @@ class player;
 #define MISSION_GOAL_INFO			0x18		// update of mission goal info
 #define ASTEROID_INFO				0x19		// update of asteroid stuff
 #define NETPLAYER_PAIN				0x1A		// to notify the player of hits which he may not otherwise see
-#define OBJECT_UPDATE_NEW			0x1B
+#define OBJECT_UPDATE_NEW			0x1B		// Cyborg - NOT USED!
 #define SUBSYS_CARGO_REVEALED		0X1C		// Capital ship cargo subsystem is known
 
 #define POST_SYNC_DATA				0x20		// a very large packet containing all the data players will need before going into the mission itself

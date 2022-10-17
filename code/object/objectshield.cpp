@@ -182,8 +182,7 @@ float shield_apply_damage(object *objp, int quadrant_num, float damage) {
 
 	Assert(objp);
 
-	// multiplayer clients bail here if nodamage
-	// if(MULTIPLAYER_CLIENT && (Netgame.debug_flags & NETD_FLAG_CLIENT_NODAMAGE)){
+	// multiplayer clients bail here
 	if (MULTIPLAYER_CLIENT)
 		return damage;
 

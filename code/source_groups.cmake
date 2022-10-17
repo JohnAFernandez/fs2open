@@ -901,6 +901,8 @@ add_file_folder("Network"
 	network/multi_dogfight.h
 	network/multi_endgame.cpp
 	network/multi_endgame.h
+	network/multi_ets.cpp
+	network/multi.ets.h
 	network/multi_fstracker.cpp
 	network/multi_fstracker.h
 	network/multi_interpolate.cpp

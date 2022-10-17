@@ -226,6 +226,7 @@ void hud_shield_equalize(object *objp, player *pl)
 	if (objp->flags[Object::Object_Flags::No_shields])
 		return;
 
+	// TODO, implement for multi, since system is changing anyway.
 	// maybe impose a 2% penalty - server side and single player only
 	if (!MULTIPLAYER_CLIENT && ((pl->shield_penalty_stamp < 0) || timestamp_elapsed_safe(pl->shield_penalty_stamp, 1000)) ) {
 		penalty = 0.02f;

@@ -6276,6 +6276,7 @@ void process_wss_slots_data_packet(ubyte *data, header *hinfo)
 
 #define OBJ_VISIBILITY_DOT					0.6f	
 
+// TODO Ensure this is not used and then throw it in the trash.
 // send and receive packets for shield explosion information
 void send_shield_explosion_packet( int objnum, int tri_num, vec3d  /*hit_pos*/ )
 {
