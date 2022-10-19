@@ -10,7 +10,8 @@ cci_h::cci_h() { idx = CCFG_MAX; }
 
 cci_h::cci_h(int n_id) { idx = static_cast<IoActionId>(n_id); }
 
-bool cci_h::IsValid() { return (idx > -1 && idx < IoActionId::CCFG_MAX); }
+// only compare to MAX, because this enum cannot be negative.
+bool cci_h::IsValid() { return (idx < IoActionId::CCFG_MAX); }
 
 IoActionId cci_h::Get() { return idx; }
 
