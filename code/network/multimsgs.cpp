@@ -4004,13 +4004,13 @@ void send_endgame_packet(net_player *pl)
 		multi_broadcast_stats(STATS_MISSION);		
 
 		// if in dogfight mode, send all dogfight stats as well
-		ml_string("Before dogfight stats!");
 		if(Netgame.type_flags & NG_TYPE_DOGFIGHT){
 			ml_string("Sending dogfight stats!");
 
 			multi_broadcast_stats(STATS_DOGFIGHT_KILLS);
+		} else {
+			ml_string("Not sending dogfight stats.");
 		}
-		ml_string("After dogfight stats!");
 
 		// tell everyone to leave the game		
 		multi_io_send_to_all_reliable(data, packet_size);
@@ -6687,28 +6687,37 @@ void process_player_stats_block_packet(ubyte *data, header *hinfo)
 {
 	ubyte val, num_players;
 	int player_num,idx;
-	scoring_struct *sc,bogus;
+	scoring_struct *sc;
 	short player_id;
 	int offset = HEADER_LENGTH;
 	ushort u_tmp, num_medals;
 	int i_tmp;
 	ushort si_offset, si_count;
 
-
-	// nprintf(("Network","----------++++++++++********RECEIVED STATS***********+++++++++----------\n"));
-
 	// get the player who these stats are for
 	GET_SHORT(player_id);	
 	player_num = find_player_index(player_id);
-	if (player_num == -1) {
-		nprintf(("Network", "Couldn't find player for stats update!\n"));
-		ml_string("Couldn't find player for stats update!\n");
 
-		sc = &bogus;
-		Int3();
-	} else {
-		sc = &Net_players[player_num].m_player->stats;
-	}
+	// Temporary until we get a hit.
+	Verification(player_num != -1, "Sorry to interrupt your multi experience. You have hit an extremely rare crash.\n"
+								"Please send the following info to the SCP and restart your game. Thanks!"
+								"Server ID: %d, ID Received: %d"
+								"\nconnection statuses:\n0 %s\n1 %s\n2 %s\n3 %s\n4 %s\n5 %s\n6 %s\n7 %s\n8 %s\n9 %s\n10 %s\n11 %s\n"
+								"\nIt is extremely unlikely to happen again.", Netgame.server->player_id, player_id,
+								MULTI_CONNECTED(Net_players[0]) ? "Conneted" : "Not connected",
+								MULTI_CONNECTED(Net_players[1]) ? "Conneted" : "Not connected",
+								MULTI_CONNECTED(Net_players[2]) ? "Conneted" : "Not connected",
+								MULTI_CONNECTED(Net_players[3]) ? "Conneted" : "Not connected", 
+								MULTI_CONNECTED(Net_players[4]) ? "Conneted" : "Not connected",
+								MULTI_CONNECTED(Net_players[5]) ? "Conneted" : "Not connected",
+								MULTI_CONNECTED(Net_players[6]) ? "Conneted" : "Not connected",
+								MULTI_CONNECTED(Net_players[7]) ? "Conneted" : "Not connected",
+								MULTI_CONNECTED(Net_players[8]) ? "Conneted" : "Not connected",
+								MULTI_CONNECTED(Net_players[9]) ? "Conneted" : "Not connected",
+								MULTI_CONNECTED(Net_players[10]) ? "Conneted" : "Not connected",
+								MULTI_CONNECTED(Net_players[11]) ? "Conneted" : "Not connected");
+	
+	sc = &Net_players[player_num].m_player->stats;
 
 	// get the stats code
 	GET_DATA(val);	

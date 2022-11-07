@@ -1397,6 +1397,8 @@ void multi_broadcast_stats(int stats_code)
 {
 	int idx;
 
+	ml_string("Performing mass stats broadcast to all players.");
+
 	// broadcast everyone's stats to everyone else
 	for(idx=0;idx<MAX_PLAYERS;idx++){
 		if(MULTI_CONNECTED(Net_players[idx]) && !MULTI_PERM_OBSERVER(Net_players[idx]) && !MULTI_STANDALONE(Net_players[idx])){			
