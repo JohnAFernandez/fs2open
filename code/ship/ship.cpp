@@ -60,6 +60,7 @@
 #include "nebula/neb.h"
 #include "network/multimsgs.h"
 #include "network/multiutil.h"
+#include "network/multi_interpolate.h"
 #include "object/deadobjectdock.h"
 #include "object/objcollide.h"
 #include "object/object.h"
@@ -10376,7 +10377,7 @@ int ship_create(matrix* orient, vec3d* pos, int ship_type, const char* ship_name
 	Assert( objnum >= 0 );
 
 	// Init multiplayer interpolation info
-	Objects[objnum].interp_info.reset(sip->n_subsystems); 
+	Interp_info[objnum].reset(sip->n_subsystems); 
 
 	shipp->model_instance_num = model_create_instance(objnum, sip->model_num);
 
