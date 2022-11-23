@@ -57,6 +57,106 @@
 
 // Circular dependencies will need checking.
 
+enum Dependency_Result {
+    SUCCESS,
+    CIRCULAR_REFERENCE,
+    CONFLICT
+}
+
+struct mod_version {
+    SCP_string name;
+    SCP_string version;
+};
+
+// lol we're going to write this later.
+SCP_vector<mod_version> get_direct_dependencies(mod_version mod_in);
+
+// returns true in success, false in failure.
+std::pair<Dependency_Result, SCP_vector<mod_version>>  sol_gate_resolve_dependencies(mod_version mod_in)
+{
+    // get our first new dependencies
+    auto mod_list = get_direct_dependencies(mod_in);
+
+    // set up our return
+    std::pair<Dependency_Result, SCP_vector<mod_version>> return_val;
+
+    // if there are no dependencies, just return.
+    if (mod_list.empty()){
+        return_val.first = Dependency_Result::SUCCESS;
+        return_val.push_back(mod_in);
+        return return_val;
+    }
+
+    // Our naive dependency tree
+    // std::pair will allow us to detect circular references
+    SCP_vector<SCP_vector<std::pair<mod_version, uint>>> dep_tree;
+
+    // I don't think this will hold, but I can dream.
+    dep_tree.emplace_back();
+
+    // quickly add the first dependencies to the tree.
+    for (auto item : mod_in){
+        dep_tree.front().emplace_back(item, 0);
+    }
+
+    SCP_unordered_set<mod_version> found_mods;
+    SCP_unordered_set<std::pair<uint, uint>> to_check;
+
+    // now start adding dependencies further down
+    while(!mod_list.empty()){
+        SCP_vector<mod_version> new_mod_list;
+        // again, we'll see.
+        dep_tree.emplace_back();
+        uint id = 0;
+
+        // get the next set of dependencies for the dependencies that were just received.
+        for (auto& new_dep : mod_list){
+            auto portion = get_direct_dependencies(new_dep);
+
+            for (auto& item : portion){
+                dep_tree.back().emplace_back(item, id);
+                if (found_mods.insert(item).first){
+                    to_search.insert(std::pair<uint, uint>(dep_tree.size() - 1, id));
+                }              
+            }
+
+            new_mod_list.push_back(std::move(portion));
+            
+            ++id;
+        }
+
+        // TODO finish circular dependency check.
+        // might not be the right check
+        if (!to_check.empty()){
+            for (auto& test : new_mod_list) {
+                for (auto& vec : dep_tree){
+                    for (auto& item : vec){
+                        if (item == test){
+
+                        }
+                    }
+                }
+            }
+        }
+
+
+        mod_list = std::move(new_mod_list);
+    }
+
+    
+
+
+}
+
+
+
+
+
+SCP_unordered_set<SCP_string> found_mods;
+
+
+
+
 
 
 class dependency_manager {
