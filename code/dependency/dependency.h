@@ -60,6 +60,7 @@
 enum Dependency_Result {
     SUCCESS,
     CIRCULAR_REFERENCE,
+    CIRCULAR_REFERENCE_MAIN_MOD,
     CONFLICT
 }
 
@@ -89,18 +90,17 @@ std::pair<Dependency_Result, SCP_vector<mod_version>>  sol_gate_resolve_dependen
 
     // Our naive dependency tree
     // std::pair will allow us to detect circular references
-    SCP_vector<SCP_vector<std::pair<mod_version, uint>>> dep_tree;
+    SCP_vector<SCP_vector<std::pair<mod_version, int>>> dep_tree;
 
     // I don't think this will hold, but I can dream.
     dep_tree.emplace_back();
 
     // quickly add the first dependencies to the tree.
-    for (auto item : mod_in){
-        dep_tree.front().emplace_back(item, 0);
-    }
+
+    dep_tree.front().emplace_back(mod_in, -1);
 
     SCP_unordered_set<mod_version> found_mods;
-    SCP_unordered_set<std::pair<uint, uint>> to_check;
+    SCP_vector<std::pair<uint, uint>> to_check;
 
     // now start adding dependencies further down
     while(!mod_list.empty()){
@@ -114,9 +114,19 @@ std::pair<Dependency_Result, SCP_vector<mod_version>>  sol_gate_resolve_dependen
             auto portion = get_direct_dependencies(new_dep);
 
             for (auto& item : portion){
+
+                // because of how we're storing, this has to be check separately,
+                // but is also much quicker here.
+                if (mod_in.first == item.first) {
+                    return_val.first = Dependency_Result::CIRCULAR_REFERENCE_MAIN_MOD;
+                    return_val.second.push_back(mod_in);
+                    return return_val;
+                }
+
                 dep_tree.back().emplace_back(item, id);
+
                 if (found_mods.insert(item).first){
-                    to_search.insert(std::pair<uint, uint>(dep_tree.size() - 1, id));
+                    to_check.emplace_back(std::pair<uint, uint>(dep_tree.size() - 1, id));
                 }              
             }
 
@@ -125,25 +135,57 @@ std::pair<Dependency_Result, SCP_vector<mod_version>>  sol_gate_resolve_dependen
             ++id;
         }
 
-        // TODO finish circular dependency check.
-        // might not be the right check
         if (!to_check.empty()){
-            for (auto& test : new_mod_list) {
-                for (auto& vec : dep_tree){
-                    for (auto& item : vec){
-                        if (item == test){
+            for (auto& test : to_check) {
 
-                        }
-                    }
+                // are we looking for dependency too low on the dependency chain? 
+                if (test.first < 1) {
+                    continue;
                 }
+
+                Assert (test.first < dep_tree.size());
+                Assert (test.second > 0 && test.second < dep_tree[test.first].size());
+
+                auto test_specific = dep_tree[test.first][test.second];
+
+                Assert(test_specific.second < dep_tree[test.first - 1].size() && test_specific.second > -1);
+
+                // are we testing something that is trying to point to something that doesn't exist?
+                if (test_specific.second < 0) {
+                    continue;
+                }
+
+                int i = test.first - 1;
+                uint j = test_specific.second;
+                
+                do {
+
+                    if (dep_tree[first][second].first == test_specific.first){
+                        // if there is a circular dependency, there really is no safe way to recover.
+                        // if a previous version of a mod has an explicit circular dependency, then it
+                        // needs to mark it as non-viable.
+
+                        // circular dependency! Write some code darn it!
+                        break; // at least
+                        // TODO: figure out what to do if circular dependency was temporary. (Is it all versions???)
+                        // Maybe have another chunk of code check instead?
+                    }
+
+                    --i;
+                    j = dep_tree[first][second].second;
+
+                } while (i > 0 && j < dep_tree[i].size())
             }
         }
 
-
+        // we don't need to check these anymore.
+        to_check.clear();
+        
+        // replace the list that we get new dependencies for.
         mod_list = std::move(new_mod_list);
     }
 
-    
+    // next we write code that looks at the dependency list and starts working backwards.
 
 
 }
