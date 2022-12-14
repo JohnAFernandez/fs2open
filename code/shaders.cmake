@@ -41,6 +41,8 @@ foreach (_shader ${SHADERS})
 			set(DEPFILE_PARAM DEPFILE "${_depFile}")
 		endif ()
 
+		cmake_policy(SET CMP0116 OLD)
+
 		add_custom_command(OUTPUT "${_spirvFile}"
 			COMMAND ${CMAKE_COMMAND} -E make_directory "${_depFileDir}"
 			COMMAND glslc "${_shader}" -o "${_spirvFile}" --target-env=vulkan1.0 -O -g "-I${SHADER_DIR}"
