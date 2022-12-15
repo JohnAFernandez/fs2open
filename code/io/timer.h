@@ -47,6 +47,7 @@ public:
 
 	inline bool isNever() const { return m_val == 0; }
 	inline bool isImmediate() const { return m_val == 1; }
+	inline bool isNumeric() const { return m_val > 1; } // basically, can we sensibly calculate with the actual value?
 };
 
 // Timestamp measuring game time.  Sensitive to time compression and pausing.
@@ -63,6 +64,7 @@ public:
 
 	inline bool isNever() const { return m_val == 0; }
 	inline bool isImmediate() const { return m_val == 1; }
+	inline bool isNumeric() const { return m_val > 1; } // basically, can we sensibly calculate with the actual value?
 };
 
 // For converting from old-style timestamps:
@@ -159,6 +161,9 @@ UI_TIMESTAMP ui_timestamp_delta(UI_TIMESTAMP stamp, int delta_ms);
 
 int timestamp_get_delta(TIMESTAMP before, TIMESTAMP after);
 int ui_timestamp_get_delta(UI_TIMESTAMP before, UI_TIMESTAMP after);
+
+float timestamp_get_percentage_elapsed(TIMESTAMP before, TIMESTAMP after, TIMESTAMP current);
+float ui_timestamp_get_percentage_elapsed(UI_TIMESTAMP before, UI_TIMESTAMP after, UI_TIMESTAMP current);
 
 // gets a timestamp randomly between a and b milliseconds in
 // the future.

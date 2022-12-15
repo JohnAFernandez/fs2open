@@ -232,6 +232,40 @@ int ui_timestamp_get_delta(UI_TIMESTAMP before, UI_TIMESTAMP after)
 	return (after.value() - before.value());
 }
 
+// finds the percent progress of the current timestamp from the before timestamp to the after timestamp.
+// returns 0.0f if any timestamp is invalid, never or immediate.
+// Does *not* check that the percent will be between 0.0f and 1.0f (0% and 100%)
+float timestamp_get_percentage_elapsed(TIMESTAMP before, TIMESTAMP after, TIMESTAMP current)
+{
+	// return if any of these are invalid.  
+	// Also, you will get nonsense if you use immediate or never timestamps, too, so return.
+	if (!before.isNumeric() || !after.isNumeric() || !current.isNumeric()){
+		return 0.0f;
+	}
+
+	int delta_numerator = timestamp_get_delta(before, current);
+	int delta_denominator = timestamp_get_delta(before, after);
+
+	return static_cast<float>(delta_numerator) / static_cast<float>(delta_denominator);
+}
+
+// finds the percent progress of the current timestamp from the before timestamp to the after timestamp.
+// returns 0.0f if any timestamp is invalid, never or immediate.
+// Does *not* check that the percent will be between 0.0f and 1.0f (0% and 100%)
+float ui_timestamp_get_percentage_elapsed(UI_TIMESTAMP before, UI_TIMESTAMP after, UI_TIMESTAMP current)
+{
+	// return if any of these are invalid.  
+	// Also, you will get nonsense if you use immediate or never timestamps, too, so return.
+	if (!before.isNumeric() || !after.isNumeric() || !current.isNumeric()){
+		return 0.0f;
+	}
+
+	int delta_numerator = ui_timestamp_get_delta(before, current);
+	int delta_denominator = ui_timestamp_get_delta(before, after);
+
+	return static_cast<float>(delta_numerator) / static_cast<float>(delta_denominator);
+}
+
 // ======================================== checking timestamps ========================================
 
 // Restrict all time values between 0 and MAX_TIME
