@@ -111,14 +111,7 @@ void interpolation_manager::interpolate_main(vec3d* pos, matrix* ori, physics_in
 		return; // we should not try interpolating and siming on the same call, so return.
 	}
 
-	// calc what the current timing should be.
-	float numerator = static_cast<float>(_packets[_upcoming_packet_index].remote_missiontime) - static_cast<float>(Multi_Timing_Info.get_current_time());
-	float denominator = static_cast<float>(_packets[_upcoming_packet_index].remote_missiontime) - static_cast<float>(_packets[_prev_packet_index].remote_missiontime);
-	
-	// work around for weird situations that might cause NAN (you just never know with multi)
-	denominator = (denominator > 0.05f) ? denominator : 0.05f;
-	
-	float scale = numerator / denominator;
+	float scale = timestamp_get_percentage_elapsed(TIMESTAMP(_packets[_prev_packet_index].remote_missiontime), TIMESTAMP(_packets[_upcoming_packet_index].remote_missiontime), TIMESTAMP(Multi_Timing_Info.get_current_time()));
 
 	// protect against bad floating point arithmetic making orientation or position look off
 	CLAMP(scale, 0.001f, 0.999f);
@@ -161,14 +154,8 @@ void interpolation_manager::interpolate_main(vec3d* pos, matrix* ori, physics_in
 // correct the ship record for player ships when an up to date packet comes in.
 void interpolation_manager::reinterpolate_previous(TIMESTAMP stamp, int prev_packet_index, int next_packet_index,  vec3d& position, matrix& orientation, vec3d& velocity, vec3d& rotational_velocity)
 {
-	// calc what the current timing should be.
-	float numerator = static_cast<float>(_packets[_upcoming_packet_index].remote_missiontime) - static_cast<float>(stamp.value());
-	float denominator = static_cast<float>(_packets[_upcoming_packet_index].remote_missiontime) - static_cast<float>(_packets[_prev_packet_index].remote_missiontime);
-
-	denominator = (denominator > 0.05f) ? denominator : 0.05f;
+	float scale = timestamp_get_percentage_elapsed(TIMESTAMP(_packets[prev_packet_index].remote_missiontime), TIMESTAMP(_packets[next_packet_index].remote_missiontime), stamp);
 	
-	float scale = numerator / denominator;
-
 	// protect against bad floating point arithmetic making orientation or position look off
 	CLAMP(scale, 0.001f, 0.999f);
 
