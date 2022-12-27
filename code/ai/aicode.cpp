@@ -13255,6 +13255,13 @@ void ai_manage_bay_doors(object *pl_objp, ai_info *aip, bool done)
 
 	ship *parent_ship = &Ships[shipp->bay_doors_parent_shipnum];
 
+	// if the parent ship has become invalid (via ship vanish or other unknown black magic), return early, because there is nothing left to clean up.
+	if ((parent_ship->objnum < 0) || (Objects[parent_ship->objnum].flags[Object::Object_Flags::Should_be_dead]) || (Objects[parent_ship->objnum].signature != shipp->bay_doors_parent_signature)) {
+		shipp->bay_doors_parent_shipnum = -1;
+		shipp->bay_doors_parent_signature = 0;
+		return;
+	}
+
 	if (done)
 		parent_ship->bay_doors_wanting_open--;
 
@@ -13361,6 +13368,7 @@ int ai_acquire_emerge_path(object *pl_objp, int parent_objnum, int allowed_path_
 	shipp->bay_doors_need_open = true;
 	shipp->bay_doors_launched_from = (ubyte)bay_path;
 	shipp->bay_doors_parent_shipnum = parent_objp->instance;
+	shipp->bay_doors_parent_signature = parent_objp->signature;
 
 	// create the path for pl_objp to follow
 	create_model_exit_path(pl_objp, parent_objp, path_index, pm->paths[path_index].nverts);
@@ -13625,6 +13633,7 @@ int ai_acquire_depart_path(object *pl_objp, int parent_objnum, int allowed_path_
 	shipp->bay_doors_need_open = true;
 	shipp->bay_doors_launched_from = (ubyte)ship_bay_path;
 	shipp->bay_doors_parent_shipnum = parent_objp->instance;
+	shipp->bay_doors_parent_signature = parent_objp->signature;
 
 	Assert(path_index < pm->n_paths);
 	ai_find_path(pl_objp, parent_objnum, path_index, 0);

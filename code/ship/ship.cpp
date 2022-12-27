@@ -6592,6 +6592,7 @@ void ship::clear()
 	bay_doors_launched_from = 0;
 	bay_doors_need_open = false;
 	bay_doors_parent_shipnum = -1;
+	bay_doors_parent_signature = 0;
 
 	for(i = 0; i < MAX_MAN_THRUSTERS; i++)
 	{

@@ -775,7 +775,8 @@ public:
 	ubyte bay_doors_launched_from;	// the bay door that I launched from
 	bool bay_doors_need_open;		// keep track of whether I need the door open or not
 	int bay_doors_parent_shipnum;	// our parent ship, what we are entering/leaving
-	
+	int bay_doors_parent_signature; // our parent ship's signature number, to verify
+
 	reload_pct<float> secondary_point_reload_pct;	//after fireing a secondary it takes some time for that secondary weapon to reload, this is how far along in that proces it is (from 0 to 1)
 	float primary_rotate_rate[MAX_SHIP_PRIMARY_BANKS];
 	float primary_rotate_ang[MAX_SHIP_PRIMARY_BANKS];
