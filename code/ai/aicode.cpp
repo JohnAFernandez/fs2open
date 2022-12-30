@@ -1426,10 +1426,14 @@ int set_target_objnum(ai_info *aip, int objnum)
 		return aip->target_objnum;
 	}
 
-	if (aip->target_objnum == objnum) {
-		aip->previous_target_objnum = aip->target_objnum;
-	} else {
-		aip->previous_target_objnum = aip->target_objnum;
+	// this happens regardless -- Note this also means that previous_target_objnum does
+	// not stay the same long since set_target_objnum is called at least once in ai_frame.
+	aip->previous_target_objnum = aip->target_objnum;
+
+	// Cyborg -- We need to check the signature to prevent unpredictable behavior.
+	// If the Objects[] slot gets reused in between calls to this function, later checks that signatures
+	// match (that the AI code relies on) will fail, unless we do this.
+	if ((objnum != aip->target_objnum) || ((objnum > -1) && (aip->target_signature != Objects[objnum].signature))) {
 
 		// ignore this assert if a multiplayer observer
 		if((Game_mode & GM_MULTIPLAYER) && (aip == Player_ai) && (Player_obj->type == OBJ_OBSERVER)){
