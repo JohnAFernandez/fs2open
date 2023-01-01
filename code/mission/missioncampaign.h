@@ -122,9 +122,10 @@ public:
 	int		loop_reentry;							// mission number to return to after loop is finished
 	int		realign_required;						// are any missions missing alignment info? (Fred)
 	int		num_players;							// valid in multiplayer campaigns -- number of players campaign supports.
-	ubyte	ships_allowed[MAX_SHIP_CLASSES];		// which ships the player can use
 	ubyte	weapons_allowed[MAX_WEAPON_TYPES];		// which weapons the player can use
 	cmission	missions[MAX_CAMPAIGN_MISSIONS];	// decription of the missions
+
+	SCP_vector<ubyte>	ships_allowed;		// which ships the player can use
 	SCP_vector<sexp_variable> persistent_variables;		// These variables will be saved at the end of a mission
 	SCP_vector<sexp_variable> red_alert_variables;		// state of the variables in the previous mission of a Red Alert scenario.
 	SCP_vector<sexp_container> persistent_containers;	// These containers will be saved at the end of a mission

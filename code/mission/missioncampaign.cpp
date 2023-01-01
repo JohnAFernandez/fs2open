@@ -81,7 +81,7 @@ const char *campaign_types[MAX_CAMPAIGN_TYPES] =
 };
 
 // modules local variables to deal with getting new ships/weapons available to the player
-int Num_granted_ships, Num_granted_weapons;		// per mission counts of new ships and weapons
+int Num_granted_weapons;		// per mission counts of new ships and weapons
 SCP_vector<int> Granted_ships;
 int Granted_weapons[MAX_WEAPON_TYPES];
 
@@ -375,10 +375,16 @@ void mission_campaign_build_list(bool desc, bool sort, bool multiplayer)
  */
 void mission_campaign_get_sw_info()
 {
-    int i, count, ship_list[MAX_SHIP_CLASSES], weapon_list[MAX_WEAPON_TYPES];
+    int i, count, ship_list[Ship_info.size()], weapon_list[MAX_WEAPON_TYPES];
+
+	// to be safe.
+	Campaign.ships_allowed.clear();
+	// remember resize will take an optional default parameter as its second argument.	
+	Campaign.ships_allowed.resize(Ship_info.size(), 0);
+
 
     if (optional_string("+Starting Ships:")) {
-        count = (int)stuff_int_list(ship_list, MAX_SHIP_CLASSES, SHIP_INFO_TYPE);
+        count = (int)stuff_int_list(ship_list, Ship_info.size(), SHIP_INFO_TYPE);
 
         // now set the array elements stating which ships we are allowed
         for (i = 0; i < count; i++) {
@@ -694,7 +700,7 @@ void player_loadout_init()
 	memset(Player_loadout.filename, 0, sizeof(Player_loadout.filename));
 	memset(Player_loadout.last_modified, 0, sizeof(Player_loadout.last_modified));
 
-	for ( i = 0; i < MAX_SHIP_CLASSES; i++ ) {
+	for ( i = 0; i < Ship_info.size(); i++ ) {
 		Player_loadout.ship_pool[i] = 0;
 	}
 
@@ -829,7 +835,7 @@ int mission_campaign_next_mission()
 	}
 
 	// reset the number of persistent ships and weapons for the next campaign mission
-	Num_granted_ships = 0;
+	Granted_ships.clear();
 	Num_granted_weapons = 0;
 	return 0;
 }
@@ -865,7 +871,7 @@ int mission_campaign_previous_mission()
 	Player->stats.assign( Campaign.missions[Campaign.current_mission].stats );
 
 	strcpy_s( Game_current_mission_filename, Campaign.missions[Campaign.current_mission].name );
-	Num_granted_ships = 0;
+	Granted_ships.clear();
 	Num_granted_weapons = 0;
 
 	return 1;
@@ -1260,7 +1266,7 @@ void mission_campaign_clear()
 	Campaign.loop_reentry = 0;
 	Campaign.realign_required = 0;
 	Campaign.num_players = 0;
-	memset( Campaign.ships_allowed, 0, sizeof(Campaign.ships_allowed) );
+	Campaign.ships_allowed.clear();
 	memset( Campaign.weapons_allowed, 0, sizeof(Campaign.weapons_allowed) );
 	Campaign.persistent_variables.clear(); 
 	Campaign.red_alert_variables.clear();
@@ -1533,9 +1539,7 @@ void mission_campaign_save_persistent( int type, int sindex )
 	// based on the type of information, save it off for possible saving into the campsign
 	// savefile when the mission is over
 	if ( type == CAMPAIGN_PERSISTENT_SHIP ) {
-		Assert( Num_granted_ships < MAX_SHIP_CLASSES );
 		Granted_ships.push_back(sindex);
-		Num_granted_ships++;
 	} else if ( type == CAMPAIGN_PERSISTENT_WEAPON ) {
 		Assert( Num_granted_weapons < MAX_WEAPON_TYPES );
 		Granted_weapons[Num_granted_weapons] = sindex;

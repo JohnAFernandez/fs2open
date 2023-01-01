@@ -141,8 +141,8 @@ void InitialShips::OnOK()
 
 	// zero out whichever array we are setting
 	if ( m_initial_items == INITIAL_SHIPS ) {
-		for ( i = 0; i < MAX_SHIP_CLASSES; i++ ){
-			Campaign.ships_allowed[i] = 0;
+		for (auto& ship : Campaign.ships_allowed){
+			ship = 0;
 		}
 	} else if ( m_initial_items == INITIAL_WEAPONS ) {
 		for (i = 0; i < MAX_WEAPON_TYPES; i++ )
@@ -155,6 +155,7 @@ void InitialShips::OnOK()
 			// array
 			auto index = m_initial_list.GetItemData(i);
 			if ( m_initial_items == INITIAL_SHIPS ) {
+				Assertion (index < static_cast<int>(Campaign.ships_allowed.size()), "Somehow the campaign editor thinks there are more ship classes than there are supposed to be, specifically index %d.", index){
 				Campaign.ships_allowed[index] = 1;
 			} else if ( m_initial_items == INITIAL_WEAPONS ) {
 				Campaign.weapons_allowed[index] = 1;

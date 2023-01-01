@@ -1249,8 +1249,8 @@ int CFred_mission_save::save_campaign_file(char *pathname)
 	// write out the ships and weapons which the player can start the campaign with
 	optional_string_fred("+Starting Ships: (");
 	parse_comments(2);
-	for (i = 0; i < ship_info_size(); i++) {
-		if (Campaign.ships_allowed[i])
+	for (auto& ship : Campaign.ships_allowed) {
+		if (ship)
 			fout(" \"%s\" ", Ship_info[i].name);
 	}
 	fout(")\n");

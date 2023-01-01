@@ -152,7 +152,7 @@ void pilotfile::csg_read_info()
 		allowed = cfread_ubyte(cfp);
 
 		if (allowed) {
-			if (ship_list[idx].index >= 0) {
+			if (ship_list[idx].index >= 0 && ship_list[idx].index < static_cast<int>(Campaign.ships_allowed.size())) {
 				Campaign.ships_allowed[ship_list[idx].index] = 1;
 			} else {
 				mprintf(("Found invalid ship \"%s\" in campaign save file. Skipping...\n", ship_list[idx].name.c_str()));
@@ -1496,7 +1496,7 @@ void pilotfile::csg_reset_data()
 	p->stats.init();
 
 	// zero out allowed ships/weapons
-	memset(Campaign.ships_allowed, 0, sizeof(Campaign.ships_allowed));
+	Campaign.ships_allowed.clear();
 	memset(Campaign.weapons_allowed, 0, sizeof(Campaign.weapons_allowed));
 
 	// reset campaign status

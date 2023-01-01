@@ -269,7 +269,7 @@ void multi_campaign_process_update(ubyte *data, header *hinfo)
 		// if we're not in campaign mode, bash all weapons and ships to be "allowed"
 		if(!val){
 			// all ships
-			for(idx = 0; idx < ship_info_size(); idx++) {
+			for(idx = 0; idx < Campaign.ships_allowed.size(); idx++) {
 				Campaign.ships_allowed[idx] = 1;
 			}
 
@@ -279,7 +279,8 @@ void multi_campaign_process_update(ubyte *data, header *hinfo)
 			}
 		} else {
 			// clear the ships and weapons allowed arrays
-			memset(Campaign.ships_allowed,0,MAX_SHIP_CLASSES);
+			Campaign.ships_allowed.clear();
+			Campaign.ships_allowed.resize(Ship_info.size(), 0);
 			memset(Campaign.weapons_allowed,0,MAX_WEAPON_TYPES);
 
 			// get all ship classes
@@ -287,7 +288,7 @@ void multi_campaign_process_update(ubyte *data, header *hinfo)
 			for(idx=0;idx<spool_size;idx++){
 				GET_USHORT(s_val);
 
-				if (s_val < MAX_SHIP_CLASSES) {
+				if (s_val < Ship_info.size()) {
 					Campaign.ships_allowed[s_val] = 1;
 				}
 			} 
