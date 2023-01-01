@@ -82,7 +82,7 @@ const char *campaign_types[MAX_CAMPAIGN_TYPES] =
 
 // modules local variables to deal with getting new ships/weapons available to the player
 int Num_granted_ships, Num_granted_weapons;		// per mission counts of new ships and weapons
-int Granted_ships[MAX_SHIP_CLASSES];
+SCP_vector<int> Granted_ships;
 int Granted_weapons[MAX_WEAPON_TYPES];
 
 // variables to control the UI stuff for loading campaigns
@@ -1123,9 +1123,12 @@ void mission_campaign_mission_over(bool do_next_mission)
 	mission_obj = &Campaign.missions[mission_num];
 
 	// determine if any ships/weapons were granted this mission
-	for ( i=0; i<Num_granted_ships; i++ ){
-		Campaign.ships_allowed[Granted_ships[i]] = 1;
+	for (auto& ind : Granted_ships ){
+		Campaign.ships_allowed[ind] = 1;
 	}
+
+	// now that they've been used, clear them.
+	Granted_ships.clear();
 
 	for ( i=0; i<Num_granted_weapons; i++ ){
 		Campaign.weapons_allowed[Granted_weapons[i]] = 1;	
@@ -1531,7 +1534,7 @@ void mission_campaign_save_persistent( int type, int sindex )
 	// savefile when the mission is over
 	if ( type == CAMPAIGN_PERSISTENT_SHIP ) {
 		Assert( Num_granted_ships < MAX_SHIP_CLASSES );
-		Granted_ships[Num_granted_ships] = sindex;
+		Granted_ships.push_back(sindex);
 		Num_granted_ships++;
 	} else if ( type == CAMPAIGN_PERSISTENT_WEAPON ) {
 		Assert( Num_granted_weapons < MAX_WEAPON_TYPES );
