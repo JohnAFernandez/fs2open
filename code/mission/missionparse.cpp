@@ -219,7 +219,7 @@ const char *Ai_behavior_names[MAX_AI_BEHAVIORS] = {
 char *Cargo_names[MAX_CARGO];
 char Cargo_names_buf[MAX_CARGO][NAME_LENGTH];
 
-SCP_vector<SCP_string> Ship_class_names[MAX_SHIP_CLASSES];		// to be filled in from Ship_info array
+SCP_vector<SCP_string> Ship_class_names;		// to be filled in from Ship_info array
 
 const char *Icon_names[MIN_BRIEF_ICONS] = {
 	"Fighter", "Fighter Wing", "Cargo", "Cargo Wing", "Largeship",
