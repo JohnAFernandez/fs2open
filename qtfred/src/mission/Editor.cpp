@@ -3089,7 +3089,7 @@ void Editor::importShieldSysData(const std::vector<int>& teams, const std::vecto
 // 0 = has shields, 1 = no shields, 2 = conflict/inconsistent
 void Editor::normalizeShieldSysData() {
 	std::vector<int> teams(Iff_info.size(), 0);
-	std::vector<int> types(MAX_SHIP_CLASSES, 0);
+	std::vector<int> types(Ship_info.size(), 0);
 
 	for (int i = 0; i < MAX_SHIPS; i++) {
 		if (Ships[i].objnum >= 0) {

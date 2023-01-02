@@ -2296,7 +2296,7 @@ int query_whole_wing_marked(int wing)
 	return 0;
 }
 
-void generate_ship_usage_list(int *arr, int wing) 
+void generate_ship_usage_list(const SCP_vector<int>& list, int wing) 
 {
 	int i; 
 
@@ -2306,7 +2306,7 @@ void generate_ship_usage_list(int *arr, int wing)
 	
 	i = Wings[wing].wave_count;
 	while (i--) {
-		arr[Ships[Wings[wing].ship_index[i]].ship_info_index]++; 
+		list[Ships[Wings[wing].ship_index[i]].ship_info_index]++; 
 	}
 }
 

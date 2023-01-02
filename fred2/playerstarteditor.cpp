@@ -88,9 +88,27 @@ BOOL player_start_editor::OnInitDialog()
 	int idx;	
 
 	// initialize ship pool data
-	memset(static_ship_pool, -1, sizeof(int) * MAX_TVT_TEAMS * MAX_SHIP_CLASSES);
+	for (auto& list : static_ship_pool){
+		list.clear();
+	}
+
+	static_ship_pool.clear();
+
+	for (auto& list : static_ship_variable_pool){
+		list.clear();
+	}
+
+	static_ship_variable_pool.clear();
+
+	for (i = 0; i < MAX_TVT_TEAMS) {
+		static_ship_pool.emplace_back();
+		static_ship_pool.back().assign(Ship_info.size(), -1);
+
+		static_ship_variable_pool.emplace_back();
+		static_ship_variable_pool.back().assign(Ship_info.size(), -1);
+	}
+
 	memset(dynamic_ship_pool, -1, sizeof(int) * MAX_TVT_TEAMS * MAX_SEXP_VARIABLES);
-	memset(static_ship_variable_pool, -1, sizeof(int) * MAX_TVT_TEAMS * MAX_SHIP_CLASSES);
 	memset(dynamic_ship_variable_pool, -1, sizeof(int) * MAX_TVT_TEAMS * MAX_SEXP_VARIABLES);
 	for(i=0; i<MAX_TVT_TEAMS; i++){
 		for(idx=0; idx<Team_data[i].num_ship_choices; idx++)
@@ -161,9 +179,18 @@ BOOL player_start_editor::OnInitDialog()
 	}
 
 	// initialise the ship and weapon usage list
-	memset(ship_usage, 0, sizeof(int) * MAX_TVT_TEAMS * MAX_SHIP_CLASSES);
-	memset(weapon_usage, 0, sizeof(int) * MAX_TVT_TEAMS * MAX_WEAPON_TYPES);
+	for (auto& list : ship_usage) {
+		list.clear();
+	} 
 
+	ship_usage.clear();
+
+	for (i = 0; i < MAX_TVT_TEAMS; ++i){
+		ship_usage.emplace_back();
+		ship_usage.back().assign(Ship_info.size(), 0);
+	}
+
+	memset(weapon_usage, 0, sizeof(int) * MAX_TVT_TEAMS * MAX_WEAPON_TYPES);
 
 	if (The_mission.game_type & MISSION_TYPE_MULTI_TEAMS) { 
 		for (i=0; i<MAX_TVT_TEAMS; i++) {
@@ -207,7 +234,7 @@ void player_start_editor::reset_controls()
 
 	if (autobalance && (previous_team != -1) && (previous_team != selected_team)) {
 		// copy across all the ship stuff
-		for (i=0; i<MAX_SHIP_CLASSES; i++) {
+		for (i = 0; i < satic_cast<int>(Ship_info.size()); i++) {
 			static_ship_pool[selected_team][i] = static_ship_pool[previous_team][i]; 
 			static_ship_variable_pool[selected_team][i] = static_ship_variable_pool[previous_team][i]; 
 		}

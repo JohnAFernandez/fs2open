@@ -124,7 +124,7 @@ int invalidate_references(char* name, int type);
 int query_whole_wing_marked(int wing);
 void generate_weaponry_usage_list(int team, int* arr);
 void generate_weaponry_usage_list(int* arr, int wing);
-void generate_ship_usage_list(int* arr, int wing);
+void generate_ship_usage_list(const SCP_vector<int>& list, int wing);
 
 CJumpNode* jumpnode_get_by_name(const CString& name);
 

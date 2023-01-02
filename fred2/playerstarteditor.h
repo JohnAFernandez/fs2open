@@ -79,9 +79,9 @@ private:
 	bool autobalance; 
 
 	// ship pool info
-	int static_ship_pool[MAX_TVT_TEAMS][MAX_SHIP_CLASSES];	// Holds the number of ships of a class that was set by the team loadout
+	SCP_vector<SCP_vector<int>> static_ship_pool;	// Holds the number of ships of a class that was set by the team loadout
 	int dynamic_ship_pool[MAX_TVT_TEAMS][MAX_SEXP_VARIABLES];	 
-	int static_ship_variable_pool[MAX_TVT_TEAMS][MAX_SHIP_CLASSES];
+	SCP_vector<SCP_vector<int>> static_ship_variable_pool;
 	int dynamic_ship_variable_pool[MAX_TVT_TEAMS][MAX_SEXP_VARIABLES];
 
 	// weapon pool info
@@ -91,7 +91,7 @@ private:
 	int dynamic_weapon_variable_pool[MAX_TVT_TEAMS][MAX_SEXP_VARIABLES];
 
 	// ship and weapon usage pools
-	int ship_usage[MAX_TVT_TEAMS][MAX_SHIP_CLASSES];
+	SCP_vector<SCP_vector<int>> ship_usage;
 	int weapon_usage[MAX_TVT_TEAMS][MAX_WEAPON_TYPES];
 
 	// regenerate all controls
