@@ -91,7 +91,7 @@ private:
 	int dynamic_weapon_variable_pool[MAX_TVT_TEAMS][MAX_SEXP_VARIABLES];
 
 	// ship and weapon usage pools
-	int ship_usage[MAX_TVT_TEAMS][MAX_SHIP_CLASSES];
+	SCP_vector<int> ship_usage[MAX_TVT_TEAMS];
 	int weapon_usage[MAX_TVT_TEAMS][MAX_WEAPON_TYPES];
 
 	// regenerate all controls

@@ -402,21 +402,21 @@ void process_wss_request_packet(ubyte *data, header *hinfo);
 // wss_data is the pointer to a block of data returned by store_wss_stuff(...)
 // 
 // I would reccomend :
-// int store_wss_data(ubyte *block);		// which returns bytes processed
+// int multi_pack_loadout_data(ubyte *block);		// which returns bytes processed
 // 
 // so you would say :
 // 
 // ubyte block[MAX_PACKET_SIZE - 10 or so];
-// int processed = store_wss_data(block);
+// int processed = multi_pack_loadout_data(block);
 // send_wss_update_packet(block,processed);
 // 
 // also :
 // I would reccomend :
-// int restore_wss_data(ubyte *block);		// which returns bytes processed
+// int multi_unpack_loadout_data(ubyte *block);		// which returns bytes processed
 // 
 // so I would say in the process_wss_update_packet() :
 //
-// int processed = restore_wss_data(block);
+// int processed = multi_unpack_loadout_data(block);
 //	do_other_lowlevel_packet_related_stuff_here();
 //
 void send_wss_update_packet(int team_num,ubyte *wss_data,int size);

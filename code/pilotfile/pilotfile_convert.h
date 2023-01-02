@@ -45,22 +45,23 @@ typedef struct cmission_conv_t {
 	scoring_special_t	stats;
 } cmission_conv_t;
 
-typedef struct wss_unit_conv_t {
+typedef struct loadout_slot_conv_t {
 	int ship_index;
+	int wing_index;
 	int wep[MAX_SHIP_WEAPONS_CONV];
 	int wep_count[MAX_SHIP_WEAPONS_CONV];
 
-	wss_unit_conv_t() :
+	loadout_slot_conv_t() :
 		ship_index(-1)
 	{
 	}
-} wss_unit_conv_t;
+} loadout_slot_conv_t;
 
 typedef struct loadout_conv_t {
 	SCP_string filename;
 	SCP_string last_modified;
 
-	wss_unit_conv_t slot[MAX_WSS_SLOTS_CONV];
+	loadout_slot_conv_t slot[MAX_WSS_SLOTS_CONV];
 
 	SCP_vector<int> weapon_pool;
 	SCP_vector<int> ship_pool;

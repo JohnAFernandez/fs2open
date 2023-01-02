@@ -375,7 +375,7 @@ void mission_campaign_build_list(bool desc, bool sort, bool multiplayer)
  */
 void mission_campaign_get_sw_info()
 {
-    int i, count, ship_list[MAX_SHIP_CLASSES], weapon_list[MAX_WEAPON_TYPES];
+    int i, count, ship_list[ship_info_size()], weapon_list[MAX_WEAPON_TYPES];
 
     if (optional_string("+Starting Ships:")) {
         count = (int)stuff_int_list(ship_list, MAX_SHIP_CLASSES, SHIP_INFO_TYPE);
@@ -694,22 +694,7 @@ void player_loadout_init()
 	memset(Player_loadout.filename, 0, sizeof(Player_loadout.filename));
 	memset(Player_loadout.last_modified, 0, sizeof(Player_loadout.last_modified));
 
-	for ( i = 0; i < MAX_SHIP_CLASSES; i++ ) {
-		Player_loadout.ship_pool[i] = 0;
-	}
-
-	for ( i = 0; i < MAX_WEAPON_TYPES; i++ ) {
-		Player_loadout.weapon_pool[i] = 0;
-	}
-
-	for ( i = 0; i < MAX_WSS_SLOTS; i++ ) {
-		Player_loadout.unit_data[i].ship_class = -1;
-
-		for ( j = 0; j < MAX_SHIP_WEAPONS; j++ ) {
-			Player_loadout.unit_data[i].wep[j] = 0;
-			Player_loadout.unit_data[i].wep_count[j] = 0;
-		}
-	}
+	Player_loadout.unit_data.clear();
 }
 
 /**

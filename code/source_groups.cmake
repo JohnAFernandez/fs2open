@@ -813,6 +813,8 @@ add_file_folder("Mission"
 	mission/missiontraining.cpp
 	mission/missiontraining.h
 	mission/mission_flags.h
+	mission/mission_loadout.cpp
+	mission/mission_loadout.h
 )
 
 # MissionUI files

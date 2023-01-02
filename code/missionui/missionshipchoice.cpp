@@ -76,7 +76,6 @@ float ShipSelectScreenShipRot = 0.0f;
 int ShipSelectModelNum = -1;
 
 int anim_timer_start = 0;
-//static matrix ShipScreenOrient = IDENTITY_MATRIX;
 
 //////////////////////////////////////////////////////
 // UI Data structs
@@ -89,9 +88,6 @@ typedef struct ss_icon_info
 	generic_anim	ss_anim;
 } ss_icon_info;
 
-//ss_icon_info	Ss_icons[MAX_SHIP_CLASSES];		// holds ui info on different ship icons
-//ss_wing_info	Ss_wings[MAX_WING_BLOCKS];		// holds ui info for wings and wing slots
-
 ss_wing_info	Ss_wings_teams[MAX_TVT_TEAMS][MAX_WING_BLOCKS];
 ss_wing_info	*Ss_wings = NULL;
 
@@ -101,7 +97,7 @@ ss_icon_info	*Ss_icons = NULL;
 int Ss_mouse_down_on_region = -1;
 
 int Selected_ss_class;	// set to ship class of selected ship, -1 if none selected
-int Hot_ss_icon;			// index that icon is over in list (0..MAX_WING_SLOTS-1)
+int Hot_ss_icon;			// index that icon is over in list (0..SNAZZY_MAX_WING_SLOTS-1)
 int Hot_ss_slot;			// index for slot that mouse is over (0..MAX_WSS_SLOTS)
 
 ////////////////////////////////////////////////////////////
@@ -194,22 +190,12 @@ int Wing_icon_coords[GR_NUM_RESOLUTIONS][MAX_WSS_SLOTS][2] = {
 };
 
 //////////////////////////////////////////////////////
-// Linked List of icons to show on ship selection list
+// Vector of icons to show on ship selection list
 //////////////////////////////////////////////////////
-#define SS_ACTIVE_ITEM_USED	(1<<0)
-typedef struct ss_active_item
-{
-	ss_active_item	*prev, *next;
-	int				ship_class;
-	int				flags;
-} ss_active_item;
+static SCP_vector<int>	SS_active_items;
 
-static ss_active_item	SS_active_head;
-//static ss_active_item	SS_active_items[MAX_WSS_SLOTS];//DTP commented out or else singleplayer will only have a max of MAX_WSS_SLOTS ships
-static ss_active_item	SS_active_items[MAX_SHIP_CLASSES];//DTP, now we have all ships in the TBL, as they can all be playerships
-
-static int SS_active_list_start;
-static int SS_active_list_size;
+// helper variables to figure out where we are in the vector of items for ships on the screen.
+static int SS_active_classes_start;
 
 //////////////////////////////////////////////////////
 // Background bitmaps data for ship_select
@@ -314,10 +300,9 @@ void ship_select_button_do(int i);
 void ship_select_common_init(bool API_Access);
 void ss_reset_selected_ship();
 void ss_restore_loadout();
-void maybe_change_selected_wing_ship(int wb_num, int ws_num);
+void maybe_change_selected_wing_ship(int slot);
 
 // init functions
-void ss_init_pool(team_data *pteam);
 commit_pressed_status create_wings(bool API_Access = false);
 
 // loading/unloading
@@ -416,89 +401,15 @@ void ss_set_carried_icon(int from_slot, int ship_class)
 	// Set the mouse to captured
 	Ship_select_buttons[gr_screen.res][SS_BUTTON_DUMMY].button.capture_mouse();
 }
-
-// clear all active list items, and reset the flags inside the SS_active_items[] array
-void clear_active_list()
-{
-	int i;
-	for ( i = 0; i < ship_info_size(); i++ ) { //DTP singleplayer ship choice fix 
-	//for ( i = 0; i < MAX_WSS_SLOTS; i++ ) { 
-		SS_active_items[i].flags = 0;
-		SS_active_items[i].ship_class = -1;
-	}
-	list_init(&SS_active_head);
-
-	SS_active_list_start = 0;
-	SS_active_list_size = 0;
-}
-
-
-// get a free element from SS_active_items[]
-ss_active_item *get_free_active_list_node()
-{
-	int i;
-	for ( i = 0; i < ship_info_size(); i++ ) { 
-	//for ( i = 0; i < MAX_WSS_SLOTS; i++ ) { //DTP, ONLY MAX_WSS_SLOTS SHIPS ???
-	if ( SS_active_items[i].flags == 0 ) {
-			SS_active_items[i].flags |= SS_ACTIVE_ITEM_USED;
-			return &SS_active_items[i];
-		}
-	}
-	return NULL;
-}
-
-
-// add a ship into the active list
-void active_list_add(int ship_class)
-{
-	ss_active_item *sai;
-
-	sai = get_free_active_list_node();
-	Assert(sai != NULL);
-	sai->ship_class = ship_class;
-	list_append(&SS_active_head, sai);
-}
-
-// remove a ship from the active list
-void active_list_remove(int ship_class)
-{
-	ss_active_item *sai, *temp;
-	
-	// next store players not assigned to wings
-	sai = GET_FIRST(&SS_active_head);
-
-	while(sai != END_OF_LIST(&SS_active_head)){
-		temp = GET_NEXT(sai);
-		if ( sai->ship_class == ship_class ) {
-			list_remove(&SS_active_head, sai);
-			sai->flags = 0;
-		}
-		sai = temp;
-	}
-}
 	
 // Build up the ship selection active list, which is a list of all ships that the player
 // can choose from.
-void init_active_list()
+void init_active_classes()
 {
 	int i;
-	ss_active_item	*sai;
 
-	Assert( Ss_pool != NULL );
-
-	clear_active_list();
-
-	// build the active list
-	for ( i = 0; i < ship_info_size(); i++ ) {
-		if ( Ss_pool[i] > 0 ) {
-			sai = get_free_active_list_node();
-			if ( sai != NULL ) {
-				sai->ship_class = i;
-				list_append(&SS_active_head, sai);
-				SS_active_list_size++;
-			}
-		}
-	}
+	// get the active list
+	SS_active_items = Loadouts.get_active_ships();
 }
 
 void ship_select_check_buttons()
@@ -517,14 +428,15 @@ void ship_select_check_buttons()
 // reset the ship selection to the mission defaults
 void ss_reset_to_default()
 {
+	Assertion(!(Game_mode & GM_MULTIPLAYER), "ss_reset_to_default called while in multiplayer, please report!" );
+
 	if ( Game_mode & GM_MULTIPLAYER ) {
-		Int3();
 		return;
 	}
 
-	ss_init_pool(&Team_data[Common_team]);
+	Loadouts.reset_ship_pool(&Team_data[Loadouts.get_team()]);
 	ss_init_units();
-	init_active_list();
+	init_active_classes();
 	ss_reset_selected_ship();
 	ss_reset_carried_icon();
 
@@ -598,7 +510,7 @@ void ship_select_button_do(int i)
 			if ( Current_screen != ON_SHIP_SELECT )
 				break;
 
-			if ( common_scroll_down_pressed(&SS_active_list_start, SS_active_list_size, MAX_ICONS_ON_SCREEN) ) {
+			if ( common_scroll_down_pressed(&SS_active_classes_start, static_cast<int>(SS_active_classes.size()) , MAX_ICONS_ON_SCREEN) ) {
 				gamesnd_play_iface(InterfaceSounds::SCROLL);
 			} else {
 				gamesnd_play_iface(InterfaceSounds::GENERAL_FAIL);
@@ -609,7 +521,7 @@ void ship_select_button_do(int i)
 			if ( Current_screen != ON_SHIP_SELECT )
 				break;
 
-			if ( common_scroll_up_pressed(&SS_active_list_start, SS_active_list_size, MAX_ICONS_ON_SCREEN) ) {
+			if ( common_scroll_up_pressed(&SS_active_classes_start, static_cast<int>(SS_active_classes.size()), MAX_ICONS_ON_SCREEN) ) {
 				gamesnd_play_iface(InterfaceSounds::SCROLL);
 			} else {
 				gamesnd_play_iface(InterfaceSounds::GENERAL_FAIL);
@@ -629,15 +541,13 @@ void ship_select_button_do(int i)
 //
 void ship_select_init()
 {
-//	SS_active_items = new ss_active_item[Num_ship_classes];
-
 	common_set_interface_palette("ShipPalette");
 	common_flash_button_init();
 
 	// if in multiplayer -- set my state to be ship select
 	if ( Game_mode & GM_MULTIPLAYER ){		
 		// also set the ship which is mine as the default
-		maybe_change_selected_wing_ship(Net_player->p_info.ship_index/MAX_WING_SLOTS,Net_player->p_info.ship_index%MAX_WING_SLOTS);
+		maybe_change_selected_wing_ship(Net_player->p_info.ship_index);
 	}
 
 	set_active_ui(&Ship_select_ui_window);
@@ -732,36 +642,26 @@ void ship_select_init()
 
 
 // Return the ship class for the icon specified by index.  Need to iterate through the active
-// list of icons to find out what ship class for this icon
+// vector icons to find out what ship class for this icon
 //
 // input: index => list index (0..3)
 // exit:  ship class, -1 if none
 //
 int ss_get_ship_class_from_list(int index)
 {
-	ss_active_item	*sai;
-	int				list_entry, i, count;
+	int				list_entry, count;
 
-	i = 0;
-	count = 0;
-	list_entry = -1;
-	for ( sai = GET_FIRST(&SS_active_head); sai != END_OF_LIST(&SS_active_head); sai = GET_NEXT(sai) ) {
-		count++;
-		if ( count <= SS_active_list_start )
-			continue;
+	for ( int i = SS_active_classes_start; i < static_cast<int>(SS_active_items.size()); ++i) {
 
-		if ( i >= MAX_ICONS_ON_SCREEN )
+		if ( i - SS_active_classes_start >= MAX_ICONS_ON_SCREEN )
 			break;
 
 		if ( i == index ) {
-			list_entry = sai->ship_class;
-			break;
+			return SS_active_items[i].ship_class;
 		}
-
-		i++;
 	}
 
-	return list_entry;
+	return -1;
 }
 
 // ---------------------------------------------------------------------
@@ -804,18 +704,19 @@ void maybe_change_selected_ship(int offset)
 		Assert( Selected_ss_class == ship_class );
 }
 
-void maybe_change_selected_wing_ship(int wb_num, int ws_num)
+void maybe_change_selected_wing_ship(int slot)
 {
-	Assert(wb_num >= 0 && wb_num < MAX_WING_BLOCKS);
-	Assert(ws_num >= 0 && ws_num < MAX_WING_SLOTS);	
-	Assert( (Ss_wings != NULL) && (Wss_slots != NULL) );
+	Assert( (Ss_wings != NULL) );
 	
-	if ( Ss_wings[wb_num].wingnum < 0 ) {
+	// not an actual ship or not in a wing.
+	if ( slot < 0 || Loadouts.get_wing_index(slot) < 0 ) {
 		return;
 	}
 
-	if ( Selected_ss_class != -1 && Selected_ss_class != Wss_slots[wb_num*MAX_WING_SLOTS+ws_num].ship_class ) {
-		Selected_ss_class = Wss_slots[wb_num*MAX_WING_SLOTS+ws_num].ship_class;
+	int ship_class = Loadouts.get_ship_class(slot);
+
+	if ( Selected_ss_class != -1 && Selected_ss_class != ship_class ) {
+		Selected_ss_class = ship_class;
 		start_ship_animation(Selected_ss_class, 1);
 	}
 }
@@ -827,12 +728,14 @@ void maybe_change_selected_wing_ship(int wb_num, int ws_num)
 //				1 => icon was dropped onto slot
 int do_mouse_over_wing_slot(int block, int slot)
 {
-	Hot_ss_slot = block*MAX_WING_SLOTS + slot;
+	Hot_ss_slot = get_slot_via_wing_and_ship(block, slot);
+
+	Assert(Hot_ss_slot > -1);
 
 	if ( !mouse_down(MOUSE_LEFT_BUTTON) ) {
 		if ( ss_icon_being_carried() ) {
 
-			if ( ss_disabled_slot(block*MAX_WING_SLOTS+slot) ) {
+			if ( ss_disabled_slot(Hot_ss_slot) ) {
 				gamesnd_play_iface(InterfaceSounds::ICON_DROP);
 				return 0;
 			}
@@ -847,7 +750,7 @@ int do_mouse_over_wing_slot(int block, int slot)
 		}
 	}
 	else {
-		if ( Ss_mouse_down_on_region == (WING_0_SHIP_0+block*MAX_WING_SLOTS+slot) ) {
+		if ( Ss_mouse_down_on_region == (WING_0_SHIP_0+block*SNAZZY_MAX_WING_SLOTS+slot) ) {
 			pick_from_wing(block, slot);
 		}
 	}
@@ -1357,51 +1260,51 @@ void ship_select_do(float frametime)
 				break;
 
 			case WING_0_SHIP_0:
-				maybe_change_selected_wing_ship(0,0);
+				maybe_change_selected_wing_ship(get_slot_via_wing_and_ship(0,0));
 				break;
 
 			case WING_0_SHIP_1:
-				maybe_change_selected_wing_ship(0,1);
+				maybe_change_selected_wing_ship(get_slot_via_wing_and_ship(0,1));
 				break;
 
 			case WING_0_SHIP_2:
-				maybe_change_selected_wing_ship(0,2);
+				maybe_change_selected_wing_ship(get_slot_via_wing_and_ship(0,2));
 				break;
 
 			case WING_0_SHIP_3:
-				maybe_change_selected_wing_ship(0,3);
+				maybe_change_selected_wing_ship(get_slot_via_wing_and_ship(0,3));
 				break;
 
 			case WING_1_SHIP_0:
-				maybe_change_selected_wing_ship(1,0);
+				maybe_change_selected_wing_ship(get_slot_via_wing_and_ship(1,0));
 				break;
 
 			case WING_1_SHIP_1:
-				maybe_change_selected_wing_ship(1,1);
+				maybe_change_selected_wing_ship(get_slot_via_wing_and_ship(1,1));
 				break;
 
 			case WING_1_SHIP_2:
-				maybe_change_selected_wing_ship(1,2);
+				maybe_change_selected_wing_ship(get_slot_via_wing_and_ship(1,2));
 				break;
 
 			case WING_1_SHIP_3:
-				maybe_change_selected_wing_ship(1,3);
+				maybe_change_selected_wing_ship(get_slot_via_wing_and_ship(1,3));
 				break;
 
 			case WING_2_SHIP_0:
-				maybe_change_selected_wing_ship(2,0);
+				maybe_change_selected_wing_ship(get_slot_via_wing_and_ship(2,0));
 				break;
 
 			case WING_2_SHIP_1:
-				maybe_change_selected_wing_ship(2,1);
+				maybe_change_selected_wing_ship(get_slot_via_wing_and_ship(2,1));
 				break;
 
 			case WING_2_SHIP_2:
-				maybe_change_selected_wing_ship(2,2);
+				maybe_change_selected_wing_ship(get_slot_via_wing_and_ship(2,2));
 				break;
 
 			case WING_2_SHIP_3:
-				maybe_change_selected_wing_ship(2,3);
+				maybe_change_selected_wing_ship(get_slot_via_wing_and_ship(2,3));
 				break;
 
 			default:
@@ -1575,8 +1478,6 @@ void ship_select_close()
 									// select screen has been closed and memory freed.  This flag
 									// is needed so we can know if ship_select_close() needs to called if
 									// restoring a game from the Options screen invoked from ship select
-
-//	delete[] SS_active_items;
 }
 
 //	ss_unload_icons() frees the bitmaps used for ship icons 
@@ -1604,20 +1505,13 @@ void ss_unload_all_icons()
 void draw_ship_icons()
 {
 	int i;
-	int count=0;
-
 	ss_active_item	*sai;
 	i = 0;
-	for ( sai = GET_FIRST(&SS_active_head); sai != END_OF_LIST(&SS_active_head); sai = GET_NEXT(sai) ) {
-		count++;
-		if ( count <= SS_active_list_start )
-			continue;
-
-		if ( i >= MAX_ICONS_ON_SCREEN )
+	for ( int i = SS_active_classes_start; i < static_cast<int>(SS_active_classes.size()); ++i ) {
+		if ( i - SS_active_classes_start  >= MAX_ICONS_ON_SCREEN )
 			break;
 
-		draw_ship_icon_with_number(i, sai->ship_class);
-		i++;
+		draw_ship_icon_with_number(i - SS_active_classes_start, SS_active_classes[i]);
 	}
 }
 
@@ -1810,19 +1704,20 @@ void ss_unload_all_anims()
 	}
 }
 
+// TODO, move to loadout manager.
 bool is_weapon_carried(int weapon_index)
 {
 	for (int slot = 0; slot < MAX_WING_BLOCKS*MAX_WING_SLOTS; slot++)
 	{
 		// a ship must exist in this slot
-		if (Wss_slots[slot].ship_class >= 0)
+		if (Loadouts.get_slot(slot) >= 0)
 		{
 			for (int bank = 0; bank < MAX_SHIP_WEAPONS; bank++)
 			{
 				// there must be a weapon here
-				if (Wss_slots[slot].wep_count[bank] > 0)
+				if (Loadouts.get_weapon_count(slot, bank) > 0)
 				{
-					if (Wss_slots[slot].wep[bank] == weapon_index)
+					if (Loadouts.get_weapon(slot, bank) == weapon_index)
 						return true;
 				}
 			}
@@ -1837,21 +1732,21 @@ bool check_for_gaps_in_weapon_slots()
 	for (int slot = 0; slot < MAX_WING_BLOCKS*MAX_WING_SLOTS; ++slot)
 	{
 		// a ship must exist in this slot
-		if (Wss_slots[slot].ship_class >= 0)
+		if (Loadouts.get_ship_class(slot) >= 0)
 		{
 			// if the player can't modify the weapons, then an empty bank is not his fault
 			auto ss_slot = &Ss_wings[slot / MAX_WING_SLOTS].ss_slots[slot % MAX_WING_SLOTS];
 			if (ss_slot->status & WING_SLOT_WEAPONS_DISABLED)
 				continue;
 
-			ship_info *sip = &Ship_info[Wss_slots[slot].ship_class];
+			ship_info *sip = &Ship_info[Loadouts.get_ship_class(slot)];
 			bool empty_slot = false;
 
 			// check primary banks
 			for (int bank = 0; bank < sip->num_primary_banks; ++bank)	// NOLINT(modernize-loop-convert)
 			{
 				// is the slot empty?
-				if (Wss_slots[slot].wep_count[bank] <= 0)
+				if (Loadouts.get_weapon_count(slot, bank) <= 0)
 				{
 					empty_slot = true;
 				}
@@ -1868,7 +1763,7 @@ bool check_for_gaps_in_weapon_slots()
 			for (int bank = 0; bank < sip->num_secondary_banks; ++bank)
 			{
 				// is the slot empty?
-				if (Wss_slots[slot].wep_count[MAX_SHIP_PRIMARY_BANKS + bank] <= 0)
+				if (Loadouts.get_ewapon_count(slot, MAX_SHIP_PRIMARY_BANKS + bank) <= 0)
 				{
 					empty_slot = true;
 				}
@@ -1906,7 +1801,7 @@ commit_pressed_status commit_pressed(bool API_Access)
 	else if(Player_obj != NULL)
 	{
 		if ( Selected_ss_class == -1 ) {
-			player_ship_info_index = Team_data[Common_team].default_ship;
+			player_ship_info_index = Team_data[Loadouts.get_team()].default_ship;
 
 		} else {
 			Assert(Selected_ss_class >= 0 );
@@ -1914,7 +1809,7 @@ commit_pressed_status commit_pressed(bool API_Access)
 		}
 
 		update_player_ship( player_ship_info_index );
-		if ( wl_update_ship_weapons(Ships[Player_obj->instance].objnum, &Wss_slots[0]) == -1 ) {
+		if ( loadouts_update_ship_weapons(Ships[Player_obj->instance].objnum, 0) == -1 ) {
 			if (!API_Access) {
 				popup(PF_USE_AFFIRMATIVE_ICON, 1, POPUP_OK, XSTR("Player ship has no weapons", 461));
 			}
@@ -1928,7 +1823,7 @@ commit_pressed_status commit_pressed(bool API_Access)
 	SCP_string weapon_list;
 	for (j=0; j<weapon_info_size(); j++)
 	{
-		if (Team_data[Common_team].weapon_required[j])
+		if (Team_data[Loadouts.get_team()].weapon_required[j])
 		{
 			// add it to the message list
 			num_required_weapons++;
@@ -2006,7 +1901,7 @@ commit_pressed_status commit_pressed(bool API_Access)
 	if ( !(Game_mode & GM_MULTIPLAYER) ) {
 		strcpy_s(Player_loadout.filename, Game_current_mission_filename);
 		strcpy_s(Player_loadout.last_modified, The_mission.modified);
-		wss_save_loadout();
+		loadouts_save_player_choices_campaign();
 	}
 
 	// warp the mouse cursor the the middle of the screen for those who control with a mouse
@@ -2081,7 +1976,7 @@ void pick_from_wing(int wb_num, int ws_num)
 	int slot_index;
 	Assert(wb_num >= 0 && wb_num < MAX_WING_BLOCKS);
 	Assert(ws_num >= 0 && ws_num < MAX_WING_SLOTS);
-	Assert( (Ss_wings != NULL) && (Wss_slots != NULL) );
+	Assert( (Ss_wings != NULL) );
 	
 	ss_wing_info *wb;
 	ss_slot_info *ws;
@@ -2123,10 +2018,11 @@ void pick_from_wing(int wb_num, int ws_num)
 		case WING_SLOT_FILLED|WING_SLOT_IS_PLAYER:
 		case WING_SLOT_FILLED:
 			{
-			int mouse_x, mouse_y;
-			Assert(Wss_slots[slot_index].ship_class >= 0);
-			ss_set_carried_icon(slot_index, Wss_slots[slot_index].ship_class);
+			int ship_class = Loadouts.get_ship_class(slot_index);
+			Assert(ship_class >= 0);
+			ss_set_carried_icon(slot_index, ship_class);
 
+			int mouse_x, mouse_y;
 			mouse_get_pos_unscaled( &mouse_x, &mouse_y );
 			Ss_delta_x = Wing_icon_coords[gr_screen.res][slot_index][0] - mouse_x;
 			Ss_delta_y = Wing_icon_coords[gr_screen.res][slot_index][1] - mouse_y;
@@ -2166,7 +2062,7 @@ void draw_wing_block(int wb_num, int hot_slot, int selected_slot, int class_sele
 	//shader			*shader_to_use = NULL;
 
 	Assert(wb_num >= 0 && wb_num < MAX_WING_BLOCKS);
-	Assert( (Ss_wings != NULL) && (Wss_slots != NULL) && (Ss_icons != NULL) );
+	Assert( (Ss_wings != NULL) && (Ss_icons != NULL) );
 
 	wb = &Ss_wings[wb_num];
 	
@@ -2191,8 +2087,10 @@ void draw_wing_block(int wb_num, int hot_slot, int selected_slot, int class_sele
 		ws = &wb->ss_slots[i];
 		slot_index = wb_num*MAX_WING_SLOTS + i;
 
-		if ( Wss_slots[slot_index].ship_class >= 0 ) {
-			icon = &Ss_icons[Wss_slots[slot_index].ship_class];
+		int ship_class = Loadouts.get_ship_calss(slot_index);
+
+		if ( ship_class >= 0 ) {
+			icon = &Ss_icons[ship_class];
 		} else {
 			icon = NULL;
 		}
@@ -2244,7 +2142,7 @@ void draw_wing_block(int wb_num, int hot_slot, int selected_slot, int class_sele
 					bitmap_to_draw = icon->icon_bmaps[ICON_FRAME_NORMAL];
 				else
 					color_to_draw = &Icon_colors[ICON_FRAME_NORMAL];
-				if ( selected_slot == slot_index || class_select == Wss_slots[slot_index].ship_class)
+				if ( selected_slot == slot_index || class_select == Loadouts.get_ship_calss(slot_index) )
 				{
 					if(icon->model_index == -1)
 						bitmap_to_draw = icon->icon_bmaps[ICON_FRAME_SELECTED];
@@ -2302,7 +2200,7 @@ void draw_wing_block(int wb_num, int hot_slot, int selected_slot, int class_sele
 		}
 		else if(color_to_draw != NULL)
 		{
-			ship_info *sip = &Ship_info[Wss_slots[slot_index].ship_class];
+			ship_info *sip = &Ship_info[Loadouts.get_ship_class(slot_index)];
 			gr_set_color_fast(color_to_draw);
 
 			graphics::line_draw_list line_draw_list;
@@ -2435,7 +2333,7 @@ commit_pressed_status create_wings(bool API_Access)
 	int cleanup_ship_index[MAX_WING_SLOTS];
 	int i,j,k;
 
-	Assert( (Ss_wings != NULL) && (Wss_slots != NULL) );
+	Assert( (Ss_wings != NULL) );
 
 	for ( i = 0; i < MAX_WING_BLOCKS; i++ ) {
 		
@@ -2447,7 +2345,7 @@ commit_pressed_status create_wings(bool API_Access)
 		wp = &Wings[wb->wingnum];		
 		
 		for ( j = 0; j < MAX_WING_SLOTS; j++ ) {
-			slot_index = i*MAX_WING_SLOTS+j;
+			slot_index = i * MAX_WING_SLOTS + j;
 			ws = &wb->ss_slots[j];
 			if ((ws->status & WING_SLOT_FILLED ) || (ws->status & WING_SLOT_SHIPS_DISABLED ) || (ws->status & WING_SLOT_WEAPONS_DISABLED )){
 				if ( wp->ship_index[j] >= 0 ) {
@@ -2455,9 +2353,9 @@ commit_pressed_status create_wings(bool API_Access)
 				}
 
 				if ( ws->status & WING_SLOT_IS_PLAYER ) {
-					update_player_ship(Wss_slots[slot_index].ship_class);
+					update_player_ship(Loadouts.get_ship_class(slot_index));
 
-					if ( wl_update_ship_weapons(Ships[Player_obj->instance].objnum, &Wss_slots[i*MAX_WING_SLOTS+j]) == -1 ) {
+					if ( loadouts_update_ship_weapons(Ships[Player_obj->instance].objnum, (i * MAX_WING_SLOTS + j )) == -1 ) {
 						if (!API_Access) {
 							popup(PF_USE_AFFIRMATIVE_ICON, 1, POPUP_OK, XSTR("Player ship has no weapons", 461));
 						}
@@ -2470,11 +2368,13 @@ commit_pressed_status create_wings(bool API_Access)
 					// We should always update the parse object information, even if the ship is present at start,
 					// because the wing might have more than one wave or scripting functions might need accurate data
 					bool found_pobj = false;
+					int ship_class = Loadouts.get_ship_class(slot_index);
+
 					for ( auto &p_obj: Parse_objects ) {
 						if ( p_obj.wingnum == WING_INDEX(wp) ) {
 							if ( p_obj.pos_in_wing == j ) {
-								p_obj.ship_class = Wss_slots[slot_index].ship_class;
-								wl_update_parse_object_weapons(&p_obj, &Wss_slots[i*MAX_WING_SLOTS+j]);
+								p_obj.ship_class = ship_class;
+								wl_update_parse_object_weapons(&p_obj, slot_index );
 								found_pobj = true;
 								break;
 							}
@@ -2488,9 +2388,9 @@ commit_pressed_status create_wings(bool API_Access)
 						// NOTE: This will reset the weapons for this ship.  I think this is
 						//       the right thing to do, since the ships may have different numbers
 						//			of weapons and may not have the same allowed weapon types
-						if ( Ships[wp->ship_index[j]].ship_info_index != Wss_slots[slot_index].ship_class )
-							change_ship_type(wp->ship_index[j], Wss_slots[slot_index].ship_class);
-						wl_update_ship_weapons(Ships[wp->ship_index[j]].objnum, &Wss_slots[i*MAX_WING_SLOTS+j]);
+						if ( Ships[wp->ship_index[j]].ship_info_index != ship_class )
+							change_ship_type(wp->ship_index[j], ship_class);
+						loadouts_update_ship_weapons(Ships[wp->ship_index[j]].objnum, (slot_index));
 					}
 				}
 			}
@@ -2763,19 +2663,20 @@ void ss_reset_selected_ship()
 {
 	int i;
 
-	Assert( (Ss_pool != NULL) && (Wss_slots != NULL) );
+	Assert( (Ss_pool != NULL) );
 
 	Selected_ss_class = -1;
 
 	if ( Wss_num_wings <= 0 ) {
-		Selected_ss_class = Team_data[Common_team].default_ship;
+		Selected_ss_class = Team_data[Loadouts.get_team()].default_ship;
 		return;
 	}
 
 	// get first ship class found on slots
 	for ( i = 0; i < MAX_WSS_SLOTS; i++ ) {
-		if ( Wss_slots[i].ship_class >= 0 ) {
-			Selected_ss_class = Wss_slots[i].ship_class;
+		int ship_class = Loadouts.get_ship_class(i);
+		if ( ship_class >= 0 ) {
+			Selected_ss_class = ship_class;
 			return;
 		}
 	}
@@ -2804,13 +2705,10 @@ void ss_reset_selected_ship()
 // exit: number of distinct ship classes available to choose from
 int ss_fixup_team_data(team_data *tdata)
 {
-	int i, j, k, ship_in_parse_player, list_size;
+	int i, j, k;
 	p_object		*p_objp;
-	team_data	*p_team_data;
 
-	p_team_data = tdata;
-	ship_in_parse_player = 0;
-	list_size = p_team_data->num_ship_choices;
+	bool ship_in_parse_player = false;
 
 	for ( i = 0; i < MAX_STARTING_WINGS; i++ ) {
 		wing *wp;
@@ -2818,21 +2716,19 @@ int ss_fixup_team_data(team_data *tdata)
 			continue;
 		wp = &Wings[Starting_wings[i]];
 		for ( j = 0; j < wp->current_count; j++ ) {
-			ship_in_parse_player = 0;
+			ship_in_parse_player = false;
 			
-			for ( k = 0; k < p_team_data->num_ship_choices; k++ ) {
-				Assert( p_team_data->ship_count[k] >= 0 );
-				if ( p_team_data->ship_list[k] == Ships[wp->ship_index[j]].ship_info_index ) {
-					ship_in_parse_player = 1;
+			for ( k = 0; k < static_cast<int>(tdata->ship_list.size()); k++ ) {
+				
+				//Assert( tdata->ship_list.second[k] >= 0 );
+				if ( tdata->ship_list[k].first == Ships[wp->ship_index[j]].ship_info_index ) {
+					ship_in_parse_player = true;
 					break;
 				}
 			}	// end for, go to next item in parse player
 
 			if ( !ship_in_parse_player ) {
-				p_team_data->ship_count[list_size] = 0;
-				p_team_data->ship_list[list_size] = Ships[wp->ship_index[j]].ship_info_index;
-				p_team_data->num_ship_choices++;
-				list_size++;
+				tdata->ship_list.emplace_back(Ships[wp->ship_index[j]].ship_info_index, 0);
 			}
 		}	// end for, go get next ship in wing
 
@@ -2840,66 +2736,38 @@ int ss_fixup_team_data(team_data *tdata)
 
 			for ( p_objp = GET_FIRST(&Ship_arrival_list); p_objp != END_OF_LIST(&Ship_arrival_list); p_objp = GET_NEXT(p_objp) ) {
 				if ( p_objp->wingnum == WING_INDEX(wp) ) {
-					ship_in_parse_player = 0;
+					ship_in_parse_player = false;
 			
-					for ( k = 0; k < p_team_data->num_ship_choices; k++ ) {
-						Assert( p_team_data->ship_count[k] >= 0 );
-						if ( p_team_data->ship_list[k] == p_objp->ship_class ) {
-							ship_in_parse_player = 1;
+					for ( k = 0; k < static_cast<int>(tdata->ship_list.size()); k++ ) {
+						if ( tdata->ship_list[k].first == p_objp->ship_class ) {
+							ship_in_parse_player = true;
 							break;
 						}
 					}	// end for, go to next item in parse player
 
 					if ( !ship_in_parse_player ) {
-						p_team_data->ship_count[list_size] = 0;
-						p_team_data->ship_list[list_size] = p_objp->ship_class;
-						p_team_data->num_ship_choices++;
-						list_size++;
+						tdata->ship_list.emplace_back(p_objp->ship_class, 0);
 					}
 				}
 			}
 		}
 	}	// end for, go to next wing
 
-	if ( list_size == 0 ) {
+	if ( tdata->ship_list.empty() ) {
 		// ensure that the default player ship is in the ship_list too
-		ship_in_parse_player = 0;
-		for ( k = 0; k < p_team_data->num_ship_choices; k++ ) {
-			Assert( p_team_data->ship_count[k] >= 0 );
-			if ( p_team_data->ship_list[k] == p_team_data->default_ship ) {
-				ship_in_parse_player = 1;
+		ship_in_parse_player = false;
+		for ( k = 0; k < static_cast<int>(tdata->ship_list.size()); k++ ) {
+			if ( tdata->ship_list[k].first == tdata->default_ship ) {
+				ship_in_parse_player = true;
 				break;
 			}
 		}
 		if ( !ship_in_parse_player ) {
-			p_team_data->ship_count[list_size] = 0;
-			p_team_data->ship_list[list_size] = p_team_data->default_ship;
-			p_team_data->num_ship_choices++;
-			list_size++;
+			tdata->ship_list.emplace_back(tdata->default_ship, 0);
 		}
 	}
 
-	return list_size;
-}
-
-// set numbers of ships in pool to default values
-void ss_init_pool(team_data *pteam)
-{
-	int i;
-
-	Assert( Ss_pool != NULL );
-
-	for ( i = 0; i < MAX_SHIP_CLASSES; i++ ) {
-		Ss_pool[i] = -1;
-	}
-
-	// set number of available ships based on counts in team_data
-	for ( i = 0; i < pteam->num_ship_choices; i++ ) {
-		if (Ss_pool[pteam->ship_list[i]] == -1) {
-			Ss_pool[pteam->ship_list[i]] = 0; 
-		}
-		Ss_pool[pteam->ship_list[i]] += pteam->ship_count[i];
-	}
+	return static_cast<int>(tdata->ship_list.size());
 }
 
 // load the icons for a specific ship class
@@ -3003,15 +2871,9 @@ void ss_clear_slots()
 	int				i,j;
 	ss_slot_info	*slot;
 
-	Assert( (Wss_slots != NULL) && (Ss_wings != NULL) );
+	Assert( (Ss_wings != NULL) );
 
-	for ( i = 0; i < MAX_WSS_SLOTS; i++ ) {
-		Wss_slots[i].ship_class = -1;
-		for ( j = 0; j < MAX_SHIP_WEAPONS; j++ ) {
-			Wss_slots[i].wep[j] = 0;
-			Wss_slots[i].wep_count[j] = 0;
-		}
-	}
+	Loadouts.reset_all_slots(i);
 
 	for ( i = 0; i < MAX_WING_BLOCKS; i++ ) {
 		for ( j = 0; j < MAX_WING_SLOTS; j++ ) {
@@ -3115,7 +2977,7 @@ void ss_init_units()
 	ss_slot_info	*ss_slot;
 	ss_wing_info	*ss_wing;	
 
-	Assert( (Ss_wings != NULL) && (Wss_slots != NULL) );
+	Assert( (Ss_wings != NULL) );
 
 	for ( i = 0; i < Wss_num_wings; i++ ) {
 
@@ -3199,7 +3061,7 @@ void ss_init_units()
 			}
 
 			// Assign the ship class to the unit
-			Wss_slots[i*MAX_WING_SLOTS+j].ship_class = ss_slot->original_ship_class;
+			Loadouts.set_ship_class(i * MAX_WING_SLOTS + j, ss_slot->original_ship_class);
 
 		}	// end for
 	}	// end for
@@ -3237,10 +3099,10 @@ void ship_select_init_team_data(int team_num)
 	int idx;
 
 	// set up the pointers to initialize the data structures.
-	common_set_team_pointers(team_num);
+	Loadouts.set_team(team_num);
 	
 	ss_fixup_team_data(&Team_data[team_num]);
-	ss_init_pool(&Team_data[team_num]);
+	Loadouts.reset_ship_pool(&Team_data[team_num]);
 	
 	ss_clear_slots();		// reset data for slots	
 	ss_clear_wings();
@@ -3261,7 +3123,7 @@ void ship_select_init_team_data(int team_num)
 
 	// if there are no wings, don't call the init_units() function
 	if ( Wss_num_wings <= 0 ) {
-		Wss_slots[0].ship_class = Team_data[team_num].default_ship;
+		Loadouts.set_ship_class(0, Team_data[team_num].default_ship);
 		return;
 	}
 
@@ -3280,14 +3142,14 @@ void ship_select_common_init(bool API_Access)
 			ship_select_init_team_data(idx);
 		}		
 
-		// finally, intialize team data for myself
-		ship_select_init_team_data(Common_team);
-	} else {			
-		ship_select_init_team_data(Common_team);
+		Loadouts.set_team(Net_player->p_info.team);
+	} else {
+		Loadouts.set_team(0);
+		ship_select_init_team_data(0);
 	}
 	
 	if (!API_Access) {
-		init_active_list();
+		init_active_classes();
 
 		// load the necessary icons/animations
 		ss_load_all_icons();
@@ -3303,7 +3165,7 @@ void ship_select_common_close()
 	ss_unload_all_anims();
 }
 
-// change any interface data based on updated Wss_slots[] and Ss_pool[]
+// change any interface data based on updated loadout manager and Ss_pool[]
 void ss_synch_interface()
 {
 	int				i;
@@ -3311,18 +3173,18 @@ void ss_synch_interface()
 
 	Assert( Ss_wings != NULL );
 
-	int old_list_start = SS_active_list_start;
+	int old_list_start = static_cast<int>(SS_active_classes.size());
 
-	init_active_list();	// build the list of pool ships
+	init_active_classes();	// build the list of pool ships
 
-	if ( old_list_start < SS_active_list_size ) {
-		SS_active_list_start = old_list_start;
+	if ( old_list_start < static_cast<int>(SS_active_classes.size()) ) {
+		SS_active_classes_start = old_list_start;
 	}
 
 	for ( i = 0; i < MAX_WSS_SLOTS; i++ ) {
 		slot = &Ss_wings[i/MAX_WING_SLOTS].ss_slots[i%MAX_WING_SLOTS];
 
-		if ( Wss_slots[i].ship_class == -1 ) {
+		if ( Loadouts.get_ship_class(i) == -1 ) {
 			if ( slot->status & WING_SLOT_FILLED ) {
 				slot->status &= ~WING_SLOT_FILLED;
 				slot->status |= WING_SLOT_EMPTY;
@@ -3346,26 +3208,34 @@ int ss_swap_slot_slot(int from_slot, int to_slot, interface_snd_id *sound)
 		return 0;
 	}
 
+	int ship_class = Loadouts.get_ship_class(from_slot);
+
 	// ensure from_slot has a ship to pick up
-	if ( Wss_slots[from_slot].ship_class < 0 ) {
+	if ( ship_class < 0 ) {
 		*sound=InterfaceSounds::ICON_DROP;
 		return 0;
 	}
 
 	// swap ship class
-	tmp = Wss_slots[from_slot].ship_class;
-	Wss_slots[from_slot].ship_class = Wss_slots[to_slot].ship_class;
-	Wss_slots[to_slot].ship_class = tmp;
+	Loadouts.set_ship_class(from_slot, Loadouts.get_ship_class(to_slot));
+	Loadouts.set_ship_class(to_slot, ship_class);
 
-	// swap weapons
-	for ( i = 0; i < MAX_SHIP_WEAPONS; i++ ) {
-		tmp = Wss_slots[from_slot].wep[i];
-		Wss_slots[from_slot].wep[i] = Wss_slots[to_slot].wep[i];
-		Wss_slots[to_slot].wep[i] = tmp;
+	// swap primary weapons
+	for ( i = 0; i < MAX_SHIP_PRIMARY_BANKS; i++ ) {
+		tmp = Loadouts.get_weapon(from_slot, i, true);
+		Loadouts.set_weapon(from_slot, i, Loadouts.get_weapon(to_slot, i, true));
+		Loadouts.set_weapon(to_slot, i, tmp, true);
+	}
 
-		tmp = Wss_slots[from_slot].wep_count[i];
-		Wss_slots[from_slot].wep_count[i] = Wss_slots[to_slot].wep_count[i];
-		Wss_slots[to_slot].wep_count[i] = tmp;
+	// swap secondary weapons
+	for ( i = 0; i < MAX_SHIP_SECONDARY_BANKS; i++ ) {
+		tmp = Loadouts.get_weapon(from_slot, i, false);
+		Loadouts.set_weapon(from_slot, i, Loadouts.get_weapon(to_slot, i, false), false);
+		Loadouts.set_weapon(to_slot, i, tmp, false);
+
+		tmp = Loadouts.get_weapon_count(from_slot, i);
+		Loadouts.set_weapon_count(from_slot, i, Loadouts.get_weapon_count(to_slot, i));
+		Loadouts.set_weapon_count(to_slot, i, tmp);
 	}
 
 	*sound=InterfaceSounds::ICON_DROP_ON_WING;
@@ -3376,30 +3246,32 @@ int ss_swap_slot_slot(int from_slot, int to_slot, interface_snd_id *sound)
 int ss_dump_to_list(int from_slot, int to_list, interface_snd_id *sound)
 {
 	int i;
-	wss_unit	*slot;
+	loadout_slot	*slot;
 
-	Assert( (Ss_pool != NULL) && (Wl_pool != NULL) && (Wss_slots != NULL) );
+	Assert( (Ss_pool != NULL) && (Wl_pool != NULL) );
 
-	slot = &Wss_slots[from_slot];
+	int ship_class = Loadouts.get_ship_class(from_slot);
 
 	// ensure from_slot has a ship to pick up
-	if ( slot->ship_class < 0 ) {
+	if ( ship_class < 0 ) {
 		*sound=InterfaceSounds::ICON_DROP;
 		return 0;
 	}
 
+	Loadouts.empty_slot_into_pool(from_slot);
+
 	// put ship back in list
-	Ss_pool[to_list]++;		// return to list
-	slot->ship_class = -1;	// remove from slot
+//	Ss_pool[to_list]++;		// return to list
+//	slot->ship_class = -1;	// remove from slot
 
 	// put weapons back in list
-	for ( i = 0; i < MAX_SHIP_WEAPONS; i++ ) {
-		if ( (slot->wep[i] >= 0) && (slot->wep_count[i] > 0) ) {
-			Wl_pool[slot->wep[i]] += slot->wep_count[i];
-			slot->wep[i] = -1;
-			slot->wep_count[i] = 0;
-		}
-	}
+//	for ( i = 0; i < MAX_SHIP_WEAPONS; i++ ) {
+//		if ( (slot->wep[i] >= 0) && (slot->wep_count[i] > 0) ) {
+//			Wl_pool[slot->wep[i]] += slot->wep_count[i];
+//			slot->wep[i] = -1;
+//			slot->wep_count[i] = 0;
+//		}
+//	}
 
 	*sound=InterfaceSounds::ICON_DROP;
 	return 1;
@@ -3408,12 +3280,10 @@ int ss_dump_to_list(int from_slot, int to_list, interface_snd_id *sound)
 // exit: data changed flag
 int ss_grab_from_list(int from_list, int to_slot, interface_snd_id *sound)
 {
-	wss_unit        *slot;
+	loadout_slot        *slot;
 	int i, wep[MAX_SHIP_WEAPONS], wep_count[MAX_SHIP_WEAPONS];
 
-	Assert( (Ss_pool != NULL) && (Wss_slots != NULL) );
-
-	slot = &Wss_slots[to_slot];
+	Assert( Ss_pool != NULL );
 
 	// ensure that pool has ship
 	if ( Ss_pool[from_list] <= 0 )
@@ -3422,19 +3292,20 @@ int ss_grab_from_list(int from_list, int to_slot, interface_snd_id *sound)
 		return 0;
 	}
 
-	Assert(slot->ship_class < 0 );	// slot should be empty
+	Assert(Loadouts.get_ship_class(to_slot) < 0 );	// slot should be empty
 
 	// take ship from list->slot
 	Ss_pool[from_list]--;
-	slot->ship_class = from_list;
+	Loadouts.set_ship_class(to_slot, from_list);
 
 	// take weapons from list->slot
 	wl_get_default_weapons(from_list, to_slot, wep, wep_count);
-	wl_remove_weps_from_pool(wep, wep_count, slot->ship_class);
+	wl_remove_weps_from_pool(wep, wep_count, Loadouts.get_ship_class(to_slot));
+
 	for ( i = 0; i < MAX_SHIP_WEAPONS; i++ )
 	{
-		slot->wep[i] = wep[i];
-		slot->wep_count[i] = wep_count[i];
+		Loadouts.set_weapon(to_slot, i, wep[i]);
+		Loadouts.set_weapon_count(to_slot, i, wep_count[i]);
 	}
 
 	*sound=InterfaceSounds::ICON_DROP_ON_WING;
@@ -3445,9 +3316,8 @@ int ss_grab_from_list(int from_list, int to_slot, interface_snd_id *sound)
 int ss_swap_list_slot(int from_list, int to_slot, interface_snd_id *sound)
 {
 	int i, wep[MAX_SHIP_WEAPONS], wep_count[MAX_SHIP_WEAPONS];
-	wss_unit        *slot;
 
-	Assert( (Ss_pool != NULL) && (Wl_pool != NULL) && (Wss_slots != NULL) );
+	Assert( (Ss_pool != NULL) && (Wl_pool != NULL) );
 
 	// ensure that pool has ship
 	if ( Ss_pool[from_list] <= 0 )
@@ -3456,35 +3326,26 @@ int ss_swap_list_slot(int from_list, int to_slot, interface_snd_id *sound)
 		return 0;
 	}
 
-	slot = &Wss_slots[to_slot];
-	Assert(slot->ship_class >= 0 );        // slot should be filled
+	int old_ship_class = Loadouts.get_ship_class(to_slot);
 
-	// put ship from slot->list
-	Ss_pool[Wss_slots[to_slot].ship_class]++;
+	// remove the ship and weapons from the slot so we don't lose track of them.
+	Loadouts.empty_slot_into_pool(to_slot);
 
-	// put weapons from slot->list
-	for ( i = 0; i < MAX_SHIP_WEAPONS; i++ )
-	{
-		if ( (slot->wep[i] >= 0) && (slot->wep_count[i] > 0) )
-		{
-			Wl_pool[slot->wep[i]] += slot->wep_count[i];
-			slot->wep[i] = -1;
-			slot->wep_count[i] = 0;
-		}
-	}
 
 	// take ship from list->slot
 	Ss_pool[from_list]--;
-	slot->ship_class = from_list;
+
+	Loadouts.set_ship_with_weapons_from_pool(to_slot, from_list);
+//	slot->ship_class = from_list;
 
 	// take weapons from list->slot
-	wl_get_default_weapons(from_list, to_slot, wep, wep_count);
-	wl_remove_weps_from_pool(wep, wep_count, slot->ship_class);
-	for ( i = 0; i < MAX_SHIP_WEAPONS; i++ )
-	{
-		slot->wep[i] = wep[i];
-		slot->wep_count[i] = wep_count[i];
-	}
+//	wl_get_default_weapons(from_list, to_slot, wep, wep_count);
+//	wl_remove_weps_from_pool(wep, wep_count, slot->ship_class);
+//	for ( i = 0; i < MAX_SHIP_WEAPONS; i++ )
+//	{
+//		slot->wep[i] = wep[i];
+//		slot->wep_count[i] = wep_count[i];
+//	}
 
 	*sound=InterfaceSounds::ICON_DROP_ON_WING;
 	return 1;
@@ -3516,16 +3377,6 @@ void ss_apply(int mode, int from_slot, int from_list, int to_slot, int to_list,i
 	}
 
 	if ( update ) {
-		// NO LONGER USED - THERE IS A MULTIPLAYER VERSION OF THIS SCREEN NOW
-		/*
-		if ( MULTIPLAYER_HOST ) {
-			int size;
-			ubyte wss_data[MAX_PACKET_SIZE-20];
-			size = store_wss_data(wss_data, MAX_PACKET_SIZE-20, sound);
-			send_wss_update_packet(wss_data, size, player_index);
-		}
-		*/
-
 		ss_synch_interface();
 	}
 }
@@ -3550,8 +3401,8 @@ void ss_recalc_multiplayer_slots()
 	
 	// no wings
 	if ( Wss_num_wings <= 0 ) {
-		Assert( Wss_slots != NULL );
-		Wss_slots[0].ship_class = Team_data[Common_team].default_ship;
+		// TODO, wait which ship am I setting???
+		Loadouts.set_ship_class( Team_data[Loadouts.get_team()].default_ship);
 		return;
 	}
 

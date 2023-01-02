@@ -13,7 +13,7 @@
 #define __MISSION_WEAPON_CHOICE_H__
 
 class p_object;
-struct wss_unit;
+struct loadout_slot;
 class ship_weapon;
 
 // mask regions for icons in the scrollable lists
@@ -77,9 +77,9 @@ void draw_3d_overhead_view(int model_num,
 	int bank_y_offset = 12,
 	overhead_style style = Default_overhead_ship_style);
 
-void	wl_update_parse_object_weapons(p_object *pobjp, wss_unit *slot);
-int	wl_update_ship_weapons(int objnum, wss_unit *slot);
-void	wl_bash_ship_weapons(ship_weapon *swp, wss_unit *slot);
+void	wl_update_parse_object_weapons(p_object *pobjp, int slot);
+int	loadouts_update_ship_weapons(int objnum, int slot);
+void	wl_bash_ship_weapons(ship_weapon *swp, int slot);
 
 void wl_set_default_weapons(int index, int ship_class);
 void wl_reset_to_defaults();
@@ -92,7 +92,7 @@ void wl_remove_weps_from_pool(int *wep, int *wep_count, int ship_class);
 void wl_get_ship_class_weapons(int ship_class, int *wep, int *wep_count);
 void wl_get_default_weapons(int ship_class, int slot_num, int *wep, int *wep_count);
 int eval_weapon_flag_for_game_type(int weapon_flags);
-int wl_calc_missile_fit(int wi_index, int capacity);
+int loadouts_calc_missile_fit(int wi_index, int capacity);
 
 void wl_synch_interface();
 int wl_apply(int mode,int from_bank,int from_list,int to_bank,int to_list,int ship_slot,int player_index = -1, bool dont_play_sound = false);

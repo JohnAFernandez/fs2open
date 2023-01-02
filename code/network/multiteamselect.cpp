@@ -521,7 +521,7 @@ void multi_ts_common_init()
 		Multi_ts_select_index = Net_player->p_info.ship_index;
 		
 		// select this ship and setup his info
-		Multi_ts_select_ship_class = Wss_slots[Multi_ts_select_index].ship_class;
+		Multi_ts_select_ship_class = Loadouts.get_ship_class(Multi_ts_select_index);
 		multi_ts_select_ship();
 	} else {
 		Multi_ts_select_type = -1;
@@ -976,9 +976,9 @@ void multi_ts_create_wings()
 				change_ship_type(Objects[objnum].instance,Wss_slots_teams[idx][s_idx].ship_class);
 
 				// set the ship weapons correctly
-				wl_update_ship_weapons(objnum,&Wss_slots_teams[idx][s_idx]);
+				loadouts_update_ship_weapons(objnum, s_idx);
 				
-				// assign ts_index of the ship to point to the proper Wss_slots slot
+				// assign ts_index of the ship to point to the proper Loadout slot
 				Ships[Objects[objnum].instance].ts_index = s_idx;
 			} else if(Multi_ts_team[idx].multi_ts_flag[s_idx] == MULTI_TS_FLAG_EMPTY){		
 				Assert(Multi_ts_team[idx].multi_ts_objnum[s_idx] >= 0);			
@@ -1231,7 +1231,7 @@ void multi_ts_blit_wings()
 		if(Multi_ts_team[Net_player->p_info.team].multi_ts_flag[idx] == MULTI_TS_FLAG_EMPTY){
 			ss_blit_ship_icon(Multi_ts_slot_icon_coords[idx][gr_screen.res][MULTI_TS_X_COORD],Multi_ts_slot_icon_coords[idx][gr_screen.res][MULTI_TS_Y_COORD],-1,0);
 		} else {
-			ss_blit_ship_icon(Multi_ts_slot_icon_coords[idx][gr_screen.res][MULTI_TS_X_COORD],Multi_ts_slot_icon_coords[idx][gr_screen.res][MULTI_TS_Y_COORD],Wss_slots[idx].ship_class,multi_ts_slot_bmap_num(idx));
+			ss_blit_ship_icon(Multi_ts_slot_icon_coords[idx][gr_screen.res][MULTI_TS_X_COORD],Multi_ts_slot_icon_coords[idx][gr_screen.res][MULTI_TS_Y_COORD],Loadouts.get_ship_class(idx),multi_ts_slot_bmap_num(idx));
 
 			// if this is a team vs team game, and the slot is occupised by a team captain, put a c there
 			if((Netgame.type_flags & NG_TYPE_TEAM) && (Multi_ts_team[Net_player->p_info.team].multi_ts_player[idx] != NULL) && (Multi_ts_team[Net_player->p_info.team].multi_ts_player[idx]->flags & NETINFO_FLAG_TEAM_CAPTAIN)){
@@ -1742,11 +1742,13 @@ void multi_ts_init_flags()
 	// in a non team vs. team situation
 	else {
 		for(idx=0;idx<MULTI_TS_NUM_SHIP_SLOTS;idx++){
+			int ship_class = Loadouts.get_ship_class(idx);
+			
 			// if the there is an objnum here but no ship class, we know its currently empty
-			if((Multi_ts_team[0].multi_ts_objnum[idx] != -1) && (Wss_slots[idx].ship_class == -1)){
+			if((Multi_ts_team[0].multi_ts_objnum[idx] != -1) && (ship_class == -1)){
 				Multi_ts_team[0].multi_ts_flag[idx] = MULTI_TS_FLAG_EMPTY;
-			} else if((Multi_ts_team[0].multi_ts_objnum[idx] != -1) && (Wss_slots[idx].ship_class != -1)){
-				Multi_ts_team[0].multi_ts_flag[idx] = Wss_slots[idx].ship_class;
+			} else if((Multi_ts_team[0].multi_ts_objnum[idx] != -1) && (ship_class != -1)){
+				Multi_ts_team[0].multi_ts_flag[idx] = ship_class;
 			}			
 		}
 	}
@@ -1812,7 +1814,7 @@ void multi_ts_handle_mouse()
 			if(region_index >= 0 ) {
 				region_empty = (Multi_ts_team[Net_player->p_info.team].multi_ts_flag[region_index] >= 0) ? 0 : 1;
 				if(!region_empty){
-					ship_class = Wss_slots[region_index].ship_class;
+					ship_class = Loadouts.get_ship_class(region_index);
 				}
 			}
 			break;
@@ -2173,7 +2175,7 @@ void multi_ts_apply(int from_type,int from_index,int to_type,int to_index,int sh
 	}
 
 	// set the proper pool pointers
-	common_set_team_pointers(pl->p_info.team);
+	Loadouts.set_team(pl->p_info.team);
 
 	interface_snd_id sound;
 	switch(type){
@@ -2212,7 +2214,7 @@ void multi_ts_apply(int from_type,int from_index,int to_type,int to_index,int sh
 			// send the correct type of update
 			if(type == TS_SWAP_PLAYER_PLAYER){
 			} else {				
-				size = store_wss_data(wss_data, MAX_PACKET_SIZE-20, sound, player_index);
+				size = multi_pack_loadout_data(wss_data, MAX_PACKET_SIZE-20, sound, player_index);
 				send_wss_update_packet(pl->p_info.team,wss_data, size);			
 
 				// send a player slot update packet as well, so ship class information, etc is kept correct
@@ -2235,7 +2237,7 @@ void multi_ts_apply(int from_type,int from_index,int to_type,int to_index,int sh
 	}	
 
 	// set the proper pool pointers
-	common_set_team_pointers(Net_player->p_info.team);
+	Loadouts.set_team(Net_player->p_info.team);
 }
 
 // drop a carried icon 
@@ -2563,7 +2565,7 @@ void multi_ts_select_ship()
 	Multi_ts_select_ship_class = -1;
 	switch(Multi_ts_select_type){
 	case MULTI_TS_SLOT_LIST:
-		Multi_ts_select_ship_class = Wss_slots[Multi_ts_select_index].ship_class;
+		Multi_ts_select_ship_class = Loadouts.get_ship_class(Multi_ts_select_index);
 		break;
 	case MULTI_TS_AVAIL_LIST:
 		Multi_ts_select_ship_class = multi_ts_get_avail_ship_class(Multi_ts_select_index);
@@ -2800,7 +2802,7 @@ void send_pslot_update_packet(int team,int code, interface_snd_id sound)
 				ADD_DATA(val);
 
 				// add the ship class
-				ADD_SHORT(static_cast<short>(Wss_slots_teams[team][idx].ship_class));
+				ADD_SHORT(static_cast<short>(Loadouts.team_get_ship_class(team,idx)));
 
 				// add the objnum we're working with
 				i_tmp = Multi_ts_team[team].multi_ts_objnum[idx];
@@ -2819,7 +2821,7 @@ void send_pslot_update_packet(int team,int code, interface_snd_id sound)
 					ADD_SHORT(Multi_ts_team[team].multi_ts_player[idx]->player_id);
 
 					// should also update his p_info settings locally
-					Multi_ts_team[team].multi_ts_player[idx]->p_info.ship_class = Wss_slots_teams[team][idx].ship_class;
+					Multi_ts_team[team].multi_ts_player[idx]->p_info.ship_class = Loadouts.team_get_ship_class(team, idx);
 					Multi_ts_team[team].multi_ts_player[idx]->p_info.ship_index = idx;
 				}
 				

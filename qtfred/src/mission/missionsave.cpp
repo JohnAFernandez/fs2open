@@ -3752,8 +3752,8 @@ int CFred_mission_save::save_players()
 
 		for (j = 0; j < Team_data[i].num_ship_choices; j++) {
 			// Check to see if a variable name should be written for the class rather than a number
-			if (strlen(Team_data[i].ship_list_variables[j])) {
-				var_idx = get_index_sexp_variable_name(Team_data[i].ship_list_variables[j]);
+			if (strlen(Team_data[i].ship_list_variables[j].second)) {
+				var_idx = get_index_sexp_variable_name(Team_data[i].ship_list_variables[j].second);
 				Assert(var_idx > -1 && var_idx < MAX_SEXP_VARIABLES);
 				wrote_fso_data = true;
 

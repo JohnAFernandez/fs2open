@@ -878,34 +878,25 @@ void clear_mission()
 	// set up the default ship types for all teams.  For now, this is the same class
 	// of ships for all teams
 	for (i=0; i<MAX_TVT_TEAMS; i++) {
-		count = 0;
+		auto& team = Team_data[i];
+
+		team.ship_list.clear();
+		team.ship_list_variables.clear();
+		team.ship_count_variables.clear();
+
 		for ( j = 0; j < ship_info_size(); j++ ) {
 			if (Ship_info[j].flags[Ship::Info_Flags::Default_player_ship]) {
-				Team_data[i].ship_list[count] = j;
-				strcpy_s(Team_data[i].ship_list_variables[count], "");
-				Team_data[i].ship_count[count] = 5;
-				strcpy_s(Team_data[i].ship_count_variables[count], "");
-				count++;
+				team.ship_list.emplace_back(j, 0); // for Fred, only 0 needed
 			}
 		}
-		Team_data[i].num_ship_choices = count;
 
-		count = 0;
+		team.weapon_pool.clear();
+
 		for ( j = 0; j < weapon_info_size(); j++ ) {
 			if (Weapon_info[j].wi_flags[Weapon::Info_Flags::Player_allowed]) {
-				if (Weapon_info[j].subtype == WP_LASER) {
-					Team_data[i].weaponry_count[count] = 16;
-				} else {
-					Team_data[i].weaponry_count[count] = 500;
-				}
-				Team_data[i].weaponry_pool[count] = j; 
-				strcpy_s(Team_data[i].weaponry_pool_variable[count], "");
-				strcpy_s(Team_data[i].weaponry_amount_variable[count], "");
-				count++;
+				team.weapon_pool.emplace_back(j, 0, "", "", false);
 			}
-			Team_data[i].weapon_required[j] = false;
 		}
-		Team_data[i].num_weapon_choices = count; 
 	}
 
 	unmark_all();

@@ -789,7 +789,6 @@ void parse_player_info2(mission *pm)
 {
 	int nt, i;
 	SCP_vector<loadout_row> list, list2;
-	team_data *ptr;
 
 	if (OnLoadoutAboutToParseHook->isActive()) {
 		OnLoadoutAboutToParseHook->run();
@@ -799,7 +798,7 @@ void parse_player_info2(mission *pm)
 	for ( nt = 0; nt < Num_teams; nt++ ) {
 		int num_choices;
 
-		ptr = &Team_data[nt];
+		auto& team = Team_data[nt];
 		// get the shipname for single player missions
 		// MWA -- make this required later!!!!
 		if ( optional_string("$Starting Shipname:") )
@@ -807,8 +806,6 @@ void parse_player_info2(mission *pm)
 
 		required_string("$Ship Choices:");
 		stuff_loadout_list(list, MISSION_LOADOUT_SHIP_LIST);
-
-		num_choices = 0;
 
 		// check ship class loadout entries
 		for (auto &sc : list) {
@@ -821,47 +818,39 @@ void parse_player_info2(mission *pm)
 			if (sc.index < 0 || sc.index >= ship_info_size())
 				continue;
 
-			ptr->ship_list[num_choices] = sc.index;
+			team.ship_list.emplace_back(sc.index, sc.count);
 
 			// if the list isn't set by a variable leave the variable name empty
-			if (sc.index_sexp_var == NOT_SET_BY_SEXP_VARIABLE) {
-				strcpy_s(ptr->ship_list_variables[num_choices], "") ;
-			}
-			else {
-				strcpy_s(ptr->ship_list_variables[num_choices], Sexp_variables[sc.index_sexp_var].variable_name);
+			if (sc.index_sexp_var != NOT_SET_BY_SEXP_VARIABLE) {
+				team.ship_list_variables.emplace_back(sc.index, Sexp_variables[sc.index_sexp_var].variable_name);
 			}
 
-			ptr->ship_count[num_choices] = sc.count;
-			ptr->loadout_total += sc.count;
+			team.loadout_total += sc.count;
 
 			// if the list isn't set by a variable leave the variable name empty
-			if (sc.count_sexp_var == NOT_SET_BY_SEXP_VARIABLE) {
-				strcpy_s(ptr->ship_count_variables[num_choices], "");
+			if (sc.count_sexp_var != NOT_SET_BY_SEXP_VARIABLE) {
+				team.ship_list_variables.emplace_back(sc.index, Sexp_variables[sc.count_sexp_var].variable_name);
 			}
-			else {
-				strcpy_s(ptr->ship_count_variables[num_choices], Sexp_variables[sc.count_sexp_var].variable_name);
-			}
-
-			num_choices++;
 		}
-		ptr->num_ship_choices = num_choices;
 
-		ptr->default_ship = -1;
+		team.default_ship = -1;
 		if (optional_string("+Default_ship:")) {
 			char str[NAME_LENGTH];
 			stuff_string(str, F_NAME, NAME_LENGTH);
-			ptr->default_ship = ship_info_lookup(str);
-			if (-1 == ptr->default_ship) {
-				WarningEx(LOCATION, "Mission: %s\nUnknown default ship %s!  Defaulting to %s.", pm->name, str, Ship_info[ptr->ship_list[0]].name );
-				ptr->default_ship = ptr->ship_list[0]; // default to 1st in list
+			team.default_ship = ship_info_lookup(str);
+			
+			if (team.default_ship == -1 && !team.ship_list.empty()) {
+				WarningEx(LOCATION, "Mission: %s\nUnknown default ship %s!  Defaulting to %s.", pm->name, str, team.ship_list.empty() ? Ship_info[0].name : Ship_info[team.ship_list.front().first].name );
+				team.default_ship =  team.ship_list.empty() ? 0 : team.ship_list.front().first; // default to 1st in list
 			}
+			
 			// see if the player's default ship is an allowable ship (campaign only). If not, then what
 			// do we do?  choose the first allowable one?
 			if (Game_mode & GM_CAMPAIGN_MODE || (MULTIPLAYER_CLIENT)) {
-				if ( !(Campaign.ships_allowed[ptr->default_ship]) ) {
+				if ( !(Campaign.ships_allowed[team.default_ship]) ) {
 					for (i = 0; i < ship_info_size(); i++ ) {
 						if ( Campaign.ships_allowed[i] ) {
-							ptr->default_ship = i;
+							team.default_ship = i;
 							break;
 						}
 					}
@@ -870,13 +859,11 @@ void parse_player_info2(mission *pm)
 			}
 		}
 
-		if (ptr->default_ship == -1)  // invalid or not specified, make first in list
-			ptr->default_ship = ptr->ship_list[0];
+		if (team.default_ship == -1)  // invalid or not specified, make first in list
+			team.default_ship =  team.ship_list.empty() ? 0 : team.ship_list.front().first; // default to 1st in list
 
 		required_string("+Weaponry Pool:");
 		stuff_loadout_list(list2, MISSION_LOADOUT_WEAPON_LIST);
-
-		num_choices = 0;
 
 		// check weapon class loadout entries
 		for (auto &wc : list2) {
@@ -897,38 +884,34 @@ void parse_player_info2(mission *pm)
 				continue;
 			}
 
-			ptr->weaponry_pool[num_choices] = wc.index; 
-			ptr->weaponry_count[num_choices] = wc.count;
+			team.weapon_pool.emplace_back(wc.index, wc.count, false, "", ""); 
 
 			// if the list isn't set by a variable leave the variable name empty
-			if (wc.index_sexp_var == NOT_SET_BY_SEXP_VARIABLE) {
-				strcpy_s(ptr->weaponry_pool_variable[num_choices], "");
-			}
-			else {
-				strcpy_s(ptr->weaponry_pool_variable[num_choices], Sexp_variables[wc.index_sexp_var].variable_name);
+			if (wc.index_sexp_var != NOT_SET_BY_SEXP_VARIABLE) {
+				team.weapon_pool.back().pool_variable = Sexp_variables[wc.index_sexp_var].variable_name;
 			}
 
 			// if the list isn't set by a variable leave the variable name empty
-			if (wc.count_sexp_var == NOT_SET_BY_SEXP_VARIABLE) {
-				strcpy_s(ptr->weaponry_amount_variable[num_choices], "");
-			}
-			else {
-				strcpy_s(ptr->weaponry_amount_variable[num_choices], Sexp_variables[wc.count_sexp_var].variable_name);
+			if (wc.count_sexp_var != NOT_SET_BY_SEXP_VARIABLE) {
+				team.weapon_pool.back().amount_variable = Sexp_variables[wc.count_sexp_var].variable_name;
 			}
 
-			num_choices++; 
 		}
-		ptr->num_weapon_choices = num_choices;
 
-		memset(ptr->weapon_required, 0, MAX_WEAPON_TYPES * sizeof(bool));
 		if (optional_string("+Required for mission:"))
 		{
-			int num_weapons;
+			
 			int weapon_list_buf[MAX_WEAPON_TYPES];
-			num_weapons = (int)stuff_int_list(weapon_list_buf, MAX_WEAPON_TYPES, WEAPON_LIST_TYPE);
+			size_t num_weapons = stuff_int_list(weapon_list_buf, MAX_WEAPON_TYPES, WEAPON_LIST_TYPE);
 
-			for (i = 0; i < num_weapons; i++)
-				ptr->weapon_required[weapon_list_buf[i]] = true;
+			for (i = 0; i < num_weapons; ++i){
+				for (auto& wep : team.weapon_pool){
+					if (wep.index == weapon_list_buf[i]){
+						wep.required = true;
+						break;
+					}
+				}
+			}
 		}
 	}
 
@@ -3613,12 +3596,12 @@ void parse_common_object_data(p_object *p_objp)
 int get_reassigned_index(team_data *current_team, int ship_class) 
 {
 	// Search through the available ships to see if there is a matching ship class in the loadout
-	for (int i=0; i < current_team->num_ship_choices; i++)
+	for (int i = 0; i < static_cast<int>(current_team->ship_list.size()); ++i)
 	{
-		if (ship_class == current_team->ship_list[i])
+		if (ship_class == current_team->ship_list[i].first)
 		{
-			if (current_team->ship_count[i] > 0) {
-				return i;
+			if (current_team->ship_list[i].second > 0) {
+				return ;
 			}
 			else {
 				return -1;
@@ -3635,12 +3618,12 @@ int get_reassigned_index(team_data *current_team, int ship_class)
 void update_loadout_totals(team_data *current_team, int loadout_index)
 {
 	// Fix the loadout variables to show that the class has less available if there are still ships available
-	if (current_team->ship_count[loadout_index] > 0)
+	if (current_team->ship_list[loadout_index].second > 0)
 	{
 		Assert (current_team->loadout_total > 0); 
 
-		current_team->ship_count[loadout_index]--;
-		current_team->loadout_total--;
+		--current_team->ship_list[loadout_index].second;
+		--current_team->loadout_total;
 	}
 }
 
@@ -3684,11 +3667,11 @@ bool is_ship_assignable(p_object *p_objp)
 		}
 	}
 
-	// If we managed to assign a class we'd may need to actually swap to it
+	// If we managed to assign a class we may need to actually swap to it
 	if (loadout_index != -1 ) {
-		if (p_objp->ship_class != data_for_team->ship_list[loadout_index])
+		if (p_objp->ship_class != data_for_team->ship_list[loadout_index].first)
 		{
-			swap_parse_object(p_objp, data_for_team->ship_list[loadout_index]);
+			swap_parse_object(p_objp, data_for_team->ship_list[loadout_index].first);
 		}
 		return true;
 	}
@@ -3737,15 +3720,15 @@ void process_loadout_objects()
 		else
 		{
 			// Go through the loadout until we find an unassigned ship
-			for (int j=0; j < current_team->num_ship_choices; j++)
+			for (int j=0; j < static_cast<int>(current_team->ship_list.size()); j++)
 			{
-				if (current_team->ship_count[j] > 0)
+				if (current_team->ship_list[j].second > 0)
 				{
 					update_loadout_totals(current_team, j);
 					// We will need to assign a new class too (if a p_object the same class was available
 					// it should have been assigned by attempt_loadout_assignation_from_defaults()
-					Assert (p_objp->ship_class != current_team->ship_list[j]);
-					swap_parse_object(p_objp, current_team->ship_list[j]);
+					Assert (p_objp->ship_class != current_team->ship_list[j].first);
+					swap_parse_object(p_objp, current_team->ship_list[j].first);
 
 					loadout_assigned = true;
 					break ;

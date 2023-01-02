@@ -535,11 +535,9 @@ void DumpStats::get_ship_weapon_selection(CString &buffer)
 		buffer += "\r\n";
 
 		// weapons
-		for (j=0; j<Team_data[i].num_weapon_choices; j++) {
-			//if (Team_data[i].weaponry_pool[j] > 0) 
-			temp.Format("\tWeapon name: %s, count %d\r\n", Weapon_info[Team_data[i].weaponry_pool[j]].name, Team_data[i].weaponry_count[j]);
+		for (auto& wep : Team_data[i].weapon_pool) {
+			temp.Format("\tWeapon name: %s, count %d\r\n", Weapon_info[wep.index].name, wep.count);
 			buffer += temp;
-			
 		}
 	}
 

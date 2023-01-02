@@ -416,10 +416,10 @@ void Editor::clearMission() {
 		auto count = 0;
 		for (auto j = 0; j < static_cast<int>(Ship_info.size()); j++) {
 			if (Ship_info[j].flags[Ship::Info_Flags::Default_player_ship]) {
-				Team_data[i].ship_list[count] = j;
-				strcpy_s(Team_data[i].ship_list_variables[count], "");
-				Team_data[i].ship_count[count] = 5;
-				strcpy_s(Team_data[i].ship_count_variables[count], "");
+				Team_data[i].ship_list[count].first = j;
+				Team_data[i].ship_list_variables[count].second = "";
+				Team_data[i].ship_count[count].first = 5;
+				Team_data[i].ship_count_variables[count].second = "");
 				count++;
 			}
 		}

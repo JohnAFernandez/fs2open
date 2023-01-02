@@ -557,34 +557,30 @@ void pilotfile::csg_read_loadout()
 	cfread_string_len(Player_loadout.filename, MAX_FILENAME_LEN, cfp);
 	cfread_string_len(Player_loadout.last_modified, DATE_TIME_LENGTH, cfp);
 
-	// ship pool
-	list_size = ship_list.size();
-	for (idx = 0; idx < list_size; idx++) {
-		count = cfread_int(cfp);
+	// as of version 8, the pool is taken from the current mission, and the desired loadouts
+	// are calculated against that instead of the loaded pool values (which never made sense in the first place)
+	// Also the destination variables no longer exist so ..... we're just counting until we're done.
+	if (csg_ver < 8){
+		// ship pool
+		list_size = ship_list.size();
+		for (idx = 0; idx < list_size; idx++) {
+			count = cfread_int(cfp);
+		}
 
-		if (ship_list[idx].index >= 0) {
-			Player_loadout.ship_pool[ship_list[idx].index] = count;
+		// weapon pool
+		list_size = weapon_list.size();
+		for (idx = 0; idx < list_size; idx++) {
+			count = cfread_int(cfp);
 		}
 	}
-
-	// weapon pool
-	list_size = weapon_list.size();
-	for (idx = 0; idx < list_size; idx++) {
-		count = cfread_int(cfp);
-
-		if (weapon_list[idx].index >= 0) {
-			Player_loadout.weapon_pool[weapon_list[idx].index] = count;
-		}
-	}
+	
+	Loadouts.clear_loaded_slots();
 
 	// player ship loadout
 	list_size = (uint)cfread_ushort(cfp);
-	for (uint i = 0; i < list_size; i++) {
-		wss_unit *slot = NULL;
 
-		if (i < MAX_WSS_SLOTS) {
-			slot = &Player_loadout.unit_data[i];
-		}
+	for (uint i = 0; i < list_size; i++) {
+		loadout_slot slot;
 
 		// ship
 		ship_idx = cfread_int(cfp);
@@ -594,12 +590,10 @@ void pilotfile::csg_read_loadout()
 			ship_idx = -1;
 		}
 
-		if (slot) {
-			if (ship_idx == -1) { // -1 means no ship in this slot
-				slot->ship_class = -1;
-			} else {
-				slot->ship_class = ship_list[ship_idx].index;
-			}
+		if (ship_idx == -1) { // -1 means no ship in this slot
+			slot.ship_class = -1;
+		} else {
+			slot.ship_class = ship_list[ship_idx].index;
 		}
 
 		// primary weapons
@@ -613,19 +607,21 @@ void pilotfile::csg_read_loadout()
 				wep_idx = -1;
 			}
 
-
-			if ( slot && (j < MAX_SHIP_PRIMARY_BANKS) ) {
+			if ( j < MAX_SHIP_PRIMARY_BANKS) {
 				if (wep_idx == -1) { // -1 means no weapon in this slot
-					slot->wep[j] = -1;
+					slot.primaries[j] = -1;
 				} else {
-					slot->wep[j] = weapon_list[wep_idx].index;
+					slot.primaries[j] = weapon_list[wep_idx].index;
 				}
 			}
 
 			int read_idx = cfread_int(cfp);
 
-			if ( slot && (j < MAX_SHIP_PRIMARY_BANKS) ) {
-				slot->wep_count[j] = read_idx;
+				// As of version 8, we do not record the count of a primary bank. (Why were we???)
+			if (csg_ver < 8) {	
+				if ((j < MAX_SHIP_PRIMARY_BANKS) ) {
+					slot.wep_count[j] = read_idx;
+				}
 			}
 		}
 
@@ -640,20 +636,24 @@ void pilotfile::csg_read_loadout()
 				wep_idx = -1;
 			}
 
-			if ( slot && (j < MAX_SHIP_SECONDARY_BANKS) ) {
+			if (j < MAX_SHIP_SECONDARY_BANKS) {
+				
 				if (wep_idx == -1) { // -1 means no weapon in this slot
-					slot->wep[j+MAX_SHIP_PRIMARY_BANKS] = -1;
+					slot.secondaries[j] = -1;
 				} else {
-					slot->wep[j+MAX_SHIP_PRIMARY_BANKS] = weapon_list[wep_idx].index;
+					slot.secondaries[j] = weapon_list[wep_idx].index;
 				}
 			}
 
 			int read_idx = cfread_int(cfp);
 
-			if ( slot && (j < MAX_SHIP_SECONDARY_BANKS) ) {
-				slot->wep_count[j+MAX_SHIP_PRIMARY_BANKS] = read_idx;
+			if (j < MAX_SHIP_SECONDARY_BANKS) {
+				slot.wep_count[j] = read_idx;
 			}
 		}
+
+		// Add the completed slot to the manager to figure 
+		Loadouts.add_loaded_slot(slot);
 	}	
 }
 
@@ -667,39 +667,27 @@ void pilotfile::csg_write_loadout()
 	cfwrite_string_len(Player_loadout.filename, cfp);
 	cfwrite_string_len(Player_loadout.last_modified, cfp);
 
-	// ship pool
-	for (idx = 0; idx < ship_info_size(); idx++) {
-		cfwrite_int(Player_loadout.ship_pool[idx], cfp);
-	}
-
-	// weapon pool
-	for (idx = 0; idx < weapon_info_size(); idx++) {
-		cfwrite_int(Player_loadout.weapon_pool[idx], cfp);
-	}
-
 	// play ship loadout
-	cfwrite_ushort(MAX_WSS_SLOTS, cfp);
+	cfwrite_ushort(static_cast<ushort>(Player_loadout.unit_data.size()), cfp);
 
-	for (idx = 0; idx < MAX_WSS_SLOTS; idx++) {
-		wss_unit *slot = &Player_loadout.unit_data[idx];
+	for (auto& slot : Player_loadout.unit_data) {
 
 		// ship
-		cfwrite_int(slot->ship_class, cfp);
+		cfwrite_int(slot.ship_class, cfp);
 
 		// primary weapons
 		cfwrite_int(MAX_SHIP_PRIMARY_BANKS, cfp);
 
 		for (j = 0; j < MAX_SHIP_PRIMARY_BANKS; j++) {
-			cfwrite_int(slot->wep[j], cfp);
-			cfwrite_int(slot->wep_count[j], cfp);
+			cfwrite_int(slot.primaries[j], cfp);
 		}
 
 		// secondary weapons
 		cfwrite_int(MAX_SHIP_SECONDARY_BANKS, cfp);
 
 		for (j = 0; j < MAX_SHIP_SECONDARY_BANKS; j++) {
-			cfwrite_int(slot->wep[j+MAX_SHIP_PRIMARY_BANKS], cfp);
-			cfwrite_int(slot->wep_count[j+MAX_SHIP_PRIMARY_BANKS], cfp);
+			cfwrite_int(slot.secondaries[j], cfp);
+			cfwrite_int(slot.wep_count[j], cfp);
 		}
 	}
 

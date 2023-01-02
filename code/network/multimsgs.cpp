@@ -5652,14 +5652,14 @@ void process_wss_update_packet(ubyte *data, header *hinfo)
 		}			
 	} else {
 		// set the proper pool pointers
-		common_set_team_pointers((int)team);
+		Loadouts.set_team((int)team);
 
 		// read in the block of data, and apply it to the weapons/ship pools
-		offset += restore_wss_data(data + offset);
+		offset += multi_unpack_loadout_data(data + offset);
 		PACKET_SET_SIZE();
 
 		// set the pool pointers back to my own team
-		common_set_team_pointers(Net_player->p_info.team);
+		Loadouts.set_team(Net_player->p_info.team);
 
 		// sync the interface if this was for my own team
 		if((int)team == Net_player->p_info.team){

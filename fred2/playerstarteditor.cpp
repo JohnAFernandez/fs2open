@@ -96,7 +96,7 @@ BOOL player_start_editor::OnInitDialog()
 		for(idx=0; idx<Team_data[i].num_ship_choices; idx++)
 		{
 			// do we have a variable for this entry? if we don't....
-			if (!strlen(Team_data[i].ship_list_variables[idx]))
+			if (!strlen(Team_data[i].ship_list_variables[idx].second))
 			{
 				// This pool is set to hold the number of ships available at an index corresponding to the Ship_info array.
 				static_ship_pool[i][Team_data[i].ship_list[idx]] = Team_data[i].ship_count[idx];
@@ -113,14 +113,14 @@ BOOL player_start_editor::OnInitDialog()
 			else
 			{
 				// This pool is set to hold the number of ships available at an index corresponding to the Sexp_variables array
-				dynamic_ship_pool[i][get_index_sexp_variable_name(Team_data[i].ship_list_variables[idx])] = Team_data[i].ship_count[idx];
+				dynamic_ship_pool[i][get_index_sexp_variable_name(Team_data[i].ship_list_variables[idx].first)] = Team_data[i].ship_count[idx];
 				// This pool is set to hold whether a ship at a Ship_info index has been set by a variable (and the 
 				// variables index in Sexp_variables) if it has).
 				if (strlen(Team_data[i].ship_count_variables[idx])) {
-					dynamic_ship_variable_pool[i][get_index_sexp_variable_name(Team_data[i].ship_list_variables[idx])] = get_index_sexp_variable_name(Team_data[i].ship_count_variables[idx]);
+					dynamic_ship_variable_pool[i][get_index_sexp_variable_name(Team_data[i].ship_list_variables[idx].first)] = get_index_sexp_variable_name(Team_data[i].ship_count_variables[idx]);
 				}
 				else {
-					dynamic_ship_variable_pool[i][get_index_sexp_variable_name(Team_data[i].ship_list_variables[idx])] = -1;
+					dynamic_ship_variable_pool[i][get_index_sexp_variable_name(Team_data[i].ship_list_variables[idx].first)] = -1;
 				}
 			}
 		}
@@ -133,37 +133,40 @@ BOOL player_start_editor::OnInitDialog()
 	memset(static_weapon_variable_pool, -1, sizeof(int) * MAX_TVT_TEAMS * MAX_WEAPON_TYPES);
 	memset(dynamic_weapon_variable_pool, -1, sizeof(int) * MAX_TVT_TEAMS * MAX_SEXP_VARIABLES);
 	for(i=0; i<MAX_TVT_TEAMS; i++){
-		for(idx=0; idx<Team_data[i].num_weapon_choices; idx++)
+		for(auto& wep : Team_data[i].weapon_pool)
 		{
 			// do we have a variable for this entry?
-			if (!strlen(Team_data[i].weaponry_pool_variable[idx]))
+			if (!wep.pool_variable.empty())
 			{
-				static_weapon_pool[i][Team_data[i].weaponry_pool[idx]] = Team_data[i].weaponry_count[idx];
-				if (strlen(Team_data[i].weaponry_amount_variable[idx])) {
-					static_weapon_variable_pool[i][Team_data[i].weaponry_pool[idx]] = get_index_sexp_variable_name(Team_data[i].weaponry_amount_variable[idx]);
+				static_weapon_pool[i][wep.index] = wep.count;
+				if (!wep.amount_variable.empty()) {
+					static_weapon_variable_pool[i][wep.index] = get_index_sexp_variable_name(wep.amount_variable);
 				}
 				else {
-					static_weapon_variable_pool[i][Team_data[i].weaponry_pool[idx]] = -1;
+					static_weapon_variable_pool[i][wep.index] = -1;
 				}
 			}
 			// if we do....
 			else
 			{
-				dynamic_weapon_pool[i][get_index_sexp_variable_name(Team_data[i].weaponry_pool_variable[idx])] = Team_data[i].weaponry_count[idx];
-				if (strlen(Team_data[i].weaponry_amount_variable[idx])) {
-					dynamic_weapon_variable_pool[i][get_index_sexp_variable_name(Team_data[i].weaponry_pool_variable[idx])] = get_index_sexp_variable_name(Team_data[i].weaponry_amount_variable[idx]);
+				dynamic_weapon_pool[i][get_index_sexp_variable_name(wep.pool_variable)] = wep.count;
+				if (!wep.amount_variable.empty()) {
+					dynamic_weapon_variable_pool[i][get_index_sexp_variable_name(wep.pool_variable)] = get_index_sexp_variable_name(wep.amount_variable);
 				}
 				else {
-					dynamic_weapon_variable_pool[i][get_index_sexp_variable_name(Team_data[i].weaponry_pool_variable[idx])] =  -1;
+					dynamic_weapon_variable_pool[i][get_index_sexp_variable_name(wep.pool_variable)] =  -1;
 				}
 			}
 		}
 	}
 
-	// initialise the ship and weapon usage list
-	memset(ship_usage, 0, sizeof(int) * MAX_TVT_TEAMS * MAX_SHIP_CLASSES);
-	memset(weapon_usage, 0, sizeof(int) * MAX_TVT_TEAMS * MAX_WEAPON_TYPES);
+	// initialize the ship and weapon usage list
+	for (i = 0; i < MAX_TVT_TEAMS; ++i){
+		ship_usage[i].clear();
+		ship_usage[i].assign(ship_info_size(), 0);
+	}
 
+	memset(weapon_usage, 0, sizeof(int) * MAX_TVT_TEAMS * MAX_WEAPON_TYPES);
 
 	if (The_mission.game_type & MISSION_TYPE_MULTI_TEAMS) { 
 		for (i=0; i<MAX_TVT_TEAMS; i++) {
@@ -414,42 +417,39 @@ void player_start_editor::OnSelchangeShipList()
 		m_ship_list.GetText(selected, ship_name);
 		si_index = ship_info_lookup(ship_name);
 
-		// if we have a valid ship type
-		if(si_index >= 0){
-			// if this item is checked
-			if(m_ship_list.GetCheck(selected)) {								
-				if (static_ship_variable_pool[selected_team][si_index] == -1) {
-					if (static_ship_pool[selected_team][si_index] <= 0){
-						static_ship_pool[selected_team][si_index] = 5;
-					}
-					m_ship_pool = static_ship_pool[selected_team][si_index];
-					// Set the ship variable ComboBox to reflect that we are not using variables for this ship
-					m_ship_quantity_variable.SetCurSel(0); 	
-				}
-				// If the number of ships was set by a variable
-				else {
-					Assert (Sexp_variables[static_ship_variable_pool[selected_team][si_index]].type & SEXP_VARIABLE_NUMBER);
+		// Assert if we don't have a valid ship type
+		Assert(si_index < 0);
 
-					m_ship_pool = atoi(Sexp_variables[static_ship_variable_pool[selected_team][si_index]].text);
-					int selected_variable = sexp_variable_typed_count(static_ship_variable_pool[selected_team][si_index], SEXP_VARIABLE_NUMBER);
-					m_ship_quantity_variable.SetCurSel(selected_variable + 1);
+		// if this item is checked
+		if(m_ship_list.GetCheck(selected)) {								
+			if (static_ship_variable_pool[selected_team][si_index] == -1) {
+				if (static_ship_pool[selected_team][si_index] <= 0){
+					static_ship_pool[selected_team][si_index] = 5;
 				}
-			} 
-			// otherwise zero the count
-			else {
-				static_ship_pool[selected_team][si_index] = 0;
-				static_ship_variable_pool[selected_team][si_index] = -1;
-				m_ship_pool = 0;
-				m_ship_quantity_variable.SetCurSel(0);
+				m_ship_pool = static_ship_pool[selected_team][si_index];
+				// Set the ship variable ComboBox to reflect that we are not using variables for this ship
+				m_ship_quantity_variable.SetCurSel(0); 	
 			}
-		
-			// set the number used in wings
-			sprintf(ship_usage_buff, "%d", ship_usage[selected_team][si_index]); 
-			m_ships_used_in_wings.SetWindowText(ship_usage_buff); 
-	
-		} else {
-			Int3();
+			// If the number of ships was set by a variable
+			else {
+				Assert (Sexp_variables[static_ship_variable_pool[selected_team][si_index]].type & SEXP_VARIABLE_NUMBER);
+
+				m_ship_pool = atoi(Sexp_variables[static_ship_variable_pool[selected_team][si_index]].text);
+				int selected_variable = sexp_variable_typed_count(static_ship_variable_pool[selected_team][si_index], SEXP_VARIABLE_NUMBER);
+				m_ship_quantity_variable.SetCurSel(selected_variable + 1);
+			}
+		} 
+		// otherwise zero the count
+		else {
+			static_ship_pool[selected_team][si_index] = 0;
+			static_ship_variable_pool[selected_team][si_index] = -1;
+			m_ship_pool = 0;
+			m_ship_quantity_variable.SetCurSel(0);
 		}
+	
+		// set the number used in wings
+		sprintf(ship_usage_buff, "%d", ship_usage[selected_team][si_index]); 
+		m_ships_used_in_wings.SetWindowText(ship_usage_buff); 
 	}
 		
 	// update stuff
@@ -785,22 +785,23 @@ void player_start_editor::OnOK()
 				// Copy the variable to Team_data
 				if (idx != -1) {
 					Assert (idx < MAX_SEXP_VARIABLES);
-					strcpy_s(Team_data[i].ship_list_variables[num_choices], Sexp_variables[idx].variable_name);
+					Team_data[i].ship_list_variables[num_choices].second = Sexp_variables[idx].variable_name;
 				}
 				else {
-					strcpy_s(Team_data[i].ship_list_variables[num_choices], ""); 
+					Team_data[i].ship_list_variables[num_choices].second = ""; 
 				}
-				Team_data[i].ship_list[num_choices] = -1;
+
+				Team_data[i].ship_list[num_choices].first = -1;
 
 				// Now we need to set the number of this type available
 				if (dynamic_ship_variable_pool[i][idx] == -1) {
-					Team_data[i].ship_count[num_choices] = dynamic_ship_pool[i][idx];
-					strcpy_s(Team_data[i].ship_count_variables[num_choices], ""); 
+					Team_data[i].ship_count[num_choices].first = dynamic_ship_pool[i][idx];
+					Team_data[i].ship_count_variables[num_choices].second = ""; 
 				}
 				else {
 					Assert (Sexp_variables[dynamic_ship_variable_pool[i][idx]].type & SEXP_VARIABLE_NUMBER);
 
-					strcpy_s(Team_data[i].ship_count_variables[num_choices], Sexp_variables[dynamic_ship_variable_pool[i][idx]].variable_name);
+					Team_data[i].ship_count_variables[num_choices].second = Sexp_variables[dynamic_ship_variable_pool[i][idx]].variable_name;
 					Team_data[i].ship_count[num_choices] = atoi(Sexp_variables[dynamic_ship_variable_pool[i][idx]].text);
 				}
 
@@ -814,7 +815,7 @@ void player_start_editor::OnOK()
 			// if we have ships here
 			if(static_ship_pool[i][idx] > 0 || static_ship_variable_pool[i][idx] > -1) {
 				Team_data[i].ship_list[num_choices] = idx;
-				strcpy_s(Team_data[i].ship_list_variables[num_choices], "");
+				Team_data[i].ship_list_variables[num_choices].second = "";
 
 				// Now set the number of this class available
 				if (static_ship_variable_pool[i][idx] == -1) {
@@ -857,26 +858,38 @@ void player_start_editor::OnOK()
 					MessageBox(buffer);
 					continue;
 				}
+
+				int pool_index = -1;
+
+				for (int j = 0; i < static_cast<int>(Team_data[i].weapon_pool.size()); ++i) {
+					if (Team_data[i].wepaon_pool[j].index == weapon_class){
+						pool_index = j;
+						break;
+					}
+				}
 				
 				// Copy the variable to Team_data
-				strcpy_s(Team_data[i].weaponry_pool_variable[num_choices], Sexp_variables[idx].variable_name);
-				Team_data[i].weaponry_pool[num_choices] = -1;
+				if (pool_index == -1){
+					Team_data[i].weapon_pool.emplace_back(i, 0, "", "", false);
+					pool_index = static_cast<int>(Team_data[i].weapon_pool.size()) - 1;
+				}
+
+				Team_data[i].weapon_pool[pool_index].pool_variale = Sexp_variables[idx].variable_name;
+				Team_data[i].weapon_pool[pool_index] = -1;
 
 				// Now we need to set the number of this class available
 				if (dynamic_weapon_variable_pool[i][idx] == -1)
 				{
-					Team_data[i].weaponry_count[num_choices] = dynamic_weapon_pool[i][idx];
-					strcpy_s(Team_data[i].weaponry_amount_variable[num_choices], ""); 
+					Team_data[i].weaponry_count[pool_index] = dynamic_weapon_pool[i][idx];
+					strcpy_s(Team_data[i].weaponry_amount_variable[pool_index], ""); 
 				}
 				else 
 				{
 					Assert (Sexp_variables[dynamic_weapon_variable_pool[i][idx]].type & SEXP_VARIABLE_NUMBER);
 
-					strcpy_s(Team_data[i].weaponry_amount_variable[num_choices], Sexp_variables[dynamic_weapon_variable_pool[i][idx]].variable_name);
-					Team_data[i].weaponry_count[num_choices] = atoi(Sexp_variables[dynamic_weapon_variable_pool[i][idx]].text);
+					strcpy_s(Team_data[i].weaponry_amount_variable[pool_index], Sexp_variables[dynamic_weapon_variable_pool[i][idx]].variable_name);
+					Team_data[i].weaponry_count[pool_index] = atoi(Sexp_variables[dynamic_weapon_variable_pool[i][idx]].text);
 				}
-
-				num_choices++;
 			}
 		}
 
@@ -887,7 +900,7 @@ void player_start_editor::OnOK()
 			// if we have weapons here
 			if(static_weapon_pool[i][idx] > 0 || static_weapon_variable_pool[i][idx] > -1)
 			{
-				Team_data[i].weaponry_pool[num_choices] = idx;
+				Team_data[i].weaponry_pool.emplace_back(idx, 0, "", "", false);
 				strcpy_s(Team_data[i].weaponry_pool_variable[num_choices], "");
 
 				// Now set the number of this class available
@@ -903,11 +916,8 @@ void player_start_editor::OnOK()
 					strcpy_s(Team_data[i].weaponry_amount_variable[num_choices], Sexp_variables[static_weapon_variable_pool[i][idx]].variable_name);
 					Team_data[i].weaponry_count[num_choices] = atoi(Sexp_variables[static_weapon_variable_pool[i][idx]].text);
 				}
-
-				num_choices++;
 			}
 		}
-		Team_data[i].num_weapon_choices = num_choices; 
 	}
 
 	theApp.record_window_data(&Player_wnd_data, this);

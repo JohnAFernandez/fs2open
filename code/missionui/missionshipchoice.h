@@ -66,10 +66,6 @@ extern int	 ShipSelectModelNum;
 extern int Ship_select_overlay_id;
 
 typedef struct ss_slot_info {
-	int status;   // slot status (WING_SLOT_DISABLED, etc)
-	int sa_index; // index into ship arrival list, -1 if ship is created
-	int original_ship_class;
-	bool in_mission = false;
 } ss_slot_info;
 
 typedef struct ss_wing_info {
@@ -90,7 +86,6 @@ void ship_select_common_close();
 int ss_get_ship_class(int ship_entry_index);
 int ss_get_selected_ship();
 
-void ss_init_pool(team_data *pteam);
 void ss_init_units();
 
 void ss_blit_ship_icon(int x,int y,int ship_class,int bmap_num);

@@ -1186,12 +1186,11 @@ ADE_FUNC(initSelect,
 	
 	SCP_UNUSED(L); // unused parameter
 
-	Common_team = 0;
-
 	if ((Game_mode & GM_MULTIPLAYER) && IS_MISSION_MULTI_TEAMS)
-		Common_team = Net_player->p_info.team;
-
-	common_set_team_pointers(Common_team);
+		Loadouts.set_team(Net_player->p_info.team);
+	else {
+		Loadouts.set_team(0);
+	}
 
 	ship_select_common_init(true);
 	weapon_select_common_init(true);
@@ -1221,12 +1220,12 @@ ADE_FUNC(saveLoadout,
 {
 	SCP_UNUSED(L); // unused parameter
 
-	// This could be requested before Common_team has been initialized, so let's check.
+	// This could be requested before _current_team has been set, so let's check.
 	// Freespace.cpp will clear Common_select_inited if the player ever leaves a valid
 	// "briefing" game state, so this should be a pretty safe check to avoid the assert
 	// contained within. - Mjn
 	if (Common_select_inited) {
-		wss_save_loadout();
+		loadouts_save_player_choices_campaign();
 	} else {
 		return ADE_RETURN_NIL;
 	}
@@ -1361,7 +1360,7 @@ ADE_FUNC(resetSelect,
 
 	SCP_UNUSED(L); // unused parameter
 
-	ss_init_pool(&Team_data[Common_team]);
+	Loadouts.reset_ship_pool(&Team_data[Loadouts.get_team()]);
 	ss_init_units();
 
 	if (!(Game_mode & GM_MULTIPLAYER)) {

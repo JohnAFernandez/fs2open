@@ -1082,9 +1082,13 @@ void process_ingame_ships_packet( ubyte *data, header *hinfo )
 			multi_ts_get_team_and_slot(Ships[idx].ship_name, &team_val, &slot_index);
 
 			if ( (team_val != -1) && (slot_index != -1) ) {
+				// record the previous team and temporarirly switch the Loadout manager's team state.
+				int old_team = Loadouts.get_team();
+				Loadouts.set_team(team_val); 
+
 				// change the ship type and the weapons
-				change_ship_type(objp->instance, Wss_slots_teams[team_val][slot_index].ship_class);
-				wl_bash_ship_weapons(&Ships[idx].weapons, &Wss_slots_teams[team_val][slot_index]);
+				change_ship_type(objp->instance, Loadouts.get_ship_class( slot_index));				
+				wl_bash_ship_weapons(&Ships[idx].weapons, slot_index);
 	
 				// Be sure to mark this ship as as a could_be_player
 				obj_set_flags( objp, objp->flags + Object::Object_Flags::Could_be_player );
@@ -1099,6 +1103,8 @@ void process_ingame_ships_packet( ubyte *data, header *hinfo )
 						break;
 					}
 				}
+
+				Loadouts.set_team(old_team);
 			}
 		}
 

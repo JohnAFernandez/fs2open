@@ -7527,8 +7527,8 @@ void weapons_page_in()
 
 	// for weapons in weaponry pool
 	for (i = 0; i < Num_teams; i++) {
-		for (j = 0; j < Team_data[i].num_weapon_choices; j++) {
-			used_weapons[Team_data[i].weaponry_pool[j]] += Team_data[i].weaponry_count[j];
+		for (auto& wep : Team_data[i].weapon_pool) {
+			used_weapons[wep.index] += wep.count;
 		}
 	}
 

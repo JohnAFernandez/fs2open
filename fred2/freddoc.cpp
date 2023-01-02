@@ -293,29 +293,29 @@ bool CFREDDoc::load_mission(char *pathname, int flags) {
 
 	for (i = 0; i < Num_teams; i++) {
 		generate_weaponry_usage_list(i, used_pool);
-		for (j = 0; j < Team_data[i].num_weapon_choices; j++) {
+		// TODO!  This may need to be reworked because now not all items in the used pool will be iterated over.
+		for (auto& wep : Team_data[i].weapon_pool) {
 			// The amount used in wings is always set by a static loadout entry so skip any that were set by Sexp variables
-			if ((!strlen(Team_data[i].weaponry_pool_variable[j])) && (!strlen(Team_data[i].weaponry_amount_variable[j]))) {
-				// convert weaponry_pool to be extras available beyond the current ships weapons
-				Team_data[i].weaponry_count[j] -= used_pool[Team_data[i].weaponry_pool[j]];
-				if (Team_data[i].weaponry_count[j] < 0) {
-					Team_data[i].weaponry_count[j] = 0;
+			if ((!wep.pool_variable.empty()) && (!wep.amount_variable.empty())) {
+				// convert weapon_pool to be extras available beyond the current ships weapons
+				wep.count -= used_pool[wep.index];
+				if (wep.count < 0) {
+					wep.count = 0;
 				}
 
 				// zero the used pool entry
-				used_pool[Team_data[i].weaponry_pool[j]] = 0;
+				used_pool[wep.index] = 0;
 			}
 		}
 		// double check the used pool is empty
 		for (j = 0; j < weapon_info_size(); j++) {
 			if (used_pool[j] != 0) {
-				Warning(LOCATION, "%s is used in wings of team %d but was not in the loadout. Fixing now", Weapon_info[j].name, i + 1);
+				// I don't think this needs to be a warning, as missions can be edited by text editor, and we're fixing the back end here, anyway.
+				// Also, this just makes sense to do, since the loop above no longer goes through each used_pool entry.
+				//Warning(LOCATION, "%s is used in wings of team %d but was not in the loadout. Fixing now", Weapon_info[j].name, i + 1);
 
 				// add the weapon as a new entry
-				Team_data[i].weaponry_pool[Team_data[i].num_weapon_choices] = j;
-				Team_data[i].weaponry_count[Team_data[i].num_weapon_choices] = used_pool[j];
-				strcpy_s(Team_data[i].weaponry_amount_variable[Team_data[i].num_weapon_choices], "");
-				strcpy_s(Team_data[i].weaponry_pool_variable[Team_data[i].num_weapon_choices++], "");
+				Team_data[i].weapon_pool.emplace_back(j, used_pool[j], "", "", false);
 			}
 		}
 	}

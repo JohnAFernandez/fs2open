@@ -5359,7 +5359,7 @@ int sexp_tree::get_loadout_variable_count(int var_index) {
 
 	for (int i = 0; i < MAX_TVT_TEAMS; i++) {
 		for (idx = 0; idx < Team_data[i].num_ship_choices; idx++) {
-			if (!strcmp(Team_data[i].ship_list_variables[idx], Sexp_variables[var_index].variable_name)) {
+			if (!strcmp(Team_data[i].ship_list_variables[idx].second, Sexp_variables[var_index].variable_name)) {
 				count++;
 			}
 

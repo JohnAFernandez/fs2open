@@ -28,28 +28,28 @@ ss_slot_info* ss_slot_info_h::getSlot() const
 	return &ss_slots[ss_idx];
 }
 
-wss_unit_wep_h::wss_unit_wep_h() : ss_unit(-1) {}
-wss_unit_wep_h::wss_unit_wep_h(int l_unit) : ss_unit(l_unit) {}
-bool wss_unit_wep_h::IsValid() const
+loadout_slot_wep_h::loadout_slot_wep_h() : ss_unit(-1) {}
+loadout_slot_wep_h::loadout_slot_wep_h(int l_unit) : ss_unit(l_unit) {}
+bool loadout_slot_wep_h::IsValid() const
 {
 	return ss_unit >= 0;
 	// return ((ss_unit >= 0) && ((ss_bank >= 0) && (ss_bank <= 6)));
 }
-wss_unit* wss_unit_wep_h::getBank() const
+loadout_slot* loadout_slot_wep_h::getBank() const
 {
-	return &Wss_slots[ss_unit];
+	return Loadouts.get_slot(ss_unit);
 }
 
-wss_unit_count_h::wss_unit_count_h() : ss_unit(-1) {}
-wss_unit_count_h::wss_unit_count_h(int l_unit) : ss_unit(l_unit) {}
-bool wss_unit_count_h::IsValid() const
+loadout_slot_count_h::loadout_slot_count_h() : ss_unit(-1) {}
+loadout_slot_count_h::loadout_slot_count_h(int l_unit) : ss_unit(l_unit) {}
+bool loadout_slot_count_h::IsValid() const
 {
 	return ss_unit >= 0;
 	// return ((ss_unit >= 0) && ((ss_bank >= 0) && (ss_bank <= 6)));
 }
-wss_unit* wss_unit_count_h::getBank() const
+loadout_slot* loadout_slot_count_h::getBank() const
 {
-	return &Wss_slots[ss_unit];
+	return Loadouts.get_slot(ss_unit);
 }
 
 // HERE BE MY NOTES SIR!
@@ -165,7 +165,7 @@ ADE_VIRTVAR(ShipClassIndex,
 }
 
 //**********HANDLE: loadout amount
-ADE_OBJ(l_Loadout_Amount, wss_unit_count_h, "loadout_amount", "Loadout handle");
+ADE_OBJ(l_Loadout_Amount, loadout_slot_count_h, "loadout_amount", "Loadout handle");
 
 ADE_INDEXER(l_Loadout_Amount,
 	"number bank, number amount",
@@ -176,7 +176,7 @@ ADE_INDEXER(l_Loadout_Amount,
 	"number",
 	"Amount of the currently loaded weapon, -1 if bank has no weapon, or nil if the ship or index is invalid")
 {
-	wss_unit_count_h current;
+	loadout_slot_count_h current;
 	int idx = -1;
 	int amount;
 	if (!ade_get_args(L, "oi|i", l_Loadout_Amount.Get(&current), &idx, &amount))
@@ -195,7 +195,7 @@ ADE_INDEXER(l_Loadout_Amount,
 		if (wip->subtype == WP_LASER) {
 			capacity = 1;
 		} else {
-			capacity = wl_calc_missile_fit(current.getBank()->wep[idx],
+			capacity = loadouts_calc_missile_fit(current.getBank()->wep[idx],
 				sip->secondary_bank_ammo_capacity[idx - MAX_SHIP_PRIMARY_BANKS]);
 		}
 		if (amount > capacity) {
@@ -216,7 +216,7 @@ ADE_FUNC(__len, l_Loadout_Amount, nullptr, "The number of weapon banks in the sl
 }
 
 //**********HANDLE: loadout weapon
-ADE_OBJ(l_Loadout_Weapon, wss_unit_wep_h, "loadout_weapon", "Loadout handle");
+ADE_OBJ(l_Loadout_Weapon, loadout_slot_wep_h, "loadout_weapon", "Loadout handle");
 
 ADE_INDEXER(l_Loadout_Weapon,
 	"number bank, number WeaponIndex",
@@ -228,7 +228,7 @@ ADE_INDEXER(l_Loadout_Weapon,
 	"number",
 	"index into Weapon Classes, 0 if bank is empty, -1 if the ship cannot carry the weapon, or nil if the ship or index is invalid")
 {
-	wss_unit_wep_h current;
+	loadout_slot_wep_h current;
 	int bank = -1;
 	int wepIndex;
 	if (!ade_get_args(L, "oi|i", l_Loadout_Weapon.Get(&current), &bank, &wepIndex))
@@ -319,19 +319,19 @@ ADE_VIRTVAR(ShipClassIndex,
 			if (shipIndex > ship_info_size()) {
 				LuaError(L, "The provided ship index is invalid!");
 			} else {
-				Wss_slots[current].ship_class = shipIndex;
+				Loadouts.set_ship_class(current, shipIndex);
 				//Reset all currently loaded weapons here
 				for (int i = 0; i < MAX_SHIP_WEAPONS; i++) {
-					Wss_slots[current].wep[i] = -1;
-					Wss_slots[current].wep_count[i] = -1;
+					Loadouts.set_weapon(current, i, -1);
+					Loadouts.set_weapon_count(current, i, -1);
 				}
 			}
 		} else {
-			Wss_slots[current].ship_class = -1;
+			Loadouts.set_ship_class(current, -1);
 		}
 	}
 
-	return ade_set_args(L, "i", (Wss_slots[current].ship_class + 1));
+	return ade_set_args(L, "i", (Loadouts.get_ship_class(current) + 1));
 }
 
 ADE_VIRTVAR(Weapons,
@@ -350,7 +350,7 @@ ADE_VIRTVAR(Weapons,
 		LuaError(L, "This property is read only.");
 	}
 
-	return ade_set_args(L, "o", l_Loadout_Weapon.Set(wss_unit_wep_h(current)));
+	return ade_set_args(L, "o", l_Loadout_Weapon.Set(loadout_slot_wep_h(current)));
 }
 
 ADE_VIRTVAR(Amounts,
@@ -369,7 +369,7 @@ ADE_VIRTVAR(Amounts,
 		LuaError(L, "This property is read only.");
 	}
 
-	return ade_set_args(L, "o", l_Loadout_Amount.Set(wss_unit_count_h(current)));
+	return ade_set_args(L, "o", l_Loadout_Amount.Set(loadout_slot_count_h(current)));
 }
 
 //**********HANDLE: loadout wing

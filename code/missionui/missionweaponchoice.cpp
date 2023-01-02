@@ -852,7 +852,7 @@ void draw_3d_overhead_view(int model_num,
 
 		// Render selected primary lines
 		for (x = 0; x < pm->n_guns; x++) {
-			if ((Wss_slots[selected_ship_slot].wep[x] == selected_weapon_class && hovered_weapon_slot < 0) ||
+			if ((Loadouts.get_weapon(selected_ship_slot, x, true) == selected_weapon_class && hovered_weapon_slot < 0) ||
 				x == hovered_weapon_slot) {
 				Assert(num_found < NUM_ICON_FRAMES);
 				gr_set_color_fast(&Icon_colors[ICON_FRAME_NORMAL + num_found]);
@@ -923,7 +923,7 @@ void draw_3d_overhead_view(int model_num,
 		num_found = 2;
 		// Render selected secondary lines
 		for (x = 0; x < pm->n_missiles; x++) {
-			if ((Wss_slots[selected_ship_slot].wep[x + MAX_SHIP_PRIMARY_BANKS] == selected_weapon_class &&
+			if ((Loadouts.get_weapon(selected_ship_slot, x + MAX_SHIP_PRIMARY_BANKS, false) == selected_weapon_class &&
 					hovered_weapon_slot < 0) ||
 				x + MAX_SHIP_PRIMARY_BANKS == hovered_weapon_slot) {
 				Assert(num_found < NUM_ICON_FRAMES);
@@ -1018,9 +1018,7 @@ void wl_render_overhead_view(float frametime)
 	wl_ship_class_info	*wl_ship;
 	int						ship_class;
 
-	Assert( Wss_slots != NULL );
-
-	ship_class = Wss_slots[Selected_wl_slot].ship_class;
+	ship_class = Loadouts.get_ship_class(Selected_wl_slot);
 	if (ship_class < 0 || ship_class >= ship_info_size())
 	{
 		Warning(LOCATION, "Invalid ship class (%d) passed for render_overhead_view", ship_class);
@@ -1038,7 +1036,7 @@ void wl_render_overhead_view(float frametime)
 	}
 
 	wl_ship = &Wl_ships[ship_class];
-	ship_class = Wss_slots[Selected_wl_slot].ship_class;
+	ship_class = Loadouts.get_ship_class(Selected_wl_slot);
 
 	if (new_ship)
 	{
@@ -1149,17 +1147,6 @@ void wl_render_overhead_view(float frametime)
 	gr_string(Wl_ship_name_coords[gr_screen.res][0], Wl_ship_name_coords[gr_screen.res][1], name, GR_RESIZE_MENU);
 }
 
-// ---------------------------------------------------------------------------------
-// wl_get_ship_class()
-//
-//
-int wl_get_ship_class(int wl_slot)
-{
-	Assert( Wss_slots != NULL );
-
-	return Wss_slots[wl_slot].ship_class;
-}
-
 /**
  * Return true if weapon_flags indicates a weapon that is legal for use in current game type.
  * Function added by MK on 9/6/99 to support separate legal loadouts for dogfight missions.
@@ -1211,15 +1198,12 @@ void wl_set_disabled_weapons(int ship_class)
  */
 void maybe_select_wl_slot(int block, int slot)
 {
-	int sidx;
-
 	if ( Wss_num_wings <= 0 )
 		return;
 
-	Assert( Wss_slots != NULL );
+	int sidx = block * MAX_WING_SLOTS + slot;
 
-	sidx = block*MAX_WING_SLOTS + slot;
-	if ( Wss_slots[sidx].ship_class < 0 ) {
+	if ( Loadouts.get_ship_class(sidx) < 0 ) {
 		return;
 	}
 
@@ -1262,9 +1246,10 @@ void maybe_select_new_weapon(int index)
 
 /**
  * Change to the weapon that corresponds to the ship weapon slot
- * @param index index of bank (0..2 primary, 0..6 secondary)
+ * @param index index of bank 
+ * @param primary whether the bank is primary or secondary
  */
-void maybe_select_new_ship_weapon(int index)
+void maybe_select_new_ship_weapon(int index, bool primary)
 {
 	int *wep, *wep_count;
 
@@ -1275,12 +1260,11 @@ void maybe_select_new_ship_weapon(int index)
 		return;
 	}
 
-	Assert( Wss_slots != NULL );
-
-	wep = Wss_slots[Selected_wl_slot].wep;
-	wep_count = Wss_slots[Selected_wl_slot].wep_count;
-
-	if ( wep[index] < 0 || wep_count[index] <= 0 ) {
+	if ( Loadouts.get_weapon(Selected_wl_slot, index, primary) < 0 ) {
+		return;
+	
+	// now that primaries and secondaries are tracked separately, if this was a secondary weapon, check that we had any ammo.
+	} else if (!primary && Loadouts.get_weapon_count(Selected_wl_slot, index) <= 0 ){
 		return;
 	}
 
@@ -1298,14 +1282,12 @@ void wl_init_pool(team_data *td)
 {
 	int i;
 
-	Assert( Wl_pool != NULL );
-
 	for ( i = 0; i < MAX_WEAPON_TYPES; i++ ) {
 		Wl_pool[i] = 0;
 	}
 
-	for ( i = 0; i < td->num_weapon_choices; i++ ) {
-		Wl_pool[td->weaponry_pool[i]] += td->weaponry_count[i];	// read from mission
+	for ( auto& wep : td->weapon_pool ) {
+		Wl_pool[wep.index] += wep.count;	// read from mission
 	}
 }
 
@@ -1465,17 +1447,15 @@ void wl_reset_selected_slot()
 	int i;
 	Selected_wl_slot = -1;
 
-	Assert( Wss_slots != NULL );
-
 	// in multiplayer, select the slot of the player's ship by default
-	if((Game_mode & GM_MULTIPLAYER) && !MULTI_PERM_OBSERVER(Net_players[MY_NET_PLAYER_NUM]) && (Wss_slots[Net_player->p_info.ship_index].ship_class >= 0)){
+	if((Game_mode & GM_MULTIPLAYER) && !MULTI_PERM_OBSERVER(Net_players[MY_NET_PLAYER_NUM]) && (Loadouts.get_ship_class(Net_player->p_info.ship_index) >= 0)){
 		wl_set_selected_slot(Net_player->p_info.ship_index);
 		return;
 	}
 
 	for ( i=0; i<MAX_WSS_SLOTS; i++ ) {
 		if ( !ss_disabled_slot(i, false) ) {
-			if ( ss_wing_slot_is_console_player(i) && (Wss_slots[i].ship_class >= 0) ) {
+			if ( ss_wing_slot_is_console_player(i) && (Loadouts.get_ship_class(i) >= 0 )) {
 				wl_set_selected_slot(i);
 				return;
 			}
@@ -1484,7 +1464,7 @@ void wl_reset_selected_slot()
 
 	// Didn't locate player ship, so just select the first ship we find
 	for ( i=0; i<MAX_WSS_SLOTS; i++ ) {
-		if ( Wss_slots[i].ship_class >=  0 ) {
+		if ( Loadouts.get_ship_class(i) >=  0 ) {
 			wl_set_selected_slot(i);
 			break;
 		}
@@ -1496,19 +1476,7 @@ void wl_reset_selected_slot()
  */
 void wl_maybe_reset_selected_slot()
 {
-	int reset=0;
-
-	Assert( Wss_slots != NULL );
-
-	if ( Selected_wl_slot == -1 ) {
-		reset = 1;
-	}
-
-	if ( Wss_slots[Selected_wl_slot].ship_class < 0 ) {
-		reset = 1;
-	}
-
-	if ( reset ) {
+	if ( Selected_wl_slot == -1 || Loadouts.get_ship_class(Selected_wl_slot) < 0 ) {
 		wl_reset_selected_slot();
 	}
 }
@@ -1519,19 +1487,17 @@ void wl_maybe_reset_selected_slot()
  */
 void wl_maybe_reset_selected_weapon_class()
 {
-	int i;
-
 	if ( Selected_wl_class >= 0 ) 
 		return;
 
-	Assert( Wss_slots != NULL );
+	int i;
 
 	// try to locate a weapon class to show animation for
 	// first check for a weapon on the ship
 	for (i=0; i<MAX_SHIP_WEAPONS; i++) {
 		// if player has a weapon in bank i, set it as the selected type
-		if (Wss_slots[0].wep_count[i] >= 0) {
-			Selected_wl_class = Wss_slots[0].wep[i];
+		if (Loadouts.get_weapon_count(0, i) >= 0) {
+			Selected_wl_class = Loadouts.get_weapon_count(0, i);
 			return;
 		}
 	}
@@ -1560,8 +1526,7 @@ void wl_set_selected_slot(int slot_num)
 {
 	Selected_wl_slot = slot_num;
 	if ( Selected_wl_slot >= 0 ) {
-		Assert( Wss_slots != NULL );
-		wl_set_disabled_weapons(Wss_slots[slot_num].ship_class);
+		wl_set_disabled_weapons(Loadouts.get_ship_class(slot_num));
 	}
 }
 
@@ -1584,7 +1549,7 @@ int wl_calc_ballistic_fit(int wi_index, int capacity)
 /**
  * Determine how many missiles of type 'wi_index' will fit into capacity
  */
-int wl_calc_missile_fit(int wi_index, int capacity)
+int loadouts_calc_missile_fit(int wi_index, int capacity)
 {
 	if ( wi_index < 0 ) {
 		return 0;
@@ -1620,7 +1585,7 @@ void wl_get_ship_class_weapons(int ship_class, int *wep, int *wep_count)
 	for ( i = 0; i < sip->num_secondary_banks; i++ )
 	{
 		wep[i+MAX_SHIP_PRIMARY_BANKS] = sip->secondary_bank_weapons[i];
-		wep_count[i+MAX_SHIP_PRIMARY_BANKS] = wl_calc_missile_fit(sip->secondary_bank_weapons[i], sip->secondary_bank_ammo_capacity[i]);
+		wep_count[i+MAX_SHIP_PRIMARY_BANKS] = loadouts_calc_missile_fit(sip->secondary_bank_weapons[i], sip->secondary_bank_ammo_capacity[i]);
 	}
 }
 
@@ -1695,7 +1660,7 @@ void wl_get_parseobj_weapons(int sa_index, int ship_class, int *wep, int *wep_co
 	{
 		if ( wep[i+MAX_SHIP_PRIMARY_BANKS] >= 0 )
 		{
-			wep_count[i+MAX_SHIP_PRIMARY_BANKS] = wl_calc_missile_fit(wep[i+MAX_SHIP_PRIMARY_BANKS], (int)std::lround(ss->secondary_ammo[i]/100.0f * sip->secondary_bank_ammo_capacity[i]));
+			wep_count[i+MAX_SHIP_PRIMARY_BANKS] = loadouts_calc_missile_fit(wep[i+MAX_SHIP_PRIMARY_BANKS], (int)std::lround(ss->secondary_ammo[i]/100.0f * sip->secondary_bank_ammo_capacity[i]));
 		}
 	}
 }
@@ -1860,7 +1825,7 @@ void wl_remove_weps_from_pool(int *wep, int *wep_count, int ship_class)
 							Int3();
 							secondary_bank_index = 0;
 						}
-						new_wep_count = wl_calc_missile_fit(wi_index, Ship_info[ship_class].secondary_bank_ammo_capacity[secondary_bank_index]);
+						new_wep_count = loadouts_calc_missile_fit(wi_index, Ship_info[ship_class].secondary_bank_ammo_capacity[secondary_bank_index]);
 					}
 
 					wep_count[i] = MIN(new_wep_count, Wl_pool[wi_index]);
@@ -1876,8 +1841,8 @@ void wl_remove_weps_from_pool(int *wep, int *wep_count, int ship_class)
 }
 
 /**
- * Init the weapons portion of Wss_slots[] and the ui data in Wl_slots[]
- * @note It is assumed that Wl_pool[] has been initialized, and Wss_slots[].ship_class is correctly set
+ * Init the weapons portion of the loadout manager and the ui data in Wl_slots[]
+ * @note It is assumed that Wl_pool[] has been initialized, and ship_classes are correctly set
  */
 void wl_fill_slots()
 {
@@ -1885,22 +1850,18 @@ void wl_fill_slots()
 	int wep[MAX_SHIP_WEAPONS];
 	int wep_count[MAX_SHIP_WEAPONS];
 
-	Assert( Wss_slots != NULL );
-
 	for ( i = 0; i < MAX_WSS_SLOTS; i++ ) {
-		if ( Wss_slots[i].ship_class < 0 ){
+		int ship_class = Loadouts.get_ship_class(i);
+
+		if ( ship_class < 0 ){
 			continue;
 		}
 
 		// get the weapons info that should be on ship by default
-		wl_get_default_weapons(Wss_slots[i].ship_class, i, wep, wep_count);
-		wl_remove_weps_from_pool(wep, wep_count, Wss_slots[i].ship_class);
+		wl_get_default_weapons(ship_class, i, wep, wep_count);
+		Loadouts.apply_default_weapons(i);	// remember, this needs to remove from the ship pool.
+//		wl_remove_weps_from_pool(wep, wep_count, ship_class);
 
-		// copy to Wss_slots[]
-		for ( j = 0; j < MAX_SHIP_WEAPONS; j++ ) {
-			Wss_slots[i].wep[j] = wep[j];
-			Wss_slots[i].wep_count[j] = wep_count[j];
-		}
 	}	
 }
 
@@ -1963,7 +1924,7 @@ void wl_reset_team_pointers()
  */
 void weapon_select_init_team(int team_num)
 {
-	common_set_team_pointers(team_num);
+	Loadouts.set_team(team_num);
 
 	wl_init_pool(&Team_data[team_num]);
 	wl_init_icon_lists();
@@ -2002,10 +1963,10 @@ void weapon_select_common_init(bool API_Access)
 		}
 
 		// re-initialize for me specifically
-		weapon_select_init_team(Common_team);
+		weapon_select_init_team(Loadouts.get_team());
 	} else {	
 		// initialize for my own team
-		weapon_select_init_team(Common_team);
+		weapon_select_init_team(Loadouts.get_team());
 	}
 
 	if (!API_Access) {
@@ -2038,8 +1999,7 @@ void weapon_select_init()
 	Last_wl_ship_class = -1;
 
 	wl_maybe_reset_selected_slot();
-	Assert( Wss_slots != NULL );
-	wl_set_disabled_weapons(Wss_slots[Selected_wl_slot].ship_class);
+	wl_set_disabled_weapons(Loadouts.get_ship_class(Selected_wl_slot));
 
 	Weapon_select_overlay_id = help_overlay_get_index(WL_OVERLAY);
 	help_overlay_set_state(Weapon_select_overlay_id,gr_screen.res,0);
@@ -2193,10 +2153,8 @@ int drop_icon_on_slot(int bank_num)
 		}
 	}
 
-	Assert( Wss_slots != NULL );
-
 	// check if slot exists
-	if ( Wss_slots[Selected_wl_slot].wep_count[bank_num] < 0 ) {
+	if ( Loadouts.get_weapon_count(Selected_wl_slot, bank_num) < 0 ) {
 		return 0;
 	}
 
@@ -2258,7 +2216,6 @@ int do_mouse_over_ship_weapon(int index)
 
 	dropped_on_slot = 0;
 	Assert(Selected_wl_slot >= 0);
-	Assert(Wss_slots != NULL);
 
 	if ( ss_disabled_slot( Selected_wl_slot , false) )
 		return 0;
@@ -2290,10 +2247,10 @@ int do_mouse_over_ship_weapon(int index)
 
 	if ( wl_icon_being_carried() && is_moved ) {
 		if ( Weapon_info[Carried_wl_icon.weapon_class].subtype != WP_MISSILE ) {
-			if ( (index < 3) && (Wss_slots[Selected_wl_slot].wep_count[index] >= 0) ) 
+			if ( (index < 3) && (Loadouts.get_weapon_count(Selected_wl_slot, index) >= 0) ) 
 				Hot_weapon_bank = index;
 		} else {
-			if ( index >= 3 && ( Wss_slots[Selected_wl_slot].wep_count[index] >= 0) ) 
+			if ( index >= 3 && ( Loadouts.get_weapon_count(Selected_wl_slot, index) >= 0) ) 
 				Hot_weapon_bank = index;
 		}
 	}
@@ -2663,25 +2620,25 @@ void weapon_select_do(float frametime)
 					maybe_select_new_weapon(7);
 					break;
 				case ICON_SHIP_PRIMARY_0:
-					maybe_select_new_ship_weapon(0);
+					maybe_select_new_ship_weapon(0, true);
 					break;
 				case ICON_SHIP_PRIMARY_1:
-					maybe_select_new_ship_weapon(1);
+					maybe_select_new_ship_weapon(1, true);
 					break;
 				case ICON_SHIP_PRIMARY_2:
-					maybe_select_new_ship_weapon(2);
+					maybe_select_new_ship_weapon(2, true);
 					break;
 				case ICON_SHIP_SECONDARY_0:
-					maybe_select_new_ship_weapon(3);
+					maybe_select_new_ship_weapon(0, false);
 					break;
 				case ICON_SHIP_SECONDARY_1:
-					maybe_select_new_ship_weapon(4);
+					maybe_select_new_ship_weapon(1, false);
 					break;
 				case ICON_SHIP_SECONDARY_2:
-					maybe_select_new_ship_weapon(5);
+					maybe_select_new_ship_weapon(2, false);
 					break;
 				case ICON_SHIP_SECONDARY_3:
-					maybe_select_new_ship_weapon(6);
+					maybe_select_new_ship_weapon(3, false);
 					break;
 				case WING_0_SHIP_0:
 					maybe_select_wl_slot(0,0);
@@ -2791,7 +2748,7 @@ void weapon_select_do(float frametime)
 	if ( wl_icon_being_carried() ) {
 		int mx, my, sx, sy;
 		Assert(Carried_wl_icon.weapon_class < weapon_info_size());
-		Assert( (Wss_slots != NULL) && (Wl_icons != NULL) );
+		Assert( (Wl_icons != NULL) );
 		mouse_get_pos_unscaled( &mx, &my );
 		sx = mx + Wl_delta_x;
 		sy = my + Wl_delta_y;
@@ -2843,7 +2800,7 @@ void weapon_select_do(float frametime)
 		// draw number to prevent it from disappearing on clicks
 		if ( Carried_wl_icon.from_bank >= MAX_SHIP_PRIMARY_BANKS ) {
 			if ( mx == Carried_wl_icon.from_x && my == Carried_wl_icon.from_y ) {
-				int num_missiles = Wss_slots[Carried_wl_icon.from_slot].wep_count[Carried_wl_icon.from_bank];
+				int num_missiles = Loadouts.get_weapon_count(Carried_wl_icon.from_slot, Carried_wl_icon.from_bank);
 
 				wl_render_icon_count(num_missiles, Wl_bank_coords[gr_screen.res][Carried_wl_icon.from_bank][0], Wl_bank_coords[gr_screen.res][Carried_wl_icon.from_bank][1]);
 			}
@@ -2856,7 +2813,7 @@ void weapon_select_do(float frametime)
 			diffx = abs(Carried_wl_icon.from_x-mx);
 			diffy = abs(Carried_wl_icon.from_y-my);
 			if ( (diffx > 2) || (diffy > 2) ) {
-				int ship_class = Wss_slots[Selected_wl_slot].ship_class;
+				int ship_class = Loadouts.get_ship_class(Selected_wl_slot);
 				auto ship_class_name = Ship_info[ship_class].get_display_name();
 				auto weapon_name = Weapon_info[Carried_wl_icon.weapon_class].get_display_name();
 
@@ -3086,19 +3043,19 @@ void wl_render_icon(int index, int x, int y, int num, int draw_num_flag, int hot
 void wl_draw_ship_weapons(int index)
 {
 	int		i;
-	int		*wep, *wep_count;
 
 	if ( index == -1 )
 		return;
 
 	Assert(index >= 0 && index < MAX_WSS_SLOTS);
-	Assert(Wss_slots != NULL);
-	wep = Wss_slots[index].wep;
-	wep_count = Wss_slots[index].wep_count;
+	
+	int ship_class = Loadouts.get_ship_class(index);
 
 	for ( i = 0; i < MAX_SHIP_WEAPONS; i++ )
 	{
-		if(i < Ship_info[Wss_slots[index].ship_class].num_primary_banks || (i >= MAX_SHIP_PRIMARY_BANKS && ((i - MAX_SHIP_PRIMARY_BANKS) < Ship_info[Wss_slots[index].ship_class].num_secondary_banks)))
+		bool primary = i < MAX_SHIP_PRIMARY_BANKS;
+
+		if((primary && i < Ship_info[ship_class].num_primary_banks) || (!primary && ((i - MAX_SHIP_PRIMARY_BANKS) < Ship_info[ship_class].num_secondary_banks)))
 		{
 			if(Weapon_slot_bitmap != -1)
 			{
@@ -3118,9 +3075,11 @@ void wl_draw_ship_weapons(int index)
 			continue;
 		}
 
-		if ( (wep[i] != -1) && (wep_count[i] > 0) )
+		if ( Loadouts.is_bank_filled(index, (primary) ? i : i - MAX_SHIP_PRIMARY_BANKS, primary) )
 		{
-			wl_render_icon( wep[i], Wl_bank_coords[gr_screen.res][i][0], Wl_bank_coords[gr_screen.res][i][1], wep_count[i], Wl_bank_count_draw_flags[i], -1, i, wep[i]);
+			int wep = Loadouts.get_weapon(index, (primary) ? i : i - MAX_SHIP_PRIMARY_BANKS, primary);
+			int weapon_count = Loadouts.get_weapon_count(index, i);
+			wl_render_icon( wep, Wl_bank_coords[gr_screen.res][i][0], Wl_bank_coords[gr_screen.res][i][1], weapon_count, Wl_bank_count_draw_flags[i], -1, i, wep);
 		}
 	}
 }
@@ -3223,13 +3182,13 @@ void wl_pick_icon_from_list(int index)
 /**
  * Pick from ship slot
  *
- * @param num index into shipb banks (0..2 primary, 3..6 secondary)
+ * @param num index into ship banks (0..2 primary, 3..6 secondary)
  */
 void pick_from_ship_slot(int num)
 {
-	int mx, my, *wep, *wep_count;
+	int mx, my;
 		
-	Assert(num < 7);
+	Assert(num < MAX_SHIP_WEAPONS);
 
 	if ( Selected_wl_slot == -1 )
 		return;
@@ -3240,19 +3199,22 @@ void pick_from_ship_slot(int num)
 	if ( ss_disabled_slot( Selected_wl_slot, false ) )
 		return;
 
-	Assert( (Wss_slots != NULL) && (Wl_icons != NULL) );
+	Assert( (Wl_icons != NULL) );
 
-	wep = Wss_slots[Selected_wl_slot].wep;
-	wep_count = Wss_slots[Selected_wl_slot].wep_count;
+	bool primary = (num < MAX_SHIP_PRIMARY_BANKS) ? true : false;
+
+	int adjusted_num = (primary) ? num : num - MAX_SHIP_PRIMARY_BANKS;
 
 	// check if a weapon even exists in that slot
-	if ( (wep[num] < 0) || (wep_count[num] <= 0) ) {
+	if ( !Loadouts.is_bank_filled(Selected_wl_slot, adjusted_num, primary) ) {
 		return;
 	}
 
-	Assert(Wl_icons[wep[num]].can_use);
+	int wep = Loadouts.get_weapon(Selected_wl_slot, adjusted_num, primary);
 
-	wl_set_carried_icon(num, Selected_wl_slot, wep[num]);
+	Assert(Wl_icons[wep].can_use);
+
+	wl_set_carried_icon(num, Selected_wl_slot, wep);
 	common_flash_button_init();
 			
 	mouse_get_pos_unscaled( &mx, &my );
@@ -3265,20 +3227,6 @@ void pick_from_ship_slot(int num)
 }
 
 /**
- * Determine if this slot has no weapons
- */
-int wl_slots_all_empty(wss_unit *slot)
-{
-	int			i;
-
-	for ( i = 0; i < MAX_SHIP_WEAPONS; i++ ) {
-		if ( (slot->wep_count[i] > 0) && (slot->wep[i] >= 0) ) 
-			return 0;
-	}
-
-	return 1;
-}
-
 /**
  * Change a ship's weapons based on the information contained in the
  * Weapon_data[] structure that is filled in during weapon loadout
@@ -3286,7 +3234,7 @@ int wl_slots_all_empty(wss_unit *slot)
  * @return -1 if the player ship has no weapons
  * @return 0  if function finished without errors
  */
-int wl_update_ship_weapons(int objnum, wss_unit *slot )
+int loadouts_update_ship_weapons(int objnum, int slot)
 {
 	ship_info *sip = &Ship_info[Ships[Player_obj->instance].ship_info_index];
 	if(sip->num_secondary_banks <= 0 && sip->num_primary_banks <= 0)
@@ -3296,7 +3244,7 @@ int wl_update_ship_weapons(int objnum, wss_unit *slot )
 	// AL 11-15-97: Ensure that the player ship hasn't removed all 
 	//					 weapons from their ship.  This will cause a warning to appear.
 	if ( objnum == OBJ_INDEX(Player_obj) && Weapon_select_open ) {
-		if ( wl_slots_all_empty(slot) && (sip->num_primary_banks > 0 || sip->num_secondary_banks > 0)) {
+		if ( Loadouts.is_ship_slot_weaponless(slot) && (sip->num_primary_banks > 0 || sip->num_secondary_banks > 0)) {
 			return -1;
 		}
 	}
@@ -3313,12 +3261,13 @@ int wl_update_ship_weapons(int objnum, wss_unit *slot )
  * @param pobjp	Pointer to parse object that references Pilot subsystem
  * @param slot	Pointer to slot object
  */
-void wl_update_parse_object_weapons(p_object *pobjp, wss_unit *slot)
+void wl_update_parse_object_weapons(p_object *pobjp, int slot)
 {
-	int				i,	j, sidx, pilot_index, max_count;
+	int				i,	j, pilot_index, max_count;
 	subsys_status	*ss;
 
-	Assert(slot->ship_class >= 0);
+	int ship_class = Loadouts.get_ship_class(slot);
+	Assert(ship_class >= 0);
 
 	pilot_index = wl_get_pilot_subsys_index(pobjp);
 
@@ -3335,15 +3284,16 @@ void wl_update_parse_object_weapons(p_object *pobjp, wss_unit *slot)
 		ss->secondary_banks[i] = -1;		
 	}
 
+	// TODO: This seems to force that the banks will be filled in order, but that should probably be configurable.
 	j = 0;
 	for ( i = 0; i < MAX_SHIP_PRIMARY_BANKS; i++ )
 	{
-		if ( (slot->wep_count[i] > 0) && (slot->wep[i] >= 0) )
+		if ( Loadouts.is_bank_filled(slot, i, true) )
 		{
-			ss->primary_banks[j] = slot->wep[i];
+			ss->primary_banks[j] = Loadouts.get_weapon(slot, i, true);
 
 			// ballistic primaries - Goober5000
-			if (Weapon_info[slot->wep[i]].wi_flags[Weapon::Info_Flags::Ballistic])
+			if (Weapon_info[ss->primary_banks[j]].wi_flags[Weapon::Info_Flags::Ballistic])
 			{
 				// Important: the primary_ammo[] value is a percentage of max capacity!
 				// which means that it's always 100%, since ballistic primaries are completely
@@ -3362,14 +3312,12 @@ void wl_update_parse_object_weapons(p_object *pobjp, wss_unit *slot)
 	j = 0;
 	for ( i = 0; i < MAX_SHIP_SECONDARY_BANKS; i++ )
 	{
-		sidx = i+MAX_SHIP_PRIMARY_BANKS;
-		if ( (slot->wep_count[sidx] > 0) && (slot->wep[sidx] >= 0) )
-		{
-			ss->secondary_banks[j] = slot->wep[sidx];
+		if (  Loadouts.is_bank_filled(slot, i, false) ){
+			ss->secondary_banks[j] = Loadouts.get_weapon(slot, i, false);
 
 			// Important: the secondary_ammo[] value is a percentage of max capacity!
-			max_count = wl_calc_missile_fit(slot->wep[sidx], Ship_info[slot->ship_class].secondary_bank_ammo_capacity[j]);
-			ss->secondary_ammo[j] = (int)std::lround(i2fl(slot->wep_count[sidx]) / max_count * 100.0f);
+			max_count = loadouts_calc_missile_fit(Loadouts.get_weapon(slot, i, false), Ship_info[ship_class].secondary_bank_ammo_capacity[j]);
+			ss->secondary_ammo[j] = (int)std::lround(i2fl(Loadouts.get_weapon_count(slot, i)) / max_count * 100.0f);
 			
 			j++;
 		}
@@ -3440,7 +3388,7 @@ void wl_reset_to_defaults()
 		return;
 	}
 
-	wl_init_pool(&Team_data[Common_team]);
+	wl_init_pool(&Team_data[Loadouts.get_team()]);
 	wl_init_icon_lists();
 	wl_fill_slots();
 	wl_reset_selected_slot();
@@ -3450,32 +3398,36 @@ void wl_reset_to_defaults()
 
 /**
  * Bash ship weapons, based on what is stored in the stored weapons loadout
- * @note Wss_slots[] is assumed to be correctly set
+ * @note Loadout manager is assumed to be correctly initialized
  */
-void wl_bash_ship_weapons(ship_weapon *swp, wss_unit *slot)
+void wl_bash_ship_weapons(ship_weapon *swp, int slot)
 {
-	int i, j, sidx;
+	int i, j;
+
+	int ship_class = Loadouts.get_ship_class(slot);
 
 	j = 0;
 	for (i = 0; i < MAX_SHIP_PRIMARY_BANKS; i++) {
-		// set to default value first thing
-		swp->primary_bank_weapons[i] = -1;
 
-		// now set to true value
-		if ( (slot->wep_count[i] > 0) && (slot->wep[i] >= 0) ) {
-			swp->primary_bank_weapons[j] = slot->wep[i];
+		// set the weapon if it exists
+		if ( Loadouts.is_bank_filled(slot, i, true) ) {
+			swp->primary_bank_weapons[j] = Loadouts.get_weapon(slot, i, true);
 
 			// ballistic primaries - Goober5000
 			if (Weapon_info[swp->primary_bank_weapons[j]].wi_flags[Weapon::Info_Flags::Ballistic]) {
 				// this is a bit tricky: we must recalculate ammo for full capacity
 				// since wep_count for primaries does not store the ammo; ballistic
 				// primaries always come with a full magazine
-				swp->primary_bank_ammo[j] = wl_calc_ballistic_fit(swp->primary_bank_weapons[j], Ship_info[slot->ship_class].primary_bank_ammo_capacity[i]);
+				swp->primary_bank_ammo[j] = wl_calc_ballistic_fit(swp->primary_bank_weapons[j], Ship_info[ship_class].primary_bank_ammo_capacity[i]);
 			} else {
 				swp->primary_bank_ammo[j] = 0;
 			}
 
 			j++;
+		
+		} // ensure we set to default if it doesn't. 
+		else {
+			swp->primary_bank_weapons[i] = -1;
 		}
 	}
 
@@ -3484,20 +3436,21 @@ void wl_bash_ship_weapons(ship_weapon *swp, wss_unit *slot)
 
 	j = 0;
 	for (i = 0; i < MAX_SHIP_SECONDARY_BANKS; i++) {
-		// set to default value first thing
-		swp->secondary_bank_weapons[i] = -1;
 
-		// now set the true value
-		sidx = i+MAX_SHIP_PRIMARY_BANKS;
-		if ( (slot->wep_count[sidx] > 0) && (slot->wep[sidx] >= 0) ) {
-			swp->secondary_bank_weapons[j] = slot->wep[sidx];
-			swp->secondary_bank_ammo[j] = slot->wep_count[sidx];
+		int bank = i + MAX_SHIP_PRIMARY_BANKS;
 
-			if (Weapon_info[slot->wep[sidx]].wi_flags[Weapon::Info_Flags::SecondaryNoAmmo])
+		// set the weapon and ammo if is used.
+		if ( Loadouts.is_bank_filled(slot, i, false) ) {
+			swp->secondary_bank_weapons[j] = Loadouts.get_weapon(slot, i, false);
+			swp->secondary_bank_ammo[j] = Loadouts.get_weapon_count(slot, i);
+
+			if (Weapon_info[Loadouts.get_weapon(slot, i, false)].wi_flags[Weapon::Info_Flags::SecondaryNoAmmo])
 				swp->secondary_bank_start_ammo[j] = 0;
 			else
-				swp->secondary_bank_start_ammo[j] = (int)std::lround(Ship_info[slot->ship_class].secondary_bank_ammo_capacity[i] / Weapon_info[swp->secondary_bank_weapons[j]].cargo_size);
+				swp->secondary_bank_start_ammo[j] = (int)std::lround(Ship_info[ship_class].secondary_bank_ammo_capacity[i] / Weapon_info[swp->secondary_bank_weapons[j]].cargo_size);
 			j++;
+		} else {
+			swp->secondary_bank_weapons[i] = -1;
 		}
 	}
 
@@ -3506,56 +3459,26 @@ void wl_bash_ship_weapons(ship_weapon *swp, wss_unit *slot)
 }
 
 /**
- * Utility function for swapping two banks
- */
-void wl_swap_weapons(int ship_slot, int from_bank, int to_bank)
-{
-	wss_unit	*slot;
-	int	tmp;
-
-	Assert( Wss_slots != NULL );
-
-	slot = &Wss_slots[ship_slot];
-
-	if ( from_bank == to_bank || (from_bank >= MAX_SHIP_WEAPONS || from_bank < 0 ) || (to_bank >= MAX_SHIP_WEAPONS || to_bank < 0 ) ) {
-		return;
-	}
-
-	// swap weapon type
-	tmp = slot->wep[from_bank];
-	slot->wep[from_bank] = slot->wep[to_bank];
-	slot->wep[to_bank] = tmp;
-
-	// swap weapon count
-	tmp = slot->wep_count[from_bank];
-	slot->wep_count[from_bank] = slot->wep_count[to_bank];
-	slot->wep_count[to_bank] = tmp;
-}
-
-/**
  * Utility function used to put back overflow into the weapons pool
+ * Assumes that bank is a secondary bank
  */
 void wl_saturate_bank(int ship_slot, int bank)
 {
-	wss_unit	*slot;
-	int		max_count, overflow;
-
-	Assert( Wss_slots != NULL );
-
-	slot = &Wss_slots[ship_slot];
-
-	if ( (slot->wep[bank] < 0) || (slot->wep_count[bank] <= 0) ) {
+	if ( Loadouts.is_bank_filled(ship_slot, bank, false) ) {
 		return;
 	}
 
-	max_count = wl_calc_missile_fit(slot->wep[bank], Ship_info[slot->ship_class].secondary_bank_ammo_capacity[bank-3]);
-	overflow = slot->wep_count[bank] - max_count;
+	int max_count = loadouts_calc_missile_fit(Loadouts.get_weapon(ship_slot, bank, false), Ship_info[Loadouts.get_ship_class(ship_slot)].secondary_bank_ammo_capacity[bank]);
+	int overflow = Loadouts.get_weapon_count(ship_slot, bank) - max_count;
+
+	// TODO, can we have any spares from the pool get placed in the ship's banks if the bank ends up not completely filled?
+	// a game settings flag, perhaps to enable the behavior?...
 	if ( overflow > 0 ) {
 		Assert( Wl_pool != NULL );
 
-		slot->wep_count[bank] -= overflow;
+		Loadouts.set_weapon_count(ship_slot, bank, Loadouts.get_weapon_count(ship_slot, bank) - overflow) ;
 		// add overflow back to pool
-		Wl_pool[slot->wep[bank]] += overflow;
+		Wl_pool[Loadouts.get_weapon(ship_slot, bank, false)] += overflow;
 	}
 }
 
@@ -3565,18 +3488,15 @@ void wl_saturate_bank(int ship_slot, int bank)
 // updated for specific bank by Goober5000
 int wl_swap_slot_slot(int from_bank, int to_bank, int ship_slot, interface_snd_id *sound, net_player *pl)
 {
-	wss_unit	*slot;
-	int class_mismatch_flag, forced_update;
-
-	Assert( Wss_slots != NULL );
-
-	slot = &Wss_slots[ship_slot];
+	int class_mismatch_flag;
 
 	// usually zero, unless we have a strange update thingy
-	forced_update = 0;
+	int forced_update = 0;
+	int ship_class = Loadouts.get_ship_class(ship_slot);
 
-	if ( slot->ship_class == -1 ) {
-		Int3();	// should not be possible
+	Assert(ship_class > -1);
+
+	if ( ship_class < 0 ) {
 		return forced_update;
 	}
 	
@@ -3586,30 +3506,35 @@ int wl_swap_slot_slot(int from_bank, int to_bank, int ship_slot, interface_snd_i
 		return forced_update;	// no update
 	}
 
-	// ensure that source bank exists and has something to pick from
-	if ( slot->wep[from_bank] == -1 || slot->wep_count[from_bank] <= 0 ) {
-		return forced_update;
-	}
+	// variables to simplify code below.
+	bool from_primary = IS_BANK_PRIMARY(from_bank);
+	bool to_primary = IS_BANK_SECONDARY(to_bank);
 
-	// ensure that the dest bank exists
-	if ( slot->wep_count[to_bank] < 0 ) {
+	int from_bank_adjusted = (from_primary) ? from_bank : from_bank - MAX_SHIP_PRIMARY_BANKS;
+	int to_bank_adjusted = (to_primary) ? to_bank : to_bank - MAX_SHIP_PRIMARY_BANKS;
+
+	// ensure that source bank exists and has something to pick from and that the destination weapon exists.  
+	if ( !Loadouts.is_bank_filled(ship_slot, from_bank_adjusted, from_primary) || (!to_primary && Loadouts.get_weapon_count(ship_slot, to_bank_adjusted) < 0)) {
 		return forced_update;
 	}
 
 	Assert( Wl_pool != NULL );
 
 	// ensure banks are compatible as far as primary and secondary
-	class_mismatch_flag = (IS_BANK_PRIMARY(from_bank) && IS_BANK_SECONDARY(to_bank)) || (IS_BANK_SECONDARY(from_bank) && IS_BANK_PRIMARY(to_bank));
-	
+	class_mismatch_flag = (from_primary && !to_primary) || (!from_primary && to_primary);
+
+	int from_weapon = Loadouts.get_weapon(ship_slot, from_bank_adjusted, from_primary);
+	int to_weapon = Loadouts.get_weapon(ship_slot, to_bank_adjusted, to_primary);
+
 	// further ensure that restrictions aren't breached
 	if (!class_mismatch_flag) {
-		ship_info *sip = &Ship_info[slot->ship_class];
+		ship_info *sip = &Ship_info[ship_class];
 
 		// check the to-bank first
 		if (eval_weapon_flag_for_game_type(sip->restricted_loadout_flag[to_bank])) {
-			if (!eval_weapon_flag_for_game_type(sip->allowed_bank_restricted_weapons[to_bank][slot->wep[from_bank]])) {
+			if (!eval_weapon_flag_for_game_type(sip->allowed_bank_restricted_weapons[to_bank][from_weapon])) {
 				SCP_string txt;
-				sprintf(txt, XSTR("This bank is unable to carry %s weaponry", 1628), Weapon_info[slot->wep[from_bank]].get_display_name());
+				sprintf(txt, XSTR("This bank is unable to carry %s weaponry", 1628), Weapon_info[from_weapon].get_display_name());
 
 				if ( !(Game_mode & GM_MULTIPLAYER) || (Netgame.host == pl) ) {
 					popup(PF_USE_AFFIRMATIVE_ICON, 1, POPUP_OK, txt.c_str());
@@ -3623,14 +3548,19 @@ int wl_swap_slot_slot(int from_bank, int to_bank, int ship_slot, interface_snd_i
 
 		// check the from-bank
 		if (eval_weapon_flag_for_game_type(sip->restricted_loadout_flag[from_bank])) {
-			if (!eval_weapon_flag_for_game_type(sip->allowed_bank_restricted_weapons[from_bank][slot->wep[to_bank]])) {
+			if (!eval_weapon_flag_for_game_type(sip->allowed_bank_restricted_weapons[from_bank][to_weapon])) {
 				// going from "from" to "to" is valid (from previous if), but going the other way isn't...
 				// so return the "to" to the list and just move the "from"
 
 				// put to_bank back into list
-				Wl_pool[slot->wep[to_bank]] += slot->wep_count[to_bank];			// return to list
-				slot->wep[to_bank] = -1;											// remove from slot
-				slot->wep_count[to_bank] = 0;
+				if (!to_primary){
+					Wl_pool[to_weapon] += Loadouts.get_weapon_count(ship_slot, to_bank_adjusted);			// return to list
+					Loadouts.set_weapon_count(ship_slot, to_bank_adjusted, 0);
+				} else {
+					++Wl_pool[to_weapon];
+				}
+
+				Loadouts.set_weapon(ship_slot, to_bank_adjusted, -1, to_primary);											// remove from slot
 				*sound=InterfaceSounds::ICON_DROP;				// unless it changes later
 				forced_update = 1;					// because we can't return right away
 			}
@@ -3639,16 +3569,21 @@ int wl_swap_slot_slot(int from_bank, int to_bank, int ship_slot, interface_snd_i
 
 	if ( class_mismatch_flag ) {
 		// put from_bank back into list
-		Wl_pool[slot->wep[from_bank]] += slot->wep_count[from_bank];		// return to list
-		slot->wep[from_bank] = -1;														// remove from slot
-		slot->wep_count[from_bank] = 0;
+		Wl_pool[from_weapon] += Loadouts.get_weapon_count(ship_slot, from_bank);		// return to list
+		Loadouts.set_weapon(ship_slot, from_bank_adjusted, -1, from_primary);
+
+		// remove from slot
+		if (from_primary){
+			Loadouts.set_weapon_count(ship_slot, from_bank, 0);
+		}									
+
 		*sound=InterfaceSounds::ICON_DROP;
 		return 1;
 	}
 
 	// case 1: primaries (easy, even with ballistics, because ammo is always maximized)
 	if ( IS_BANK_PRIMARY(from_bank) && IS_BANK_PRIMARY(to_bank) ) {
-		wl_swap_weapons(ship_slot, from_bank, to_bank);
+		Loadouts.swap_weapon_slots(ship_slot, from_bank, to_bank, true);
 		*sound=InterfaceSounds::ICON_DROP_ON_WING;
 		return 1;
 	}
@@ -3656,11 +3591,10 @@ int wl_swap_slot_slot(int from_bank, int to_bank, int ship_slot, interface_snd_i
 	// case 2: secondaries (harder)
 	if ( IS_BANK_SECONDARY(from_bank) && IS_BANK_SECONDARY(to_bank) ) {
 		// case 2a: secondaries are the same type
-		if ( slot->wep[from_bank] == slot->wep[to_bank] ) {
-			int dest_max, dest_can_fit, source_can_give;
-			dest_max = wl_calc_missile_fit(slot->wep[to_bank], Ship_info[slot->ship_class].secondary_bank_ammo_capacity[to_bank-3]);
+		if ( from_weapon == to_weapon ) {
+			int dest_max = loadouts_calc_missile_fit(to_weapon, Ship_info[ship_class].secondary_bank_ammo_capacity[to_bank-MAX_SHIP_PRIMARY_BANKS]);
 
-			dest_can_fit = dest_max - slot->wep_count[to_bank];
+			int dest_can_fit = dest_max - Loadouts.get_weapon_count(ship_slot, to_bank);
 
 			if ( dest_can_fit <= 0 ) {
 				// dest bank is already full.. nothing to do here
@@ -3668,26 +3602,23 @@ int wl_swap_slot_slot(int from_bank, int to_bank, int ship_slot, interface_snd_i
 			}
 
 			// see how much source can give
-			source_can_give = MIN(dest_can_fit, slot->wep_count[from_bank]);
+			int source_can_give = MIN(dest_can_fit, Loadouts.get_weapon_count(ship_slot, from_bank));
 
-			if ( source_can_give > 0 ) {			
-				slot->wep_count[to_bank] += source_can_give;		// add to dest
-				slot->wep_count[from_bank] -= source_can_give;	// take from source
+			if ( source_can_give > 0 ) {
+				Loadouts.set_weapon_count(ship_slot, from_bank, Loadouts.get_weapon_count(ship_slot, from_bank) - source_can_give); // take from source	
+				Loadouts.set_weapon_count(ship_slot, to_bank, Loadouts.get_weapon_count(ship_slot, to_bank) + source_can_give); // add to dest
 				*sound=InterfaceSounds::ICON_DROP_ON_WING;
 				return 1;
 			} else {
 				return forced_update;
 			}
-		}
-
-		// case 2b: secondaries are different types
-		if ( slot->wep[from_bank] != slot->wep[to_bank] ) {
+		} else { // there used to be a check here, but it was completely redundant.... 
 			// swap 'em 
-			wl_swap_weapons(ship_slot, from_bank, to_bank);
+			Loadouts.swap_weapon_slots(ship_slot, from_bank, to_bank, false);
 
 			// put back some on list if required
-			wl_saturate_bank(ship_slot, from_bank);
-			wl_saturate_bank(ship_slot, to_bank);
+			wl_saturate_bank(ship_slot, from_bank_adjusted);
+			wl_saturate_bank(ship_slot, to_bank_adjusted);
 			*sound=InterfaceSounds::ICON_DROP_ON_WING;
 			return 1;
 		}
@@ -3702,21 +3633,20 @@ int wl_swap_slot_slot(int from_bank, int to_bank, int ship_slot, interface_snd_i
 //       sound => gets filled with sound id to play
 int wl_dump_to_list(int from_bank, int to_list, int ship_slot, interface_snd_id *sound)
 {
-	wss_unit	*slot;
+	Assert( (Wl_pool != NULL) );
 
-	Assert( (Wss_slots != NULL) && (Wl_pool != NULL) );
+	bool primary = from_bank < MAX_SHIP_PRIMARY_BANKS;
 
-	slot = &Wss_slots[ship_slot];
+	if (primary)
+		from_bank -= MAX_SHIP_PRIMARY_BANKS;
 
 	// ensure that source bank exists and has something to pick from
-	if ( slot->wep[from_bank] == -1 || slot->wep_count[from_bank] <= 0 ) {
+	if ( !Loadouts.is_bank_filled(ship_slot, from_bank, primary) ) {
 		return 0;
 	}
 
 	// put weapon bank to the list
-	Wl_pool[to_list] += slot->wep_count[from_bank];			// return to list
-	slot->wep[from_bank] = -1;										// remove from slot
-	slot->wep_count[from_bank] = 0;
+	Loadouts.empty_bank_and_refill_pool(ship_slot, from_bank, primary);
 	*sound=InterfaceSounds::ICON_DROP;
 
 	return 1;
@@ -3727,38 +3657,39 @@ int wl_dump_to_list(int from_bank, int to_list, int ship_slot, interface_snd_id 
 //       sound => gets filled with sound id to play
 int wl_grab_from_list(int from_list, int to_bank, int ship_slot, interface_snd_id *sound, net_player *pl)
 {
-	int update=0;
-	wss_unit	*slot;
-
-	Assert( (Wss_slots != NULL) && (Wl_pool != NULL) );
-
-	slot = &Wss_slots[ship_slot];
-	int max_fit;
+	int update = 0;
+	Assert( (Wl_pool != NULL) );
 
 	// ensure that the banks are both of the same class
 	if ( (IS_LIST_PRIMARY(from_list) && IS_BANK_SECONDARY(to_bank)) || (IS_LIST_SECONDARY(from_list) && IS_BANK_PRIMARY(to_bank)) )
 	{
 		// do nothing
 		*sound=InterfaceSounds::ICON_DROP;
-		return 0;
+		return update;
 	}
 
+	bool primary = IS_BANK_PRIMARY(to_bank);
+	int adjusted_to_bank = to_bank - MAX_SHIP_PRIMARY_BANKS;
+	int weapon_count = Loadouts.get_weapon_count(ship_slot, to_bank);
+	
 	// ensure that dest bank exists
-	if ( slot->wep_count[to_bank] < 0 ) {
+	// TODO, shouldn't we be checking ship info? What if this erroneously gets set to a negative number?
+	if ( weapon_count < 0 ) {
 		*sound=InterfaceSounds::ICON_DROP;
-		return 0;
+		return update;
 	}
 
 	// bank should be empty:
-	Assert(slot->wep_count[to_bank] == 0);
-	Assert(slot->wep[to_bank] < 0);
+	Assert(weapon_count == 0);
+	Assert(Loadouts.get_weapon(ship_slot, adjusted_to_bank, primary) < 0);
 
 	// ensure that pool has weapon
 	if ( Wl_pool[from_list] <= 0 ) {
-		return 0;
+		return update;
 	}
 
-	ship_info *sip = &Ship_info[slot->ship_class];
+	int ship_class = Loadouts.get_ship_class(ship_slot);
+	ship_info *sip = &Ship_info[ship_class];
 
 	// ensure that this bank will accept the weapon...
 	if (eval_weapon_flag_for_game_type(sip->restricted_loadout_flag[to_bank])) {
@@ -3772,30 +3703,34 @@ int wl_grab_from_list(int from_list, int to_bank, int ship_slot, interface_snd_i
 				send_game_chat_packet(Netgame.host, txt.c_str(), MULTI_MSG_TARGET, pl, nullptr, 1);
 			}
 
-			return 0;
+			return update;
 		}
 	}
 
 	// we will have some sort of success from this point
 	update = 1;
 
+	// add weapon to the slot
+	Loadouts.set_weapon(ship_slot, to_bank, from_list, primary);
+
 	// find how much dest bank can fit
-	if ( to_bank < MAX_SHIP_PRIMARY_BANKS ) {
-		max_fit = 1;
+	if ( !primary ) {
+
+		// take weapon from the pool
+		--Wl_pool[from_list];
 	} else {
-		max_fit = wl_calc_missile_fit(from_list, Ship_info[slot->ship_class].secondary_bank_ammo_capacity[to_bank-MAX_SHIP_PRIMARY_BANKS]);
-	}
+		int max_fit = loadouts_calc_missile_fit(from_list, Ship_info[ship_class].secondary_bank_ammo_capacity[adjusted_to_bank]);
 
-	// take weapon from list
-	if ( Wl_pool[from_list] < max_fit ) {
-		max_fit = Wl_pool[from_list];
-		update=2;
-	}
-	Wl_pool[from_list] -= max_fit;
+		if ( Wl_pool[from_list] < max_fit ) {
+			max_fit = Wl_pool[from_list];
+			update=2;
+		}
 
-	// put on the slot
-	slot->wep[to_bank] = from_list;
-	slot->wep_count[to_bank] = max_fit;
+		// take weapon from the pool and place it in the ship
+		Loadouts.set_weapon_count(ship_slot, to_bank, max_fit);
+		Wl_pool[from_list] -= max_fit;
+
+	}
 
 	*sound=InterfaceSounds::ICON_DROP_ON_WING;
 
@@ -3807,35 +3742,35 @@ int wl_grab_from_list(int from_list, int to_bank, int ship_slot, interface_snd_i
 //       sound => gets filled with sound id to play
 int wl_swap_list_slot(int from_list, int to_bank, int ship_slot, interface_snd_id *sound, net_player *pl)
 {
-	wss_unit	*slot;
+	loadout_slot	*slot;
 
-	Assert( (Wss_slots != NULL) && (Wl_pool != NULL) );
+	Assert( (Wl_pool != NULL) );
 
-	slot = &Wss_slots[ship_slot];
-	int max_fit;
+	bool primary = IS_BANK_PRIMARY(to_bank);
 
 	// ensure that the banks are both of the same class
-	if ( (IS_LIST_PRIMARY(from_list) && IS_BANK_SECONDARY(to_bank)) || (IS_LIST_SECONDARY(from_list) && IS_BANK_PRIMARY(to_bank)) ) {
+	if (IS_LIST_PRIMARY(from_list) != primary) {
 		// do nothing
 		*sound=InterfaceSounds::ICON_DROP;
 		return 0;
 	}
 
-	// ensure that dest bank exists
-	if ( slot->wep_count[to_bank] < 0 ) {
-		return 0;
-	}
+	int adjusted_bank = (primary) ? to_bank : to_bank - MAX_SHIP_PRIMARY_BANKS;
 
-	// bank should have something in it
-	Assert(slot->wep_count[to_bank] > 0);
-	Assert(slot->wep[to_bank] >= 0);
+	// TODO! Fix this check.  We need a way in the loadout class to check if a weapon exists in the currently assigned ship.
+	// ensure that dest bank exists
+//	if ( slot->wep_count[to_bank] < 0 ) {
+//		return 0;
+//	}
+
+	Assert(Loadouts.is_bank_filled(ship_slot, adjusted_bank, primary));
 
 	// ensure that pool has weapon
 	if ( Wl_pool[from_list] <= 0 ) {
 		return 0;
 	}
 
-	ship_info *sip = &Ship_info[slot->ship_class];
+	ship_info *sip = &Ship_info[Loadouts.get_ship_class(ship_slot)];
 
 	// ensure that this bank will accept the weapon
 	if (eval_weapon_flag_for_game_type(sip->restricted_loadout_flag[to_bank])) {
@@ -3853,36 +3788,36 @@ int wl_swap_list_slot(int from_list, int to_bank, int ship_slot, interface_snd_i
 		}
 	}
 
-	// dump slot weapon back into list
-	Wl_pool[slot->wep[to_bank]] += slot->wep_count[to_bank];
-	slot->wep_count[to_bank] = 0;
-	slot->wep[to_bank] = -1;
+	Loadouts.empty_bank_and_refill_pool(ship_slot, to_bank, primary);
 
 	// put weapon on ship from list
-	
+
+	// add weapon to the slot
+	Loadouts.set_weapon(ship_slot, to_bank, from_list, primary);
+
 	// find how much dest bank can fit
-	if ( to_bank < MAX_SHIP_PRIMARY_BANKS ) {
-		max_fit = 1;
+	if ( !primary ) {
+
+		// take weapon from the pool
+		--Wl_pool[from_list];
 	} else {
-		max_fit = wl_calc_missile_fit(from_list, Ship_info[slot->ship_class].secondary_bank_ammo_capacity[to_bank-MAX_SHIP_PRIMARY_BANKS]);
-	}
+		int max_fit = loadouts_calc_missile_fit(from_list, sip->secondary_bank_ammo_capacity[adjusted_bank]);
 
-	// take weapon from list
-	if ( Wl_pool[from_list] < max_fit ) {
-		max_fit = Wl_pool[from_list];
-	}
-	Wl_pool[from_list] -= max_fit;
+		if ( Wl_pool[from_list] < max_fit ) {
+			max_fit = Wl_pool[from_list];
+		}
 
-	// put on the slot
-	slot->wep[to_bank] = from_list;
-	slot->wep_count[to_bank] = max_fit;
+		// take weapon from the pool and place it in the ship
+		Loadouts.set_weapon_count(ship_slot, to_bank, max_fit);
+		Wl_pool[from_list] -= max_fit;
+	}
 
 	*sound=InterfaceSounds::ICON_DROP_ON_WING;
 	return 1;
 }
 
 /**
- * Update any interface data that may be dependent on Wss_slots[] 
+ * Update any interface data that may be dependent on loadout slots
  * @todo Implement
  */
 void wl_synch_interface()
@@ -3931,7 +3866,7 @@ int wl_apply(int mode,int from_bank,int from_list,int to_bank,int to_list,int sh
 			int size;
 			ubyte wss_data[MAX_PACKET_SIZE];
 
-			size = store_wss_data(wss_data, MAX_PACKET_SIZE-20,sound,player_index);			
+			size = multi_pack_loadout_data(wss_data, MAX_PACKET_SIZE-20,sound,player_index);			
 			Assert(pl != NULL);
 			send_wss_update_packet(pl->p_info.team,wss_data, size);
 		}
@@ -3973,7 +3908,7 @@ int wl_drop(int from_bank,int from_list,int to_bank,int to_list, int ship_slot, 
 		if(MULTI_TEAM){
             Assert(pl != NULL);
 			// set the global pointers to the right pools
-			common_set_team_pointers(pl->p_info.team);
+			Loadouts.set_team(pl->p_info.team);
 		}
 
 		mode = wss_get_mode(from_bank, from_list, to_bank, to_list, ship_slot);
@@ -3983,7 +3918,7 @@ int wl_drop(int from_bank,int from_list,int to_bank,int to_list, int ship_slot, 
 
 		if(MULTI_TEAM){
 			// set the global pointers to the right pools
-			common_set_team_pointers(Net_player->p_info.team);
+			Loadouts.set_team(Net_player->p_info.team);
 		}
 	} else {
 		send_wss_request_packet(Net_player->player_id, from_bank, from_list, to_bank, to_list, ship_slot, -1, WSS_WEAPON_SELECT);
@@ -3995,44 +3930,31 @@ int wl_drop(int from_bank,int from_list,int to_bank,int to_list, int ship_slot, 
 // Goober5000
 void wl_apply_current_loadout_to_all_ships_in_current_wing()
 {
-	int source_wss_slot, cur_wss_slot;
-	int cur_wing_block, cur_wing_slot, cur_bank;
-	int weapon_type_to_add, result;
-	size_t i;
-
-	ship_info *sip, *source_sip;
-
-	char ship_name[NAME_LENGTH];
-
-	// error stuff
-	bool error_flag = false;
-	SCP_vector<SCP_string> error_messages;
-
 	// make sure we're not holding anything
 	wl_dump_carried_icon();
 
 	// find the currently selected ship (or the squadron leader if none)
-	source_wss_slot = Selected_wl_slot;
-	if (source_wss_slot == -1)
-		source_wss_slot = 0;
+	int source_wss_slot = (Selected_wl_slot < 0) ? 0 : Selected_wl_slot;
 
 	// get its class
-	source_sip = &Ship_info[Wss_slots[source_wss_slot].ship_class];
+	ship_info* source_sip = &Ship_info[Loadouts.get_ship_class(source_wss_slot)];
 
 	// find which wing this ship is part of
-	cur_wing_block = source_wss_slot / MAX_WING_SLOTS;
+	int wing_block = source_wss_slot / MAX_WING_SLOTS;
+
+	// set of error messages and the ship related to it.
+	SCP_set<SCP_string> error_messages;
+	char ship_name[NAME_LENGTH];
 
 	// for all ships in the wing
-	for (cur_wing_slot = 0; cur_wing_slot < MAX_WING_SLOTS; cur_wing_slot++)
+	for (int cur_wing_slot = 0; cur_wing_slot < MAX_WING_SLOTS; cur_wing_slot++)
 	{
-		Assert( Wss_slots != NULL );
-
 		// get the slot for this ship
-		cur_wss_slot = cur_wing_block * MAX_WING_SLOTS + cur_wing_slot;
+		int cur_wss_slot = wing_block * MAX_WING_SLOTS + cur_wing_slot;
 
 		// get the ship's name and class
-		sip = &Ship_info[Wss_slots[cur_wss_slot].ship_class];	
-		ss_return_name(cur_wing_block, cur_wing_slot, ship_name);
+		ship_info* sip = &Ship_info[Loadouts.get_ship_class(cur_wss_slot)];	
+		ss_return_name(wing_block, cur_wing_slot, ship_name);
 
 		// don't process the selected ship
 		if (cur_wss_slot == source_wss_slot)
@@ -4043,29 +3965,35 @@ void wl_apply_current_loadout_to_all_ships_in_current_wing()
 			continue;
 
 		// copy weapons from source slot to this slot
-		for (cur_bank = 0; cur_bank < MAX_SHIP_WEAPONS; cur_bank++)
+		for (int cur_bank = 0; cur_bank < MAX_SHIP_WEAPONS; cur_bank++)
 		{
+			bool primary;
+
 			// this bank must exist on both the source ship and the destination ship
 			if (cur_bank < MAX_SHIP_PRIMARY_BANKS)
 			{
 				if (cur_bank >= source_sip->num_primary_banks || cur_bank >= sip->num_primary_banks)
 					continue;
+				primary = true;
 			}
 			else
 			{
 				if (cur_bank-MAX_SHIP_PRIMARY_BANKS >= source_sip->num_secondary_banks || cur_bank-MAX_SHIP_PRIMARY_BANKS >= sip->num_secondary_banks)
 					continue;
+				primary = false;
 			}
 
+			int adjusted_bank = (primary) ? cur_bank : cur_bank - MAX_SHIP_PRIMARY_BANKS;
+
 			// dump the destination ship's weapons
-			wl_drop(cur_bank, -1, -1, Wss_slots[cur_wss_slot].wep[cur_bank], cur_wss_slot, -1, true);
+			wl_drop(cur_bank, -1, -1, Loadouts.get_weapon(cur_wss_slot, adjusted_bank, primary), cur_wss_slot, -1, true);
 
 			// weapons must be present on the source ship
-			if (Wss_slots[source_wss_slot].wep[cur_bank] < 0)
+			if (!Loadouts.is_bank_filled(source_wss_slot, adjusted_bank, primary))
 				continue;
 
 			// determine the weapon we need
-			weapon_type_to_add = Wss_slots[source_wss_slot].wep[cur_bank];
+			int weapon_type_to_add = Loadouts.get_weapon(source_wss_slot, adjusted_bank, primary);
 			auto wep_display_name = Weapon_info[weapon_type_to_add].get_display_name();
 
 			// make sure this ship can accept this weapon
@@ -4073,9 +4001,8 @@ void wl_apply_current_loadout_to_all_ships_in_current_wing()
 			{
 				SCP_string temp;
 				sprintf(temp, XSTR("%s is unable to carry %s weaponry", 1629), ship_name, wep_display_name);
-				error_messages.push_back(temp);
+				error_messages.insert(temp);
 
-				error_flag = true;
 				continue;
 			}
 
@@ -4089,25 +4016,21 @@ void wl_apply_current_loadout_to_all_ships_in_current_wing()
 						sprintf(temp, XSTR("%s is unable to carry %s weaponry in primary bank %d", 1630), ship_name, wep_display_name, cur_bank+1);
 					else
 						sprintf(temp, XSTR("%s is unable to carry %s weaponry in secondary bank %d", 1631), ship_name, wep_display_name, cur_bank+1-MAX_SHIP_PRIMARY_BANKS);
-					error_messages.push_back(temp);
+					error_messages.insert(temp);
 
-					error_flag = true;
 					continue;
 				}
 			}
 
 			// add from the weapon pool
-			result = wl_drop(-1, weapon_type_to_add, cur_bank, -1, cur_wss_slot, -1, true);
+			int result = wl_drop(-1, weapon_type_to_add, cur_bank, -1, cur_wss_slot, -1, true);
 
 			// bank left unfilled or partially filled
 			if ((result == 0) || (result == 2))
 			{
 				SCP_string temp;
 				sprintf(temp, XSTR("Insufficient %s available to arm %s", 1632), Weapon_info[weapon_type_to_add].get_display_name(), ship_name);
-				error_messages.push_back(temp);
-
-				error_flag = true;
-				continue;
+				error_messages.insert(temp);
 			}
 		}
 	}
@@ -4116,32 +4039,14 @@ void wl_apply_current_loadout_to_all_ships_in_current_wing()
 	gamesnd_play_iface(InterfaceSounds::ICON_DROP_ON_WING);
 
 	// display error messages
-	if (error_flag)
+	if (!error_messages.empty())
 	{
 		SCP_string full_error_message = XSTR("The following errors were encountered:\n", 1641);
 
-		size_t j;
-		bool is_duplicate;
-
-		// copy all messages
-		for (i = 0; i < error_messages.size(); i++)
-		{
-			// check for duplicate messages
-			is_duplicate = false;
-			for (j = 0; j < i; j++)
-			{
-				if (error_messages[i] == error_messages[j])
-				{
-					is_duplicate = true;
-					break;
-				}
-			}
-			if (is_duplicate)
-				continue;
-
+		for (auto& message : error_messages){
 			// copy message
 			full_error_message += "\n";
-			full_error_message += error_messages[i];
+			full_error_message += message;
 		}
 
 		// display popup

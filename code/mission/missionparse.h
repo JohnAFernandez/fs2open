@@ -393,23 +393,24 @@ extern SCP_vector<p_object> Parse_objects;
 extern p_object Support_ship_pobj, *Arriving_support_ship;
 extern p_object Ship_arrival_list;
 
+struct weapon_pool_info {
+	int index;
+	int count;
+	bool required;
+	SCP_string pool_variable;
+	SCP_string amount_variable;
+};
+
 typedef struct {
 	// ships
 	int		default_ship;  // default ship type for player start point (recommended choice)
-	int		num_ship_choices; // number of ship choices inside ship_list 
 	int		loadout_total;	// Total number of ships available of all classes 
-	int		ship_list[MAX_SHIP_CLASSES];
-	char	ship_list_variables[MAX_SHIP_CLASSES][TOKEN_LENGTH];
-	int		ship_count[MAX_SHIP_CLASSES];
-	char	ship_count_variables[MAX_SHIP_CLASSES][TOKEN_LENGTH];
+	SCP_vector<std::pair<int, int>> ship_list;
+	SCP_vector<std::pair<int, SCP_string>> ship_list_variables;
+	SCP_vector<std::pair<int, SCP_string>> ship_count_variables;
 
 	// weapons
-	int		num_weapon_choices;
-	int		weaponry_pool[MAX_WEAPON_TYPES];
-	int		weaponry_count[MAX_WEAPON_TYPES];
-	char	weaponry_pool_variable[MAX_WEAPON_TYPES][TOKEN_LENGTH];
-	char	weaponry_amount_variable[MAX_WEAPON_TYPES][TOKEN_LENGTH];
-	bool	weapon_required[MAX_WEAPON_TYPES];
+	SCP_vector<weapon_pool_info> weapon_pool;
 } team_data;
 
 #define MAX_P_WINGS		16

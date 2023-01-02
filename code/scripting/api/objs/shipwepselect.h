@@ -25,28 +25,28 @@ struct ss_slot_info_h {
 	ss_slot_info* getSlot() const;
 };
 
-struct wss_unit_wep_h {
+struct loadout_slot_wep_h {
 	int ss_unit;
-	wss_unit_wep_h();
-	explicit wss_unit_wep_h(int l_unit);
+	loadout_slot_wep_h();
+	explicit loadout_slot_wep_h(int l_unit);
 	bool IsValid() const;
-	wss_unit* getBank() const;
+	loadout_slot* getBank() const;
 };
 
-struct wss_unit_count_h {
+struct loadout_slot_count_h {
 	int ss_unit;
-	wss_unit_count_h();
-	explicit wss_unit_count_h(int l_unit);
+	loadout_slot_count_h();
+	explicit loadout_slot_count_h(int l_unit);
 	bool IsValid() const;
-	wss_unit* getBank() const;
+	loadout_slot* getBank() const;
 };
 
 DECLARE_ADE_OBJ(l_Loadout_Wing, ss_wing_info_h);
 DECLARE_ADE_OBJ(l_Loadout_Wing_Slot, ss_slot_info_h);
 
 DECLARE_ADE_OBJ(l_Loadout_Ship, int);
-DECLARE_ADE_OBJ(l_Loadout_Weapon, wss_unit_wep_h);
-DECLARE_ADE_OBJ(l_Loadout_Amount, wss_unit_count_h);
+DECLARE_ADE_OBJ(l_Loadout_Weapon, loadout_slot_wep_h);
+DECLARE_ADE_OBJ(l_Loadout_Amount, loadout_slot_count_h);
 
 } // namespace api
 } // namespace scripting

@@ -48,27 +48,25 @@ LabManager::LabManager() {
 	// External weapon displays require a call to weapons_page_in, which in turn requires team data to be set
 	Num_teams = 1;
 
-	team_data* teamp = &Team_data[0];
+	team_data& team = Team_data[0];
+	
+	team.ship_list.clear();
+	team.ship_list_variables.clear();
+	team.ship_count_variables.clear();
 
 	// In the lab, all ships are valid
 	for (size_t i = 0; i < Ship_info.size(); ++i) {
-		teamp->ship_list[i] = static_cast<int>(i);
-		strcpy_s(teamp->ship_list_variables[i], "");
-		teamp->ship_count[i] = 1;
-		teamp->loadout_total += 1;
-		strcpy_s(teamp->ship_count_variables[i], "");
+		team.ship_list.emplace_back(i, 1);
 	}
-	teamp->default_ship = 0;
-	teamp->num_ship_choices = static_cast<int>(Ship_info.size());
+
+	team.loadout_total = Ship_info.size();
+	team.default_ship = 0;
+	team.weapon_pool.clear();	
 
 	// you want guns? you get guns.
 	for (size_t i = 0; i < Weapon_info.size(); ++i) {
-		teamp->weaponry_pool[i] = static_cast<int>(i);
-		teamp->weaponry_count[i] = 640; // should be enough for everyone
-		strcpy_s(teamp->weaponry_amount_variable[i], "");
-		strcpy_s(teamp->weaponry_pool_variable[i], "");
+		team.weapon_pool.emplace_back(static_cast<int>(i), 640, false, "", "");
 	}
-	teamp->num_weapon_choices = static_cast<int>(Weapon_info.size());
 
 	Game_mode |= GM_LAB;
 

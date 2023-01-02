@@ -169,10 +169,10 @@ void send_ingame_respawn_points_packet(net_player *pl = /*NULL*/ 0);
 // process respawn points information for the mission
 void process_ingame_respawn_points_packet(ubyte *data, header *hinfo);
 
-// send Wss_slots data to an ingame joiner
+// send Loadout data to an ingame joiner
 void send_ingame_slots_packet(net_player *p);
 
-// process Wss_slots data for the mission
+// process Loadout data for the mission
 void process_ingame_slots_packet(ubyte *data, header *hinfo);
 
 // send a request or a reply regarding ingame join ship choice

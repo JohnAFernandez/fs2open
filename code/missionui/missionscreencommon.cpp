@@ -70,6 +70,8 @@ UI_TIMESTAMP Flash_timer;						// timestamp used to start flashing
 UI_TIMESTAMP Flash_toggle;						// timestamp used to toggle flashing
 int Flash_bright;								// state of button to flash
 
+#define SNAZZY_MAX_WING_SLOTS 4 // what is the max number of ships according to retail UI.
+
 //////////////////////////////////////////////////////////////////
 // Global to modulde
 //////////////////////////////////////////////////////////////////
@@ -79,20 +81,18 @@ static int InterfacePaletteBitmap = -1; // PCX file that holds the interface pal
 color Icon_colors[NUM_ICON_FRAMES];
 shader Icon_shaders[NUM_ICON_FRAMES];
 
-loadout_data Player_loadout;	// what the ship and weapon loadout is... used since we want to use the 
-								// same loadout if the mission is played again
-
-//wss_unit	Wss_slots[MAX_WSS_SLOTS];				// slot data struct
 //int		Wl_pool[MAX_WEAPON_TYPES];				// weapon pool 
 //int		Ss_pool[MAX_SHIP_CLASSES];				// ship pool
 //int		Wss_num_wings;								// number of player wings
 
-wss_unit	Wss_slots_teams[MAX_TVT_TEAMS][MAX_WSS_SLOTS];
+
+
+
+loadout_slot	Wss_slots_teams[MAX_TVT_TEAMS][MAX_WSS_SLOTS];
 int		Wl_pool_teams[MAX_TVT_TEAMS][MAX_WEAPON_TYPES];
 int		Ss_pool_teams[MAX_TVT_TEAMS][MAX_SHIP_CLASSES];
 int		Wss_num_wings_teams[MAX_TVT_TEAMS];
 
-wss_unit	*Wss_slots = NULL;
 int		*Wl_pool = NULL;
 int		*Ss_pool = NULL;
 int		Wss_num_wings;
@@ -178,17 +178,12 @@ brief_common_buttons Common_buttons[3][GR_NUM_RESOLUTIONS][NUM_COMMON_BUTTONS] =
 int Background_playing;			// Flag to indicate background animation is playing
 static anim *Background_anim;	// Ids for the anim data that is loaded
 
-// value for which Team_data entry to use
-int	Common_team;
 
 // Ids for the instance of the anim that is playing
 //static anim_instance *Background_anim_instance;
 
 int Wing_slot_empty_bitmap;
 int Wing_slot_disabled_bitmap;
-
-// prototypes
-int wss_slots_all_empty();
 
 // Display the no ships selected error
 void common_show_no_ship_error()
@@ -490,30 +485,13 @@ int common_flash_bright()
 	return Flash_bright;
 }
 
+
 // set the necessary pointers
 void common_set_team_pointers(int team)
 {
-	Assert( (team >= 0) && (team < MAX_TVT_TEAMS) );
-
-	Wss_slots = Wss_slots_teams[team];
-	Ss_pool = Ss_pool_teams[team];
-	Wl_pool = Wl_pool_teams[team];
 
 	ss_set_team_pointers(team);
 	wl_set_team_pointers(team);
-}
-
-// reset the necessary pointers to defaults
-void common_reset_team_pointers()
-{
-	ss_reset_team_pointers();
-	wl_reset_team_pointers();
-
-	// these are done last so that we can make use of the Assert()'s in the above
-	// functions to make sure the screens are exited and this is safe
-	Wss_slots = NULL;
-	Ss_pool = NULL;
-	Wl_pool = NULL;
 }
 
 // common_select_init() will load in animations and bitmaps that are common to the 
@@ -539,8 +517,6 @@ void common_select_init(bool API_Access)
 
 	// load in the icons for the wing slots
 	load_wing_icons(NOX("iconwing01"));
-
-	Current_screen = Next_screen = ON_BRIEFING_SELECT;
 	
 	Commit_pressed = 0;
 
@@ -551,14 +527,6 @@ void common_select_init(bool API_Access)
 	if(!(Game_mode & GM_MULTIPLAYER)){
 		chatbox_close();
 	}
-
-	// get the value of the team
-	Common_team = 0;							// assume the first team -- we'll change this value if we need to
-
-	if ( (Game_mode & GM_MULTIPLAYER) && IS_MISSION_MULTI_TEAMS )
-		Common_team = Net_player->p_info.team;
-
-	common_set_team_pointers(Common_team);
 
 	ship_select_common_init(API_Access);	
 	weapon_select_common_init(API_Access);
@@ -727,7 +695,7 @@ int common_select_do(float  /*frametime*/)
 				break;
 
 			case ON_WEAPON_SELECT:
-				if ( !wss_slots_all_empty() ) {
+				if ( !Loadouts.are_all_slots_shipless() ) {
 					gameseq_post_event(GS_EVENT_WEAPON_SELECTION);
 				} else {
 					common_show_no_ship_error();
@@ -789,7 +757,7 @@ void common_button_do(int i)
 
 	case COMMON_WEAPON_BUTTON:
 		if ( Current_screen != ON_WEAPON_SELECT ) {
-			if ( !wss_slots_all_empty() ) {
+			if ( !Loadouts.are_all_slots_shipless() ) {
 				gamesnd_play_iface(InterfaceSounds::SCREEN_MODE_PRESSED);
 				Next_screen = ON_WEAPON_SELECT;
 			} else {
@@ -868,7 +836,7 @@ void common_check_keys(int k)
 			}
 
 			if ( Current_screen != ON_WEAPON_SELECT && !Background_playing ) {
-				if ( !wss_slots_all_empty() ) {
+				if ( !Loadouts.are_all_slots_shipless() ) {
 					Next_screen = ON_WEAPON_SELECT;
 				} else {
 					common_show_no_ship_error();
@@ -900,7 +868,7 @@ void common_check_keys(int k)
 			if ( !Background_playing ) {
 				switch ( Current_screen ) {
 					case ON_BRIEFING_SELECT:
-						if ( !wss_slots_all_empty() ) {
+						if ( !Loadouts.are_all_slots_shipless() ) {
 							Next_screen = ON_WEAPON_SELECT;
 						} else {
 							common_show_no_ship_error();
@@ -936,7 +904,7 @@ void common_check_keys(int k)
 						break;
 
 					case ON_SHIP_SELECT:
-						if ( !wss_slots_all_empty() ) {
+						if ( !Loadouts.are_all_slots_shipless() ) {
 							Next_screen = ON_WEAPON_SELECT;
 						} else {
 							common_show_no_ship_error();
@@ -1010,8 +978,6 @@ void common_select_close()
 
 	common_music_close();
 
-	common_reset_team_pointers();
-
 	Common_select_inited = 0;
 }
 
@@ -1083,142 +1049,29 @@ void common_fire_stage_script_hook(int old_stage, int new_stage)
 // NEWSTUFF BEGIN
 
 // save ship selection loadout to the Player_loadout struct
-void wss_save_loadout()
+void loadouts_save_player_choices_campaign()
 {
-	int i,j;
+	Player_loadout.unit_data.clear();
 
-	Assert( (Ss_pool != NULL) && (Wl_pool != NULL) && (Wss_slots != NULL) );
+	int size = Loadouts.get_number_of_slots();
 
-	// save the ship pool
-	for ( i = 0; i < MAX_SHIP_CLASSES; i++ ) {
-		Player_loadout.ship_pool[i] = Ss_pool[i]; 
-	}
-
-	// save the weapons pool
-	for ( i = 0; i < MAX_WEAPON_TYPES; i++ ) {
-		Player_loadout.weapon_pool[i] = Wl_pool[i]; 
-	}
+	loadout_slot temp;
 
 	// save the ship class / weapons for each slot
-	for ( i = 0; i < MAX_WSS_SLOTS; i++ ) {
-		Player_loadout.unit_data[i].ship_class = Wss_slots[i].ship_class;
+	for (int i = 0; i < size; ++i ) {
+		
+		temp.ship_class = Loadouts.get_ship_class(i);
 
-		for ( j = 0; j < MAX_SHIP_WEAPONS; j++ ) {
-			Player_loadout.unit_data[i].wep[j] = Wss_slots[i].wep[j];
-			Player_loadout.unit_data[i].wep_count[j] = Wss_slots[i].wep_count[j];
+		for (int j = 0; j < MAX_SHIP_PRIMARY_BANKS; ++j ) {
+			temp.primaries[j] = Loadouts.get_weapon(i, j, true);
 		}
-	}
-}
 
-// restore ship/weapons loadout from the Player_loadout struct
-void wss_maybe_restore_loadout()
-{
-	int i,j;
-	wss_unit	*slot;
-
-	Assert( (Ss_pool != NULL) && (Wl_pool != NULL) && (Wss_slots != NULL) );
-
-	// only restore if mission hasn't changed
-	if ( stricmp(Player_loadout.last_modified, The_mission.modified) != 0 ) {
-		return;
-	}
-
-	// first we generate a pool of ships and weapons used the last time this mission was played. We also generate a pool of what is 
-	// available in this mission.
-	int	last_loadout_ships[MAX_SHIP_CLASSES];
-	int	this_loadout_ships[MAX_SHIP_CLASSES];
-
-	int	last_loadout_weapons[MAX_WEAPON_TYPES];
-	int	this_loadout_weapons[MAX_WEAPON_TYPES];
-
-	// zero all pools
-	for (i = 0; i < MAX_SHIP_CLASSES; i++) {
-		last_loadout_ships[i] = 0; 
-		this_loadout_ships[i] = 0; 
-	}
-	for (i = 0; i < MAX_WEAPON_TYPES; i++) {
-		last_loadout_weapons[i] = 0; 
-		this_loadout_weapons[i] = 0; 
-	}
-
-	// record the ship classes / weapons used last time
-	for ( i = 0; i < MAX_WSS_SLOTS; i++ ) {
-		slot = &Player_loadout.unit_data[i];
-		if ((slot->ship_class >= 0) && (slot->ship_class < ship_info_size())) {
-			++last_loadout_ships[slot->ship_class];
-
-			for ( j = 0; j < MAX_SHIP_WEAPONS; j++ ) {
-				if ((slot->wep[j] >= 0) && (slot->wep[j] < weapon_info_size())) {
-					last_loadout_weapons[slot->wep[j]] += slot->wep_count[j]; 
-				}
-			}
+		for (int j = 0; j < MAX_SHIP_SECONDARY_BANKS; ++j) {
+			temp.secondaries[j] = Loadouts.get_weapon(i, j, false);
+			temp.wep_count[j] = Loadouts.get_weapon_count(i, j);
 		}
-	}
 
-	// record the ships classes / weapons used by the player and wingmen. We don't include the amount in the pools yet
-	for ( i = 0; i < MAX_WSS_SLOTS; i++ ) {
-		if ((Wss_slots[i].ship_class >= 0) && (Wss_slots[i].ship_class < ship_info_size())) {
-			++this_loadout_ships[Wss_slots[i].ship_class];
-
-			for ( j = 0; j < MAX_SHIP_WEAPONS; j++ ) {
-				if ((Wss_slots[i].wep[j] >= 0) && (Wss_slots[i].wep[j] < weapon_info_size())) {
-					this_loadout_weapons[Wss_slots[i].wep[j]] += Wss_slots[i].wep_count[j];
-				}
-			}
-		}
-	}
-
-	// now compare the two, adding in what was left in the pools. If there are less of a ship or weapon class in the mission now
-	// than there were last time, we can't restore and must abort.
-	for (i = 0; i < ship_info_size(); i++) {
-		if (Ss_pool[i] >= 1) {
-			this_loadout_ships[i] += Ss_pool[i];
-		}
-		if ( this_loadout_ships[i] < last_loadout_ships[i]) {
-			return; 
-		}
-	}
-	
-	for (i = 0; i < weapon_info_size(); i++) {
-		if (Wl_pool[i] >= 1) {
-			this_loadout_weapons[i] += Wl_pool[i];
-		}
-		if ( this_loadout_weapons[i] < last_loadout_weapons[i]) {
-			return; 
-		}
-	}
-
-	// go through the slots and restore the previous runthrough's loadout. Also remove that ship from total of ships in this mission
-	for ( i = 0; i < MAX_WSS_SLOTS; i++ ) {
-		slot = &Player_loadout.unit_data[i];
-
-		if ((slot->ship_class >= 0) && (slot->ship_class < ship_info_size())) {
-			--this_loadout_ships[slot->ship_class];
-			Assertion((this_loadout_ships[slot->ship_class] >= 0), "Attempting to restore the previous missions loadout has resulted in an invalid number of ships available");
-
-		}
-		// restore the ship class for each slot
-		Wss_slots[i].ship_class = slot->ship_class;
-
-		for ( j = 0; j < MAX_SHIP_WEAPONS; j++ ) {
-			if ((slot->ship_class >= 0) && (slot->wep[j] >= 0) && (slot->wep[j] < weapon_info_size())) {
-				this_loadout_weapons[slot->wep[j]] -= slot->wep_count[j];
-				Assertion((this_loadout_weapons[slot->wep[j]] >= 0), "Attempting to restore the previous missions loadout has resulted in an invalid number of weapons available");
-			}
-
-			Wss_slots[i].wep[j]= slot->wep[j];
-			Wss_slots[i].wep_count[j] = slot->wep_count[j];
-		}
-	}	
-
-	// restore the ship pool
-	for ( i = 0; i < ship_info_size(); i++ ) {
-		Ss_pool[i] = this_loadout_ships[i]; 
-	}
-
-	// restore the weapons pool
-	for ( i = 0; i < weapon_info_size(); i++ ) {
-		Wl_pool[i] = this_loadout_weapons[i]; 
+		Player_loadout.unit_data.push_back(temp);
 	}
 }
 
@@ -1227,7 +1080,6 @@ void wss_direct_restore_loadout()
 {
 	int				i, j;
 	wing				*wp;
-	wss_unit			*slot;
 
 	// only restore if mission hasn't changed
 	if ( stricmp(Player_loadout.last_modified, The_mission.modified) != 0 ) {
@@ -1258,7 +1110,7 @@ void wss_direct_restore_loadout()
 						Warning(LOCATION, "Starting Wing '%s' has more than 'MAX_WING_SLOTS' ships\n", Starting_wing_names[i]);
 						break;
 					}
-					slot = &Player_loadout.unit_data[valid_wing_index*MAX_WING_SLOTS+j];
+					int slot = valid_wing_index * MAX_WING_SLOTS + j;
 					p_objp->ship_class = slot->ship_class;
 					wl_update_parse_object_weapons(p_objp, slot);
 					j++;
@@ -1279,21 +1131,24 @@ void wss_direct_restore_loadout()
 					continue;
 				}
 
-				slot = &Player_loadout.unit_data[valid_wing_index*MAX_WING_SLOTS+j];
+				slot = valid_wing_index * MAX_WING_SLOTS + j;
 				shipp = &Ships[wp->ship_index[j]];
-				if ( shipp->ship_info_index != slot->ship_class ) {
 
-					if ( slot->ship_class == -1 ) {
+				int ship_class = Loadouts.get_ship_class(slot);
+
+				if ( shipp->ship_info_index != ship_class ) {
+
+					if ( ship_class == -1 ) {
 						cleanup_ship_index[j] = wp->ship_index[j];
 						ship_add_exited_ship( shipp, Ship::Exit_Flags::Player_deleted );
 						obj_delete(shipp->objnum);
 						hud_set_wingman_status_none( shipp->wing_status_wing_index, shipp->wing_status_wing_pos);
 						continue;
 					} else {
-						change_ship_type(wp->ship_index[j], slot->ship_class);
+						change_ship_type(wp->ship_index[j], ship_class);
 					}
 				}
-				wl_bash_ship_weapons(&Ships[wp->ship_index[j]].weapons, slot);
+				wl_bash_ship_weapons(&Ships[wp->ship_index[j]].weapons, ship_class);
 			}
 
 			for ( k = 0; k < MAX_WING_SLOTS; k++ ) {
@@ -1305,64 +1160,44 @@ void wss_direct_restore_loadout()
 		}
 	} // end for 
 }
-int wss_slots_all_empty()
-{
-	int i;
-
-	Assert( Wss_slots != NULL );
-
-	for ( i = 0; i < MAX_WSS_SLOTS; i++ ) {
-		if ( Wss_slots[i].ship_class >= 0 ) 
-			break;
-	}
-
-	if ( i == MAX_WSS_SLOTS )
-		return 1;
-	else
-		return 0;
-}
 
 // determine the mode (WSS_...) based on slot/list index values
 int wss_get_mode(int from_slot, int from_list, int to_slot, int to_list, int wl_ship_slot)
 {
-	int mode, to_slot_empty=0;
-
-	Assert( Wss_slots != NULL );
+	bool to_slot_empty = false;
 
 	if ( wl_ship_slot >= 0 ) {
 		// weapons loadout
 		if ( to_slot >= 0 ) {
-			if ( Wss_slots[wl_ship_slot].wep_count[to_slot] == 0 ) {
-				to_slot_empty = 1;
+			if ( Loadouts.get_weapon_count(wl_ship_slot, to_slot) == 0 ) {
+				to_slot_empty = true;
 			}
 		}
 	} else {
 		// ship select
 		if ( to_slot >= 0 ) {
-			if ( Wss_slots[to_slot].ship_class == -1 ){
-				to_slot_empty = 1;
+			if ( Loadouts.get_ship_class(to_slot) == -1 ){
+				to_slot_empty = true;
 			}
 		}
 	}
 
-	// determine mode
+	// return mode
 	if ( from_slot >= 0 && to_slot >= 0 ) {
-		mode = WSS_SWAP_SLOT_SLOT;
+		return WSS_SWAP_SLOT_SLOT;
 	} else if ( from_slot >= 0 && to_list >= 0 ) {
-		mode = WSS_DUMP_TO_LIST;
+		return WSS_DUMP_TO_LIST;
 	} else if ( (from_list >= 0) && (to_slot >= 0) && (to_slot_empty) ) {
-		mode = WSS_GRAB_FROM_LIST;
+		return WSS_GRAB_FROM_LIST;
 	} else if ( (from_list >= 0) && (to_slot >= 0) && (!to_slot_empty) ) {
-		mode = WSS_SWAP_LIST_SLOT;
-	} else {
-		mode = -1;	// no changes required
+		return WSS_SWAP_LIST_SLOT;
 	}
 
-	return mode;
+	return -1;	// no changes required
 }
 
-// store all the unit data and pool data 
-int store_wss_data(ubyte *data, __UNUSED const unsigned int max_size, interface_snd_id sound, int player_index)
+// store all the unit data and pool data for a multi packet
+int multi_pack_loadout_data(ubyte *data, __UNUSED const unsigned int max_size, interface_snd_id sound, int player_index)
 {
 	int j, i, packet_size = 0;
 	ubyte val;
@@ -1372,7 +1207,7 @@ int store_wss_data(ubyte *data, __UNUSED const unsigned int max_size, interface_
 	// this function assumes that the data is going to be used over the network
 	// so make a non-network version of this function if needed
 	Assert( Game_mode & GM_MULTIPLAYER );
-	Assert( (Ss_pool != NULL) && (Wl_pool != NULL) && (Wss_slots != NULL) );
+	Assert( (Ss_pool != NULL) && (Wl_pool != NULL) );
 
 	if ( !(Game_mode & GM_MULTIPLAYER) )
 		return 0;
@@ -1424,13 +1259,20 @@ int store_wss_data(ubyte *data, __UNUSED const unsigned int max_size, interface_
 	Assertion((((sizeof(short) + ((sizeof(short)+sizeof(short)) * MAX_SHIP_WEAPONS)) * MAX_WSS_SLOTS) + packet_size) < max_size, "Size of wss data exceeds max data size!");
 
 	for (i = 0; i < MAX_WSS_SLOTS; i++) {
-		ADD_SHORT(static_cast<short>(Wss_slots[i].ship_class));
+		ADD_SHORT(static_cast<short>(Loadouts.get_ship_class(i)));
 
-		for (j = 0; j < MAX_SHIP_WEAPONS; j++) {
-			ADD_SHORT(static_cast<short>(Wss_slots[i].wep[j]));
-			Assert(Wss_slots[i].wep_count[j] < SHRT_MAX);
-			ADD_SHORT(static_cast<short>(Wss_slots[i].wep_count[j]));
+		for (j = 0; j < MAX_SHIP_PRIMARY_BANKS; j++) {
+			ADD_SHORT(static_cast<short>(Loadouts.get_weapon(i,j, true)));
+			// this is needed for compatibility.
+			ADD_SHORT(static_cast<short>(1));
 		}
+
+		for (j = 0; j < MAX_SHIP_SECONDARY_BANKS; j++) {
+			ADD_SHORT(static_cast<short>(Loadouts.get_weapon(i,j, false)));
+			Assert(Loadouts.get_weapon_count(i, j) < SHRT_MAX);
+			ADD_SHORT(static_cast<short>(Loadouts.get_weapon_count(i, j)));
+		}
+
 	}
 
 	// any sound index
@@ -1449,7 +1291,7 @@ int store_wss_data(ubyte *data, __UNUSED const unsigned int max_size, interface_
 	return packet_size;
 }
 
-int restore_wss_data(ubyte *data)
+int multi_unpack_loadout_data(ubyte *data)
 {
 	int	i, j, offset = 0;
 	ubyte num_slots, num_weapons;
@@ -1460,7 +1302,7 @@ int restore_wss_data(ubyte *data)
 	// this function assumes that the data is going to be used over the network
 	// so make a non-network version of this function if needed
 	Assert( Game_mode & GM_MULTIPLAYER );
-	Assert( (Ss_pool != NULL) && (Wl_pool != NULL) && (Wss_slots != NULL) );
+	Assert( (Ss_pool != NULL) && (Wl_pool != NULL) );
 
 	if ( !(Game_mode & GM_MULTIPLAYER) )
 		return 0;
@@ -1493,14 +1335,7 @@ int restore_wss_data(ubyte *data)
 
 
 	// restore unit data
-	for (i = 0; i < MAX_WSS_SLOTS; i++) {
-		Wss_slots[i].ship_class = -1;
-
-		for (j = 0; j < MAX_SHIP_WEAPONS; j++) {
-			Wss_slots[i].wep[j] = -1;
-			Wss_slots[i].wep_count[j] = 0;
-		}
-	}
+	Loadouts.reset_all_slots(i);
 
 	GET_DATA(num_slots);
 	GET_DATA(num_weapons);
@@ -1509,17 +1344,21 @@ int restore_wss_data(ubyte *data)
 		GET_SHORT(b1);
 
 		if (i < MAX_WSS_SLOTS) {
-			Wss_slots[i].ship_class = b1;
+			Loadouts.set_ship_class(i, b1);
 		}
 
 		for (j = 0; j < num_weapons; j++) {
 			GET_SHORT(b1);
 			GET_SHORT(b2);
 
-			if ( (i < MAX_WSS_SLOTS) && (j < MAX_SHIP_WEAPONS) ) {
-				Wss_slots[i].wep[j] = b1;
-				Wss_slots[i].wep_count[j] = b2;
-			}
+			if ( (i < MAX_WSS_SLOTS) ) {
+				if ((j < MAX_SHIP_PRIMARY_BANKS)) {
+					Loadouts.set_weapon(i, j, b1, true);
+				} else if (j < MAX_SHIP_SECONDARY_BANKS){
+					Loadouts.set_weapon(i, j - MAX_SHIP_PRIMARY_BANKS, b1, false);
+					Loadouts.set_weapon_count(i, j - MAX_SHIP_PRIMARY_BANKS, b2);
+				}
+			} 
 		}
 	}
 

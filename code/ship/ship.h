@@ -695,7 +695,7 @@ public:
 	uint	create_time;						// time ship was created, set by gettime()
 
 	// keep multiplayer specific stuff below this point	
-	int	ts_index;							// index into the team select and Wss_slots array (or -1 if not in one of those arrays)
+	int	ts_index;							// index into the team select and Loadout manager (or -1 if not in one of those arrays)
 
 	int	large_ship_blowup_index;			// -1 if not a large ship exploding, else this is an index used by the shipfx large ship exploding code.
 	std::array<sound_handle, NUM_SUB_EXPL_HANDLES> sub_expl_sound_handle;

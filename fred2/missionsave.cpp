@@ -3947,10 +3947,10 @@ int CFred_mission_save::save_players()
 		int num_dogfight_weapons = 0;
 		SCP_vector<SCP_string> dogfight_ships;
 
-		for (j = 0; j < Team_data[i].num_ship_choices; j++) {
+		for (auto& ship : Team_data[i].ship_list) {
 			// Check to see if a variable name should be written for the class rather than a number
-			if (strlen(Team_data[i].ship_list_variables[j])) {
-				var_idx = get_index_sexp_variable_name(Team_data[i].ship_list_variables[j]);
+			if (strlen(Team_data[i].ship_list_variables[j].second)) {
+				var_idx = get_index_sexp_variable_name(Team_data[i].ship_list_variables[j].second);
 				Assert(var_idx > -1 && var_idx < MAX_SEXP_VARIABLES);
 				wrote_fso_data = true;
 
@@ -3972,8 +3972,8 @@ int CFred_mission_save::save_players()
 
 			// Check the weapons pool for at least one dogfight weapon for this ship type
 			if (IS_MISSION_MULTI_DOGFIGHT) {
-				for (int wepCount = 0; wepCount < Team_data[i].num_weapon_choices; wepCount++) {
-					if (Ship_info[Team_data[i].ship_list[j]].allowed_weapons[Team_data[i].weaponry_pool[wepCount]] & DOGFIGHT_WEAPON) {
+				for (auto& wep : Team_data[i].weapon_pool) {
+					if (Ship_info[Team_data[i].ship_list[j]].allowed_weapons[wep.index] & DOGFIGHT_WEAPON) {
 						num_dogfight_weapons++;
 						break;
 					} else {
@@ -4006,33 +4006,33 @@ int CFred_mission_save::save_players()
 		fout(" (\n");
 		generate_weaponry_usage_list(i, used_pool);
 
-		for (j = 0; j < Team_data[i].num_weapon_choices; j++) {
+		for (auto& wep : Team_data[i].weapon_pool) {
 			// first output the weapon name or a variable that sets it 
-			if (strlen(Team_data[i].weaponry_pool_variable[j])) {
-				var_idx = get_index_sexp_variable_name(Team_data[i].weaponry_pool_variable[j]);
+			if (!wep.pool_variable.empty()) {
+				var_idx = get_index_sexp_variable_name(wep.pool_variable);
 				Assert(var_idx > -1 && var_idx < MAX_SEXP_VARIABLES);
 				wrote_fso_data = true;
 
 				fout("\t@%s\t", Sexp_variables[var_idx].variable_name);
 			} else {
-				fout("\t\"%s\"\t", Weapon_info[Team_data[i].weaponry_pool[j]].name);
+				fout("\t\"%s\"\t", Weapon_info[wep.index].name);
 			}
 
 			// now output the amount of this weapon or a variable that sets it. If this weapon is in the used pool and isn't
 			// set by a variable we should add the amount of weapons used by the wings to it and zero the entry so we know 
 			// that we have dealt with it
-			if (strlen(Team_data[i].weaponry_amount_variable[j])) {
-				var_idx = get_index_sexp_variable_name(Team_data[i].weaponry_amount_variable[j]);
+			if (!wep.amount_variable.empty()) {
+				var_idx = get_index_sexp_variable_name(wep.amount_variable);
 				Assert(var_idx > -1 && var_idx < MAX_SEXP_VARIABLES);
 				wrote_fso_data = true;
 
 				fout("@%s\n", Sexp_variables[var_idx].variable_name);
 			} else {
-				if (strlen(Team_data[i].weaponry_pool_variable[j])) {
-					fout("%d\n", Team_data[i].weaponry_count[j]);
+				if (!wep.pool_variable.empty()) {
+					fout("%d\n", wep.count);
 				} else {
-					fout("%d\n", Team_data[i].weaponry_count[j] + used_pool[Team_data[i].weaponry_pool[j]]);
-					used_pool[Team_data[i].weaponry_pool[j]] = 0;
+					fout("%d\n", wep.count + used_pool[wep.index]);
+					used_pool[wep.index] = 0;
 				}
 			}
 		}

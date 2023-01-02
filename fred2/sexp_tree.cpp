@@ -7531,21 +7531,24 @@ int sexp_tree::get_loadout_variable_count(int var_index)
 	int count = 0; 
 
 	for (int i=0; i < MAX_TVT_TEAMS; i++) {
-		for(idx=0; idx<Team_data[i].num_ship_choices; idx++) {
-			if (!strcmp(Team_data[i].ship_list_variables[idx], Sexp_variables[var_index].variable_name)) {
+		for (auto& item : Team_data[i].ship_list_variables) {
+			if (!strcmp(item.second.c_str(), Sexp_variables[var_index].variable_name)) {
 				count++; 
 			}
-
-			if (!strcmp(Team_data[i].ship_count_variables[idx], Sexp_variables[var_index].variable_name)) {
+		}
+		
+		for (auto& item : Team_data[i].ship_count_variables){
+			if (!strcmp(item.second.c_str(), Sexp_variables[var_index].variable_name)) {
 				count++;
 			}
 		}
 
-		for (idx=0; idx<Team_data[i].num_weapon_choices; idx++) {
-			if (!strcmp(Team_data[i].weaponry_pool_variable[idx], Sexp_variables[var_index].variable_name)) {
+		for (auto& item : Team_data[i].weapon_pool) {
+			if (!strcmp(item.pool_variable.c_str(), Sexp_variables[var_index].variable_name)) {
 				count++;
 			}
-			if (!strcmp(Team_data[i].weaponry_amount_variable[idx], Sexp_variables[var_index].variable_name)) {
+			
+			if (!strcmp(item.amount_variable.c_str(), Sexp_variables[var_index].variable_name)) {
 				count++;
 			}
 		}

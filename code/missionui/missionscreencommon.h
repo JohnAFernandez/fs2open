@@ -13,6 +13,7 @@
 #define _MISSION_SCREEN_COMMON_HEADER_FILE
 
 #include "globalincs/globals.h"
+#include "mission/mission_loadout.h"
 #include "gamesnd/gamesnd.h"
 #include "model/model.h"
 #include "ui/ui.h"
@@ -52,8 +53,6 @@ extern int Background_playing;
 
 extern int Common_select_inited;
 extern int Current_screen;
-
-extern int Common_team;
 
 extern int Drop_icon_mflag;
 extern int Drop_on_wing_mflag;
@@ -130,51 +129,9 @@ int common_scroll_up_pressed(int *start, int size, int max_show);
 // NEWSTUFF BEGIN
 //////////////////////////////////////////////////////////////////////////////////////
 
-#define MAX_WING_SLOTS	4
-#define MAX_WING_BLOCKS	3
-#define	MAX_WSS_SLOTS	(MAX_WING_BLOCKS*MAX_WING_SLOTS)
-
-#define WING_SLOT_FILLED				(1<<0)
-#define WING_SLOT_EMPTY					(1<<1)
-#define WING_SLOT_IS_PLAYER			(1<<3)
-#define WING_SLOT_LOCKED				(1<<4)
-#define WING_SLOT_SHIPS_DISABLED		(1<<5)
-#define WING_SLOT_WEAPONS_DISABLED		(1<<6)
-
-#define WING_SLOT_DISABLED			(WING_SLOT_SHIPS_DISABLED|WING_SLOT_WEAPONS_DISABLED)
-#define WING_SLOT_IGNORE_SHIPS		(WING_SLOT_SHIPS_DISABLED|WING_SLOT_LOCKED)
-#define WING_SLOT_IGNORE_WEAPONS	(WING_SLOT_WEAPONS_DISABLED|WING_SLOT_LOCKED)
-
-// different operations used in xx_apply()
-#define WSS_DUMP_TO_LIST		0
-#define WSS_GRAB_FROM_LIST		1
-#define WSS_SWAP_SLOT_SLOT		2
-#define WSS_SWAP_LIST_SLOT		3
-
-// icons
-#define NUM_ICON_FRAMES					6
-#define ICON_FRAME_NORMAL				0
-#define ICON_FRAME_HOT					1
-#define ICON_FRAME_SELECTED			2
-#define ICON_FRAME_PLAYER				3
-#define ICON_FRAME_DISABLED			4
-#define ICON_FRAME_DISABLED_HIGH		5
-
 //Colors
 extern color Icon_colors[NUM_ICON_FRAMES];
 extern shader Icon_shaders[NUM_ICON_FRAMES];
-
-//////////////////////////////////////////////
-// Slots
-//////////////////////////////////////////////
-typedef struct wss_unit {
-	int	ship_class;
-	int	wep[MAX_SHIP_WEAPONS];
-	int	wep_count[MAX_SHIP_WEAPONS];
-} wss_unit;
-
-extern wss_unit Wss_slots_teams[MAX_TVT_TEAMS][MAX_WSS_SLOTS];
-extern wss_unit *Wss_slots;
 
 extern int Wss_num_wings; // number of player wings
 extern int Wss_num_wings_teams[MAX_TVT_TEAMS];
@@ -191,27 +148,15 @@ extern int *Wl_pool;
 extern int Ss_pool_teams[MAX_TVT_TEAMS][MAX_SHIP_CLASSES];
 extern int *Ss_pool;
 
-//////////////////////////////////////////////
-// Saving loadout
-//////////////////////////////////////////////
-typedef struct loadout_data 
-{
-	char				filename[MAX_FILENAME_LEN];				// mission filename
-	char				last_modified[DATE_TIME_LENGTH];	// when mission was last modified
-	wss_unit			unit_data[MAX_WSS_SLOTS];			// ship and weapon data
-	int				weapon_pool[MAX_WEAPON_TYPES];	// available weapons
-	int				ship_pool[MAX_SHIP_CLASSES];			// available ships
-} loadout_data;
 
-extern loadout_data Player_loadout;
 
-void wss_save_loadout();
+void loadouts_save_player_choices_campaign();
 void wss_maybe_restore_loadout();
 void wss_direct_restore_loadout();
 
 int wss_get_mode(int from_slot, int from_list, int to_slot, int to_list, int wl_ship_slot);
-int store_wss_data(ubyte *data, const unsigned int max_size, interface_snd_id sound, int player_index);
-int restore_wss_data(ubyte *data);
+int multi_pack_loadout_data(ubyte *data, const unsigned int max_size, interface_snd_id sound, int player_index);
+int multi_unpack_loadout_data(ubyte *data);
 
 class ship_info;
 void draw_model_icon(int model_id, int flags, float closeup_zoom, int x1, int x2, int y1, int y2, ship_info* sip = NULL, int resize_mode = GR_RESIZE_FULL, const vec3d *closeup_pos = &vmd_zero_vector);

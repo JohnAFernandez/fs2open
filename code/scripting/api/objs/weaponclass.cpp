@@ -935,9 +935,9 @@ ADE_FUNC(isWeaponRequired,
 	if (idx < 0 || idx >= weapon_info_size())
 		return ADE_RETURN_NIL;
 
-	//This could be requested before Common_team has been initialized, so let's check.
+	//This could be requested before _current_team has been , so let's check.
 	if (Common_select_inited) {
-		return ade_set_args(L, "b", Team_data[Common_team].weapon_required[idx]);
+		return ade_set_args(L, "b", Team_data[Loadouts.get_team()].weapon_required[idx]);
 	} else {
 		return ADE_RETURN_NIL;
 	}
