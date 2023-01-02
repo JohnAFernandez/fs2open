@@ -219,7 +219,7 @@ const char *Ai_behavior_names[MAX_AI_BEHAVIORS] = {
 char *Cargo_names[MAX_CARGO];
 char Cargo_names_buf[MAX_CARGO][NAME_LENGTH];
 
-const char *Ship_class_names[MAX_SHIP_CLASSES];		// to be filled in from Ship_info array
+SCP_vector<SCP_string> Ship_class_names[MAX_SHIP_CLASSES];		// to be filled in from Ship_info array
 
 const char *Icon_names[MIN_BRIEF_ICONS] = {
 	"Fighter", "Fighter Wing", "Cargo", "Cargo Wing", "Largeship",
@@ -1461,7 +1461,7 @@ void parse_briefing(mission * /*pm*/, int flags)
 
 				find_and_stuff("$team:", &bi->team, F_NAME, temp_team_names.get(), Iff_info.size(), "team name");
 
-				find_and_stuff("$class:", &bi->ship_class, F_NAME, Ship_class_names, Ship_info.size(), "ship class");
+				find_and_stuff("$class:", &bi->ship_class, F_NAME, Ship_class_names, "ship class");
 				bi->modelnum = -1;
 				bi->model_instance_num = -1;
 
@@ -2810,7 +2810,7 @@ int parse_object(mission *pm, int  /*flag*/, p_object *p_objp)
 		p_objp->flags.set(Mission::Parse_Object_Flags::SF_Has_display_name);
 	}
 
-	find_and_stuff("$Class:", &p_objp->ship_class, F_NAME, Ship_class_names, Ship_info.size(), "ship class");
+	find_and_stuff("$Class:", &p_objp->ship_class, F_NAME, Ship_class_names, "ship class");
 	if (p_objp->ship_class < 0)
 	{
 		if (Fred_running) {
@@ -6453,14 +6453,14 @@ void mission_init(mission *pm)
 // info such as game type, number of players etc.
 bool parse_main(const char *mission_name, int flags)
 {
-	int i;
+	// fill in Ship_class_names array with the names from the ship_info struct
+	Ship_class_names.clear();
+
+	for (auto it = Ship_info.begin(); it != Ship_info.end(); ++it)
+		Ship_class_names.emplace_back(it->name);
+
 	bool rval;
 
-	// fill in Ship_class_names array with the names from the ship_info struct
-	i = 0;
-	for (auto it = Ship_info.begin(); it != Ship_info.end(); i++, ++it)
-		Ship_class_names[i] = it->name;
-	
 	do {
 		// don't do this for imports
 		if (!(flags & MPF_IMPORT_FSM)) {

@@ -212,7 +212,7 @@ typedef struct path_restriction_t {
 	char path_names[MAX_SHIP_BAY_PATHS][MAX_NAME_LEN];
 } path_restriction_t;
 
-extern const char *Ship_class_names[MAX_SHIP_CLASSES];
+extern SCP_vector<const char *>Ship_class_names;
 extern const char *Ai_behavior_names[MAX_AI_BEHAVIORS];
 extern char *Formation_names[MAX_FORMATION_NAMES];
 extern const char *Status_desc_names[MAX_STATUS_NAMES];

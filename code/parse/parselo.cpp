@@ -3159,6 +3159,21 @@ int string_lookup(const char *str1, const char* const *strlist, size_t max, cons
 	return -1;
 }
 
+// Overload for SCP_vector and dynamic arrays.
+int string_lookup(const char* str1, const SCP_vector<SCP_string>& strlist, const char* description = nullptr, bool say_errors = false)
+{
+	for (auto& str : strlist)
+	{
+		if (!stricmp(str1, str.c_str()))
+			return (int)i;
+	}
+
+	if (say_errors)
+		error_display(0, "Unable to find [%s] in %s list.\n", str1, description);
+
+	return -1;
+}
+
 //	Find a required string (*id), then stuff the text of type f_type that
 // follows it at *addr.  *strlist[] contains the strings it should try to
 // match.
@@ -3179,6 +3194,31 @@ void find_and_stuff(const char *id, int *addr, int f_type, const char *strlist[]
 
 		if (idx >= 0)
 			*addr = string_lookup(Ship_info[idx].name, strlist, max, description, 0);
+		else
+			*addr = -1;
+	}
+}
+
+//	Find a required string (*id), then stuff the text of type f_type that
+// follows it at *addr.  *strlist[] contains the strings it should try to
+// match.
+void find_and_stuff(const char *id, int *addr, int f_type, const SCP_vector<SCP_string>& strlist, const char *description)
+{
+	char	token[128];
+	int checking_ship_classes = (stricmp(id, "$class:") == 0);
+
+	// Goober5000 - don't say errors when we're checking classes because 1) we have more checking to do; and 2) we will say a redundant error later
+	required_string(id);
+	stuff_string(token, f_type, sizeof(token));
+	*addr = string_lookup(token, strlist, description, !checking_ship_classes);
+
+	// Goober5000 - handle certain FSPort idiosyncracies with ship classes
+	if (*addr < 0 && checking_ship_classes)
+	{
+		int idx = ship_info_lookup(token);
+
+		if (idx >= 0)
+			*addr = string_lookup(Ship_info[idx].name, strlist, description, 0);
 		else
 			*addr = -1;
 	}
