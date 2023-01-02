@@ -99,7 +99,7 @@ extern int Nmodel_bitmap;
 namespace fso {
 namespace fred {
 	
-Editor::Editor() : currentObject{ -1 }, Shield_sys_teams(Iff_info.size(), 0), Shield_sys_types(MAX_SHIP_CLASSES, 0) {
+Editor::Editor() : currentObject{ -1 }, Shield_sys_teams(Iff_info.size(), 0), Shield_sys_types(Ship_info.size(), 0) {
 	connect(fredApp, &FredApplication::onIdle, this, &Editor::update);
 
 	// When the mission changes we need to update all renderers
@@ -382,9 +382,7 @@ void Editor::clearMission() {
 	Shield_sys_teams.clear();
 	Shield_sys_teams.resize(Iff_info.size(), 0);
 
-	for (int i = 0; i < MAX_SHIP_CLASSES; i++) {
-		Shield_sys_types[i] = 0;
-	}
+	Shield_sys_types.assign(Ship_info.size(), 0);
 
 	setupCurrentObjectIndices(-1);
 

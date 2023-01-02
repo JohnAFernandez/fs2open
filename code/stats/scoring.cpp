@@ -199,9 +199,10 @@ void scoring_struct::init()
 	score = 0;
 	rank = RANK_ENSIGN;
 
-	medal_counts.assign((int)Medals.size(), 0);
+	medal_counts.assign(Medals.size(), 0);
 
-	memset(kills, 0, sizeof(kills));
+	kills.assign(ship_info_size(), 0);
+
 	assists = 0;
 	kill_count = 0;
 	kill_count_ok = 0;
@@ -225,8 +226,8 @@ void scoring_struct::init()
 	m_badge_earned.clear();
 
 	m_score = 0;
-	memset(m_kills, 0, sizeof(m_kills));
-	memset(m_okKills, 0, sizeof(m_okKills));
+	m_kills.assign(ship_info_size(), 0);
+	m_okKills.assign(ship_info_size(), 0);
 	m_kill_count = 0;
 	m_kill_count_ok = 0;
 	m_assists = 0;
@@ -251,7 +252,7 @@ void scoring_struct::assign(const scoring_struct &s)
 
 	medal_counts.assign(s.medal_counts.begin(), s.medal_counts.end());
 
-	memcpy(kills, s.kills, MAX_SHIP_CLASSES * sizeof(int));
+	kills = s.kills;
 	assists = s.assists;
 	kill_count = s.kill_count;
 	kill_count_ok = s.kill_count_ok;
@@ -275,8 +276,8 @@ void scoring_struct::assign(const scoring_struct &s)
 	m_badge_earned = s.m_badge_earned;
 
 	m_score = s.m_score;
-	memcpy(m_kills, s.m_kills, MAX_SHIP_CLASSES * sizeof(int));
-	memcpy(m_okKills, s.m_okKills, MAX_SHIP_CLASSES * sizeof(int));
+	m_kills = s.m_kills;
+	m_okKills = s.m_okKills;
 	m_kill_count = s.m_kill_count;
 	m_kill_count_ok = s.m_kill_count_ok;
 	m_assists = s.m_assists;
@@ -346,8 +347,8 @@ void scoring_level_init( scoring_struct *scp )
 	scp->ms_bonehead_hits=0;
 	scp->m_bonehead_kills=0;
 
-	memset(scp->m_kills, 0, MAX_SHIP_CLASSES * sizeof(int));
-	memset(scp->m_okKills, 0, MAX_SHIP_CLASSES * sizeof(int));
+	scp->m_kills.assign(ship_info_size(), 0);
+	scp->m_okKills.assign(ship_info_size(), 0);
 
 	scp->m_kill_count = 0;
 	scp->m_kill_count_ok = 0;
@@ -475,7 +476,7 @@ void scoring_do_accept(scoring_struct *score)
 	score->s_bonehead_hits += score->ms_bonehead_hits;
 	score->bonehead_kills += score->m_bonehead_kills;
 
-	for(idx=0;idx<MAX_SHIP_CLASSES;idx++){
+	for(idx=0;idx<ship_info_size();idx++){
 		score->kills[idx] = (int)(score->kills[idx] + score->m_okKills[idx]);
 	}
 
@@ -520,7 +521,7 @@ void scoring_backout_accept( scoring_struct *score )
 	score->s_bonehead_hits -= score->ms_bonehead_hits;
 	score->bonehead_kills -= score->m_bonehead_kills;
 
-	for(idx=0;idx<MAX_SHIP_CLASSES;idx++){
+	for(idx=0 ; idx < static_cast<int>(Ship_info.size()) ; idx++){
 		score->kills[idx] = (unsigned short)(score->kills[idx] - score->m_okKills[idx]);
 	}
 

@@ -22,7 +22,7 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 SCP_vector<int> Shield_sys_teams;
-int Shield_sys_types[MAX_SHIP_CLASSES] = {0};
+SCP_vector<int> Shield_sys_types;
 
 /////////////////////////////////////////////////////////////////////////////
 // shield_sys_dlg dialog
@@ -59,13 +59,13 @@ BOOL shield_sys_dlg::OnInitDialog()
 {
 	int i, z;
 	int* teams = new int[Iff_info.size()]();
-	int types[MAX_SHIP_CLASSES];
+	int types[Ship_info.size()];
 	CComboBox *box;
 
 	for (i=0; i< (int)Iff_info.size(); i++)
 		teams[i] = 0;
 
-	for (i=0; i<MAX_SHIP_CLASSES; i++)
+	for (i=0; i<static_class<int>(Ship_info.size()); i++)
 		types[i] = 0;
 
 	for (i=0; i<MAX_SHIPS; i++)

@@ -421,6 +421,10 @@ bool fred_init(std::unique_ptr<os::GraphicsOperations>&& graphicsOps)
 	medals_init();			// get medal names for sexpression usage
 	glowpoint_init();
 	ship_init();
+
+	// Need to init this global after table info is done parsing, since it is now dynamic.
+	Shield_sys_types.assign(Ship_info.size(), 0);
+
 	techroom_intel_init();
 	hud_positions_init();
 	asteroid_init();
@@ -843,9 +847,7 @@ void clear_mission()
 	Shield_sys_teams.clear();
 	Shield_sys_teams.resize(Iff_info.size(), 0);
 
-	for (i=0; i<MAX_SHIP_CLASSES; i++){
-		Shield_sys_types[i] = 0;
-	}
+	Shield_sys_types.assign(Ship_info.size(), 0);
 
 	set_cur_indices(-1);
 
