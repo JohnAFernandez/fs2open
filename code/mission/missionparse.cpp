@@ -6456,8 +6456,6 @@ bool parse_main(const char *mission_name, int flags)
 	int i;
 	bool rval;
 
-	Assert(Ship_info.size() <= MAX_SHIP_CLASSES);
-
 	// fill in Ship_class_names array with the names from the ship_info struct
 	i = 0;
 	for (auto it = Ship_info.begin(); it != Ship_info.end(); i++, ++it)

@@ -75,7 +75,7 @@ void pilotfile::csg_read_info()
 	//       this is not necessarily fatal
 	//
 
-	// ship list (NOTE: may contain more than MAX_SHIP_CLASSES)
+	// ship list (NOTE: may contain more than Ship_info.size())
 	list_size = cfread_int(cfp);
 
 	for (idx = 0; idx < list_size; idx++) {

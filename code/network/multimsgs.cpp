@@ -6575,8 +6575,8 @@ void send_player_stats_block_packet(net_player *pl, int stats_code, net_player *
 	case STATS_ALLTIME:	
 		// alltime kills
 		idx = 0;
-		while (idx < MAX_SHIP_CLASSES) {
-			send_player_stats_block_packet(pl, STATS_ALLTIME_KILLS, target, idx, MAX_SHIP_CLASSES-idx);
+		while (idx < Ship_info.size()) {
+			send_player_stats_block_packet(pl, STATS_ALLTIME_KILLS, target, idx, Ship_info.size()-idx);
 			idx += MAX_SHIPS_PER_PACKET;
 		}
 
@@ -6611,8 +6611,8 @@ void send_player_stats_block_packet(net_player *pl, int stats_code, net_player *
 	case STATS_MISSION:	
 		// mission OKkills	
 		idx = 0;
-		while (idx < MAX_SHIP_CLASSES) {
-			send_player_stats_block_packet(pl, STATS_MISSION_CLASS_KILLS, target, idx, MAX_SHIP_CLASSES-idx);
+		while (idx < Ship_info.size()) {
+			send_player_stats_block_packet(pl, STATS_MISSION_CLASS_KILLS, target, idx, Ship_info.size()-idx);
 			idx += MAX_SHIPS_PER_PACKET;
 		}
 	
@@ -6728,7 +6728,7 @@ void process_player_stats_block_packet(ubyte *data, header *hinfo)
 		for (idx = si_offset; idx < si_offset+si_count; idx++) {
 			GET_INT(i_tmp);
 
-			if (idx < MAX_SHIP_CLASSES) {
+			if (idx < static_cast<int>(Ship_info.size())) {
 				sc->kills[idx] = i_tmp;
 			}
 		}
@@ -6741,7 +6741,7 @@ void process_player_stats_block_packet(ubyte *data, header *hinfo)
 		for (idx = si_offset; idx < si_offset+si_count; idx++) {
 			GET_INT(i_tmp);
 
-			if (idx < MAX_SHIP_CLASSES) {
+			if (idx < static_cast<int>(Ship_info.size())) {
 				sc->m_okKills[idx] = i_tmp;
 			}
 		}
