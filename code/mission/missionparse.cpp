@@ -796,8 +796,6 @@ void parse_player_info2(mission *pm)
 
 	// read in a ship/weapon pool for each team.
 	for ( nt = 0; nt < Num_teams; nt++ ) {
-		int num_choices;
-
 		auto& team = Team_data[nt];
 		// get the shipname for single player missions
 		// MWA -- make this required later!!!!
@@ -904,7 +902,7 @@ void parse_player_info2(mission *pm)
 			int weapon_list_buf[MAX_WEAPON_TYPES];
 			size_t num_weapons = stuff_int_list(weapon_list_buf, MAX_WEAPON_TYPES, WEAPON_LIST_TYPE);
 
-			for (i = 0; i < num_weapons; ++i){
+			for (i = 0; i < static_cast<int>(num_weapons); ++i){
 				for (auto& wep : team.weapon_pool){
 					if (wep.index == weapon_list_buf[i]){
 						wep.required = true;
@@ -3601,7 +3599,8 @@ int get_reassigned_index(team_data *current_team, int ship_class)
 		if (ship_class == current_team->ship_list[i].first)
 		{
 			if (current_team->ship_list[i].second > 0) {
-				return ;
+				// TODO double check that we are supposed to return i here
+				return i;
 			}
 			else {
 				return -1;

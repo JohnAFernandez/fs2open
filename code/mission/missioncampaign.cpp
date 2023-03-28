@@ -689,8 +689,6 @@ int mission_campaign_load(const char* filename, const char* full_path, player* p
  */
 void player_loadout_init()
 {
-	int i = 0, j = 0;
-
 	memset(Player_loadout.filename, 0, sizeof(Player_loadout.filename));
 	memset(Player_loadout.last_modified, 0, sizeof(Player_loadout.last_modified));
 

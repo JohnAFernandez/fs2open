@@ -63,10 +63,19 @@ LabManager::LabManager() {
 	team.default_ship = 0;
 	team.weapon_pool.clear();	
 
+	// to facillitate emplace_back()
+	weapon_pool_info default_info;
+	default_info.count = 640;
+	default_info.amount_variable = "";
+	default_info.pool_variable = "";
+	default_info.required = false;
+
 	// you want guns? you get guns.
 	for (size_t i = 0; i < Weapon_info.size(); ++i) {
-		team.weapon_pool.emplace_back(static_cast<int>(i), 640, false, "", "");
+		default_info.index = static_cast<int>(i);
+		team.weapon_pool.emplace_back(default_info);
 	}
+	
 
 	Game_mode |= GM_LAB;
 

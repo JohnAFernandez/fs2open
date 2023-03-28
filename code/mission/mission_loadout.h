@@ -41,7 +41,7 @@
 //////////////////////////////////////////////
 
 // What??? You're telling me we can have all the info for a loadout slot in one place????
-// Yes, Volition we can
+// Yes, Volition, we can
 typedef struct loadout_slot {
 	// from the old ss_slot_info struct
 	int status;   // slot status (WING_SLOT_DISABLED, etc)

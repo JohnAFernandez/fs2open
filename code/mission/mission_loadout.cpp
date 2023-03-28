@@ -128,7 +128,7 @@ void loadout_manager::set_ship_class(int slot_index, int ship_class)
 void loadout_manager::set_weapon(int slot_index, int bank_index, int weapon, bool primary)
 {
 	Assert(slot_index > -1 && slot_index < static_cast<int>(_slots[_current_team].size()));
-	Assert(bank_index > -1 && bank_index < (primary) ? MAX_SHIP_PRIMARY_BANKS : MAX_SHIP_SECONDARY_BANKS);
+	Assert(bank_index > -1 && bank_index < ((primary) ? MAX_SHIP_PRIMARY_BANKS : MAX_SHIP_SECONDARY_BANKS));
 	Assert(weapon > -2 && weapon < weapon_info_size()); // negative 2 intentional, since -1 means empty.
 
 	if (primary)
@@ -228,7 +228,7 @@ bool loadout_manager::is_bank_filled(int slot_index, int bank_index, bool primar
 	
 	if (primary) {
 		Assert(bank_index > -1 && bank_index < MAX_SHIP_PRIMARY_BANKS);
-		_slots[_current_team][slot_index].primaries[bank_index] > -1;
+		return _slots[_current_team][slot_index].primaries[bank_index] > -1;
 	} else {
 		Assert(bank_index > -1 && bank_index < MAX_SHIP_SECONDARY_BANKS);
 		return (_slots[_current_team][slot_index].secondaries[bank_index] > -1) && (_slots[_current_team][slot_index].wep_count[bank_index] > 0);
@@ -271,9 +271,9 @@ bool loadout_manager::are_all_slots_shipless()
 // TODO: FINISH ME!
 void loadout_manager::apply_default_weapons(int slot_index)
 {
-	Assert(_current_team > -1 && slot_index < static_cast<int>(_slots[_current_team].size()));
+//	Assert(_current_team > -1 && slot_index < static_cast<int>(_slots[_current_team].size()));
 
-	int ship_class = _slots[_current_team][slot_index].ship_class;
+//	int ship_class = _slots[_current_team][slot_index].ship_class;
 
 	
 }
@@ -287,8 +287,8 @@ const loadout_slot* loadout_manager::get_slot(int index)
 void loadout_manager::swap_weapon_slots(int slot_index, int bank_a, int bank_b, bool primary)
 {
 	Assert(slot_index > -1 && slot_index < static_cast<int>(_slots[_current_team].size()));
-	Assert(bank_a > -1 && bank_a < (primary) ? MAX_SHIP_PRIMARY_BANKS : MAX_SHIP_SECONDARY_BANKS);
-	Assert(bank_b > -1 && bank_b < (primary) ? MAX_SHIP_PRIMARY_BANKS : MAX_SHIP_SECONDARY_BANKS);
+	Assert(bank_a > -1 && bank_a < ((primary) ? MAX_SHIP_PRIMARY_BANKS : MAX_SHIP_SECONDARY_BANKS));
+	Assert(bank_b > -1 && bank_b < ((primary) ? MAX_SHIP_PRIMARY_BANKS : MAX_SHIP_SECONDARY_BANKS));
 
 	auto& slot = _slots[_current_team][slot_index];
 
@@ -343,8 +343,6 @@ int loadout_manager::team_get_wing_count(int team)
 
 void loadout_manager::reset_ship_pool(team_data *pteam)
 {
-	int i;
-
 	_ship_pool.clear();
 
 	// set number of available ships based on counts in team_data
@@ -374,7 +372,6 @@ int loadout_manager::get_slot_via_wing_and_ship(int wing, int ship)
 	SCP_unordered_set<int> found;
 	int wing_count = -1;
 	int slot_index = -1;
-	int wing_index = 0;
 
 	for (auto& slot : _slots[_current_team]){
 		++slot_index;
@@ -478,16 +475,13 @@ void loadout_manager::clear_loaded_slots() { _loaded_slots.clear(); };
 // restore ship/weapons loadout from the Player_loadout struct
 void loadout_manager::maybe_restore_loadout()
 {
-	int i,j;
-	loadout_slot	*slot;
-
 	// only restore if mission hasn't changed
 	if ( stricmp(Player_loadout.last_modified, The_mission.modified) != 0 ) {
 		return;
 	}
 
 	SCP_unordered_map<int, int> ships_available; std::copy(_ship_pool[_current_team].begin(), _ship_pool[_current_team].end(), ships_available);
-	SCP_unordered_map<int, int> weapons_available = std::copy(_weapon_pool[_current_team].begin(), _weapon_pool[_current_team].end(), weapons_available);
+	SCP_unordered_map<int, int> weapons_available; std::copy(_weapon_pool[_current_team].begin(), _weapon_pool[_current_team].end(), weapons_available);
 	SCP_unordered_map<int, int> ships_required_by_load;
 	SCP_unordered_map<int, int> weapons_required_by_load;
 
