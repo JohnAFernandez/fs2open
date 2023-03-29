@@ -1111,7 +1111,7 @@ void wss_direct_restore_loadout()
 						break;
 					}
 					int slot = valid_wing_index * MAX_WING_SLOTS + j;
-					p_objp->ship_class = slot->ship_class;
+					p_objp->ship_class = Loadouts.get_ship_class(slot);
 					wl_update_parse_object_weapons(p_objp, slot);
 					j++;
 				}
@@ -1131,7 +1131,7 @@ void wss_direct_restore_loadout()
 					continue;
 				}
 
-				slot = valid_wing_index * MAX_WING_SLOTS + j;
+				int slot = valid_wing_index * MAX_WING_SLOTS + j;
 				shipp = &Ships[wp->ship_index[j]];
 
 				int ship_class = Loadouts.get_ship_class(slot);

@@ -863,6 +863,9 @@ void parse_player_info2(mission *pm)
 		required_string("+Weaponry Pool:");
 		stuff_loadout_list(list2, MISSION_LOADOUT_WEAPON_LIST);
 
+		
+		weapon_pool_info temp_info;
+
 		// check weapon class loadout entries
 		for (auto &wc : list2) {
 			// in a campaign, see if the player is allowed the weapons or not.  Remove them from the
@@ -882,7 +885,7 @@ void parse_player_info2(mission *pm)
 				continue;
 			}
 
-			team.weapon_pool.emplace_back(wc.index, wc.count, false, "", ""); 
+			team.weapon_pool.emplace_back(temp_info); 
 
 			// if the list isn't set by a variable leave the variable name empty
 			if (wc.index_sexp_var != NOT_SET_BY_SEXP_VARIABLE) {

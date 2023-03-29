@@ -1505,7 +1505,6 @@ void ss_unload_all_icons()
 void draw_ship_icons()
 {
 	int i;
-	ss_active_item	*sai;
 	i = 0;
 	for ( int i = SS_active_classes_start; i < static_cast<int>(SS_active_classes.size()); ++i ) {
 		if ( i - SS_active_classes_start  >= MAX_ICONS_ON_SCREEN )

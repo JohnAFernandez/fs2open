@@ -347,7 +347,7 @@ void loadout_manager::reset_ship_pool(team_data *pteam)
 
 	// set number of available ships based on counts in team_data
 	for (auto& ship : pteam->ship_list) {
-		_ship_pool[_current_team].insert(ship.first, ship.second);
+		_ship_pool[_current_team].insert({ship.first, ship.second});
 	}
 }
 
