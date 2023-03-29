@@ -1335,7 +1335,7 @@ int multi_unpack_loadout_data(ubyte *data)
 
 
 	// restore unit data
-	Loadouts.reset_all_slots(i);
+	Loadouts.team_reset_all_slots(i);
 
 	GET_DATA(num_slots);
 	GET_DATA(num_weapons);

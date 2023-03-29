@@ -65,15 +65,15 @@ extern int	 ShipSelectModelNum;
 
 extern int Ship_select_overlay_id;
 
-typedef struct ss_slot_info {
-} ss_slot_info;
+//typedef struct ss_slot_info {
+//} ss_slot_info;
 
-typedef struct ss_wing_info {
-	int num_slots;
-	int wingnum;
-	int is_late;
-	ss_slot_info ss_slots[MAX_WING_SLOTS];
-} ss_wing_info;
+//typedef struct ss_wing_info {
+//	int num_slots;
+//	int wingnum;
+//	int is_late;
+//	ss_slot_info ss_slots[MAX_WING_SLOTS];
+//} ss_wing_info;
 
 extern ss_wing_info Ss_wings_teams[MAX_TVT_TEAMS][MAX_WING_BLOCKS];
 extern ss_wing_info* Ss_wings;

@@ -278,6 +278,7 @@ void loadout_manager::apply_default_weapons(int slot_index)
 	
 }
 
+// TODO! Safety Checks
 // for retrieving a pointer to a slot for scripting access.
 const loadout_slot* loadout_manager::get_slot(int index)
 {

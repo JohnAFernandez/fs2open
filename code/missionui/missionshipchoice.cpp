@@ -406,8 +406,6 @@ void ss_set_carried_icon(int from_slot, int ship_class)
 // can choose from.
 void init_active_classes()
 {
-	int i;
-
 	// get the active list
 	SS_active_items = Loadouts.get_active_ships();
 }
@@ -510,7 +508,7 @@ void ship_select_button_do(int i)
 			if ( Current_screen != ON_SHIP_SELECT )
 				break;
 
-			if ( common_scroll_down_pressed(&SS_active_classes_start, static_cast<int>(SS_active_classes.size()) , MAX_ICONS_ON_SCREEN) ) {
+			if ( common_scroll_down_pressed(&SS_active_classes_start, static_cast<int>(SS_active_items.size()) , MAX_ICONS_ON_SCREEN) ) {
 				gamesnd_play_iface(InterfaceSounds::SCROLL);
 			} else {
 				gamesnd_play_iface(InterfaceSounds::GENERAL_FAIL);
@@ -521,7 +519,7 @@ void ship_select_button_do(int i)
 			if ( Current_screen != ON_SHIP_SELECT )
 				break;
 
-			if ( common_scroll_up_pressed(&SS_active_classes_start, static_cast<int>(SS_active_classes.size()), MAX_ICONS_ON_SCREEN) ) {
+			if ( common_scroll_up_pressed(&SS_active_classes_start, static_cast<int>(SS_active_items.size()), MAX_ICONS_ON_SCREEN) ) {
 				gamesnd_play_iface(InterfaceSounds::SCROLL);
 			} else {
 				gamesnd_play_iface(InterfaceSounds::GENERAL_FAIL);
@@ -649,15 +647,13 @@ void ship_select_init()
 //
 int ss_get_ship_class_from_list(int index)
 {
-	int				list_entry, count;
-
 	for ( int i = SS_active_classes_start; i < static_cast<int>(SS_active_items.size()); ++i) {
 
 		if ( i - SS_active_classes_start >= MAX_ICONS_ON_SCREEN )
 			break;
 
 		if ( i == index ) {
-			return SS_active_items[i].ship_class;
+			return SS_active_items[i];
 		}
 	}
 
@@ -728,7 +724,7 @@ void maybe_change_selected_wing_ship(int slot)
 //				1 => icon was dropped onto slot
 int do_mouse_over_wing_slot(int block, int slot)
 {
-	Hot_ss_slot = get_slot_via_wing_and_ship(block, slot);
+	Hot_ss_slot = Loadouts.get_slot_via_wing_and_ship(block, slot);
 
 	Assert(Hot_ss_slot > -1);
 
@@ -1260,51 +1256,51 @@ void ship_select_do(float frametime)
 				break;
 
 			case WING_0_SHIP_0:
-				maybe_change_selected_wing_ship(get_slot_via_wing_and_ship(0,0));
+				maybe_change_selected_wing_ship(Loadouts.get_slot_via_wing_and_ship(0,0));
 				break;
 
 			case WING_0_SHIP_1:
-				maybe_change_selected_wing_ship(get_slot_via_wing_and_ship(0,1));
+				maybe_change_selected_wing_ship(Loadouts.get_slot_via_wing_and_ship(0,1));
 				break;
 
 			case WING_0_SHIP_2:
-				maybe_change_selected_wing_ship(get_slot_via_wing_and_ship(0,2));
+				maybe_change_selected_wing_ship(Loadouts.get_slot_via_wing_and_ship(0,2));
 				break;
 
 			case WING_0_SHIP_3:
-				maybe_change_selected_wing_ship(get_slot_via_wing_and_ship(0,3));
+				maybe_change_selected_wing_ship(Loadouts.get_slot_via_wing_and_ship(0,3));
 				break;
 
 			case WING_1_SHIP_0:
-				maybe_change_selected_wing_ship(get_slot_via_wing_and_ship(1,0));
+				maybe_change_selected_wing_ship(Loadouts.get_slot_via_wing_and_ship(1,0));
 				break;
 
 			case WING_1_SHIP_1:
-				maybe_change_selected_wing_ship(get_slot_via_wing_and_ship(1,1));
+				maybe_change_selected_wing_ship(Loadouts.get_slot_via_wing_and_ship(1,1));
 				break;
 
 			case WING_1_SHIP_2:
-				maybe_change_selected_wing_ship(get_slot_via_wing_and_ship(1,2));
+				maybe_change_selected_wing_ship(Loadouts.get_slot_via_wing_and_ship(1,2));
 				break;
 
 			case WING_1_SHIP_3:
-				maybe_change_selected_wing_ship(get_slot_via_wing_and_ship(1,3));
+				maybe_change_selected_wing_ship(Loadouts.get_slot_via_wing_and_ship(1,3));
 				break;
 
 			case WING_2_SHIP_0:
-				maybe_change_selected_wing_ship(get_slot_via_wing_and_ship(2,0));
+				maybe_change_selected_wing_ship(Loadouts.get_slot_via_wing_and_ship(2,0));
 				break;
 
 			case WING_2_SHIP_1:
-				maybe_change_selected_wing_ship(get_slot_via_wing_and_ship(2,1));
+				maybe_change_selected_wing_ship(Loadouts.get_slot_via_wing_and_ship(2,1));
 				break;
 
 			case WING_2_SHIP_2:
-				maybe_change_selected_wing_ship(get_slot_via_wing_and_ship(2,2));
+				maybe_change_selected_wing_ship(Loadouts.get_slot_via_wing_and_ship(2,2));
 				break;
 
 			case WING_2_SHIP_3:
-				maybe_change_selected_wing_ship(get_slot_via_wing_and_ship(2,3));
+				maybe_change_selected_wing_ship(Loadouts.get_slot_via_wing_and_ship(2,3));
 				break;
 
 			default:
@@ -1504,13 +1500,11 @@ void ss_unload_all_icons()
 //	draw_ship_icons() will request which icons to draw on screen.
 void draw_ship_icons()
 {
-	int i;
-	i = 0;
-	for ( int i = SS_active_classes_start; i < static_cast<int>(SS_active_classes.size()); ++i ) {
+	for ( int i = SS_active_classes_start; i < static_cast<int>(SS_active_items.size()); ++i ) {
 		if ( i - SS_active_classes_start  >= MAX_ICONS_ON_SCREEN )
 			break;
 
-		draw_ship_icon_with_number(i - SS_active_classes_start, SS_active_classes[i]);
+		draw_ship_icon_with_number(i - SS_active_classes_start, SS_active_items[i]);
 	}
 }
 
@@ -1709,15 +1703,24 @@ bool is_weapon_carried(int weapon_index)
 	for (int slot = 0; slot < MAX_WING_BLOCKS*MAX_WING_SLOTS; slot++)
 	{
 		// a ship must exist in this slot
-		if (Loadouts.get_slot(slot) >= 0)
+		// TODO Double check this logic
+		if (Loadouts.get_slot(slot)->in_mission)
 		{
-			for (int bank = 0; bank < MAX_SHIP_WEAPONS; bank++)
-			{
-				// there must be a weapon here
-				if (Loadouts.get_weapon_count(slot, bank) > 0)
+			if (Weapon_info[weapon_index].subtype != WP_MISSILE){
+				for (int bank = 0; bank < MAX_SHIP_PRIMARY_BANKS; ++bank)
 				{
-					if (Loadouts.get_weapon(slot, bank) == weapon_index)
+					if (Loadouts.get_weapon(slot, bank, true) == weapon_index) {
 						return true;
+					}
+				}
+			} else {
+				for (int bank = 0; bank < MAX_SHIP_SECONDARY_BANKS; ++bank){
+					// there must be a weapon here
+					if (Loadouts.get_weapon_count(slot, bank) > 0)
+					{
+						if (Loadouts.get_weapon(slot, bank, false) == weapon_index)
+							return true;
+					}
 				}
 			}
 		}
@@ -3303,8 +3306,14 @@ int ss_grab_from_list(int from_list, int to_slot, interface_snd_id *sound)
 
 	for ( i = 0; i < MAX_SHIP_WEAPONS; i++ )
 	{
-		Loadouts.set_weapon(to_slot, i, wep[i]);
-		Loadouts.set_weapon_count(to_slot, i, wep_count[i]);
+		bool primary = i < MAX_SHIP_PRIMARY_BANKS;
+		
+
+		Loadouts.set_weapon(to_slot, i, wep[i], primary);
+		
+		if (!primary){
+			Loadouts.set_weapon_count(to_slot, i, wep_count[i]);
+		}
 	}
 
 	*sound=InterfaceSounds::ICON_DROP_ON_WING;
