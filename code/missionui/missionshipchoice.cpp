@@ -88,7 +88,6 @@ typedef struct ss_icon_info
 	generic_anim	ss_anim;
 } ss_icon_info;
 
-ss_wing_info	Ss_wings_teams[MAX_TVT_TEAMS][MAX_WING_BLOCKS];
 ss_wing_info	*Ss_wings = NULL;
 
 ss_icon_info	Ss_icons_teams[MAX_TVT_TEAMS][MAX_SHIP_CLASSES];
@@ -3079,7 +3078,6 @@ void ss_set_team_pointers(int team)
 {
 	Assert( (team >= 0) && (team < MAX_TVT_TEAMS) );
 
-	Ss_wings = Ss_wings_teams[team];
 	Ss_icons = Ss_icons_teams[team];
 }
 

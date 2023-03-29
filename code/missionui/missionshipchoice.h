@@ -65,7 +65,12 @@ extern int	 ShipSelectModelNum;
 
 extern int Ship_select_overlay_id;
 
+// Old strcts for reference: TODO! Remove when stable.
 //typedef struct ss_slot_info {
+//	int status;   // slot status (WING_SLOT_DISABLED, etc)
+//	int sa_index; // index into ship arrival list, -1 if ship is created
+//	int original_ship_class;
+//	bool in_mission = false;
 //} ss_slot_info;
 
 //typedef struct ss_wing_info {
@@ -75,7 +80,6 @@ extern int Ship_select_overlay_id;
 //	ss_slot_info ss_slots[MAX_WING_SLOTS];
 //} ss_wing_info;
 
-extern ss_wing_info Ss_wings_teams[MAX_TVT_TEAMS][MAX_WING_BLOCKS];
 extern ss_wing_info* Ss_wings;
 
 void draw_wing_block(int wb_num, int hot_slot, int selected_slot, int class_select, bool ship_selection = true);
