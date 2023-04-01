@@ -92,11 +92,19 @@ class loadout_manager {
 public:
 
 	/////// Functions to manage slot contents
-	// NOTE: To reduce the effort of the refactor, all info will be from the current team unless otherwise specified.
+	// NOTE: To reduce the effort of the refactor, functions work with the current team unless otherwise specified.
+
+	void set_team(int team);
 
 	// get info stored, assumes _current_team is set correctly.
 	int get_team();
 	int get_number_of_slots();
+
+	int get_ship_status(int slot_index);
+	int get_sa_index(int slot_index); // index into ship arrival list, -1 if ship is created
+	int get_original_ship_class(int slot_index);
+	bool is_in_mission(int slot_index);
+	bool is_late(int slot_index);
 
 	int get_ship_class(int slot_index);
 	int get_weapon(int slot_index, int bank_index, bool primary);
@@ -104,11 +112,24 @@ public:
 	int get_wing_index(int slot_index);
 	int get_wing_count();
 
+
 	int team_get_ship_class(int team, int slot_index);
 	int team_get_weapon(int team, int slot_index, int bank_index, bool primary);
 	int team_get_weapon_count(int team, int slot_index, int bank_index);
 	int team_get_wing_index(int team, int slot_index);
 	int team_get_wing_count(int team);
+
+	int team_get_ship_status(int team, int slot_index);
+	int team_get_sa_index(int team, int slot_index);
+	int team_get_original_ship_class(int team, int slot_index);
+	bool team_is_in_mission(int team, int slot_index);
+	bool team_is_late(int team, int slot_index);
+
+	void set_ship_status(int slot_index, int flags);
+	void set_sa_index(int slot_index, int index); 
+	void set_original_ship_class(int slot_index, int ship_class);
+	void set_is_in_mission(int slot_index, bool in_mission);
+	void set_is_late(int slot_index, bool late);
 
 	void set_ship_class(int slot_index, int ship_class);
 	void set_weapon(int slot_index, int bank_index, int weapon, bool primary);
@@ -120,12 +141,17 @@ public:
 	void team_set_weapon_count(int team, int slot_index, int bank_index, int weapon_count);
 	void team_set_wing_index(int team, int slot_index, int wing_index);
 
+	void team_set_ship_status(int team, int slot_index, int flags);
+	void team_set_sa_index(int team, int slot_index, int index); 
+	void team_set_original_ship_class(int team, int slot_index, int ship_class);
+	void team_set_is_in_mission(int team, int slot_index, bool in_mission);
+	void team_set_is_late(int team, int slot_index, bool late);
+
 	// status functions
 	bool is_ship_slot_weaponless(int slot_index);
 	bool is_bank_filled(int slot_index, int bank, bool primary);
 	bool are_all_slots_shipless();
 
-	void set_team(int team);
 	void swap_weapon_slots(int slot_index, int bank_a, int bank_b, bool primary);
 
 	// for scripting access

@@ -1,6 +1,8 @@
 #include "mission/mission_loadout.h"
 #include "globalincs/globals.h"
 
+// TODO! .... all these assertions need messages.  Why did I wait???
+
 // what the ship and weapon loadout is... used since we want to use the 
 // same loadout if the mission is played again
 loadout_data Player_loadout;	
@@ -11,6 +13,42 @@ loadout_manager Loadouts;
 int loadout_manager::get_team() { return _current_team; }
 
 int loadout_manager::get_number_of_slots() { return static_cast<int>(_slots[_current_team].size()); }
+
+int loadout_manager::get_ship_status(int slot_index)
+{
+	Assert(slot_index > -1 && slot_index < static_cast<int>(_slots[_current_team].size()));
+
+	return _slots[_current_team][slot_index].status;
+}
+
+int loadout_manager::get_sa_index(int slot_index)
+{
+	Assert(slot_index > -1 && slot_index < static_cast<int>(_slots[_current_team].size()));
+
+	return _slots[_current_team][slot_index].sa_index;
+}
+
+int loadout_manager::get_original_ship_class(int slot_index)
+{
+	Assert(slot_index > -1 && slot_index < static_cast<int>(_slots[_current_team].size()));
+
+	return _slots[_current_team][slot_index].original_ship_class;
+}
+
+bool loadout_manager::is_in_mission(int slot_index)
+{
+	Assert(slot_index > -1 && slot_index < static_cast<int>(_slots[_current_team].size()));
+
+	return _slots[_current_team][slot_index].in_mission;
+}
+
+bool loadout_manager::is_late(int slot_index)
+{
+	Assert(slot_index > -1 && slot_index < static_cast<int>(_slots[_current_team].size()));
+
+	return _slots[_current_team][slot_index].is_late;
+}
+
 
 int loadout_manager::get_ship_class(int slot_index)
 {
@@ -221,6 +259,77 @@ void loadout_manager::team_set_wing_index(int team, int slot_index, int wing_ind
 	set_team(old_team);
 }
 
+void loadout_manager::team_set_ship_status(int team, int slot_index, int flags)
+{
+	Assert(team > - 1 && team < static_cast<int>(_slots.size()));
+
+	// best way to direct access team-specific data is to temporarily set the team to 
+	// the desired value until we've retrived that data. This is to reduce duplicate code.
+
+	int old_team = _current_team;
+
+	set_team(team);
+	set_ship_status(slot_index, flags);
+	set_team(old_team);
+}
+
+void loadout_manager::team_set_sa_index(int team, int slot_index, int index)
+{
+	Assert(team > - 1 && team < static_cast<int>(_slots.size()));
+
+	// best way to direct access team-specific data is to temporarily set the team to 
+	// the desired value until we've retrived that data. This is to reduce duplicate code.
+
+	int old_team = _current_team;
+
+	set_team(team);
+	set_sa_index(slot_index, index);
+	set_team(old_team);
+}
+
+void loadout_manager::team_set_original_ship_class(int team, int slot_index, int ship_class)
+{
+	Assert(team > - 1 && team < static_cast<int>(_slots.size()));
+
+	// best way to direct access team-specific data is to temporarily set the team to 
+	// the desired value until we've retrived that data. This is to reduce duplicate code.
+
+	int old_team = _current_team;
+
+	set_team(team);
+	set_original_ship_class(slot_index, ship_class);
+	set_team(old_team);
+}
+
+void loadout_manager::team_set_is_in_mission(int team, int slot_index, bool in_mission)
+{
+	Assert(team > - 1 && team < static_cast<int>(_slots.size()));
+
+	// best way to direct access team-specific data is to temporarily set the team to 
+	// the desired value until we've retrived that data. This is to reduce duplicate code.
+
+	int old_team = _current_team;
+
+	set_team(team);
+	set_is_in_mission(slot_index, in_mission);
+	set_team(old_team);
+}
+
+void loadout_manager::team_set_is_late(int team, int slot_index, bool late)
+{
+	Assert(team > - 1 && team < static_cast<int>(_slots.size()));
+
+	// best way to direct access team-specific data is to temporarily set the team to 
+	// the desired value until we've retrived that data. This is to reduce duplicate code.
+
+	int old_team = _current_team;
+
+	set_team(team);
+	set_is_in_mission(slot_index, late);
+	set_team(old_team);
+}
+
+
 // TODO: Fix calls to use the bool primary and secondary.
 bool loadout_manager::is_bank_filled(int slot_index, int bank_index, bool primary)
 {
@@ -341,6 +450,128 @@ int loadout_manager::team_get_wing_count(int team)
 
 	return value;
 }
+
+int loadout_manager::team_get_ship_status(int team, int slot_index)
+{
+	Assert(team > - 1 && team < static_cast<int>(_slots.size()));
+
+	// best way to direct access team-specific data is to temporarily set the team to 
+	// the desired value until we've retrived that data. This is to reduce duplicate code.
+	int old_team = _current_team;
+
+	set_team(team);	
+
+	int value = get_ship_status(slot_index);
+
+	set_team(old_team);
+
+	return value;
+}
+
+int loadout_manager::team_get_sa_index(int team, int slot_index)
+{
+	Assert(team > - 1 && team < static_cast<int>(_slots.size()));
+
+	// best way to direct access team-specific data is to temporarily set the team to 
+	// the desired value until we've retrived that data. This is to reduce duplicate code.
+	int old_team = _current_team;
+
+	set_team(team);	
+
+	int value = get_sa_index(slot_index);
+
+	set_team(old_team);
+
+	return value;
+}
+
+int loadout_manager::team_get_original_ship_class(int team, int slot_index)
+{
+	Assert(team > - 1 && team < static_cast<int>(_slots.size()));
+
+	// best way to direct access team-specific data is to temporarily set the team to 
+	// the desired value until we've retrived that data. This is to reduce duplicate code.
+	int old_team = _current_team;
+
+	set_team(team);	
+
+	int value = get_original_ship_class(slot_index);
+
+	set_team(old_team);
+
+	return value;
+}
+
+bool loadout_manager::team_is_in_mission(int team, int slot_index)
+{
+	Assert(team > - 1 && team < static_cast<int>(_slots.size()));
+
+	// best way to direct access team-specific data is to temporarily set the team to 
+	// the desired value until we've retrived that data. This is to reduce duplicate code.
+	int old_team = _current_team;
+
+	set_team(team);	
+
+	int value = is_in_mission(slot_index);
+
+	set_team(old_team);
+
+	return value;
+}
+
+bool loadout_manager::team_is_late(int team, int slot_index)
+{
+	Assert(team > - 1 && team < static_cast<int>(_slots.size()));
+
+	// best way to direct access team-specific data is to temporarily set the team to 
+	// the desired value until we've retrived that data. This is to reduce duplicate code.
+	int old_team = _current_team;
+
+	set_team(team);	
+
+	int value = is_late(slot_index);
+
+	set_team(old_team);
+
+	return value;
+}
+
+void loadout_manager::set_ship_status(int slot_index, int flags)
+{
+	Assert(slot_index > -1 && slot_index < static_cast<int>(_slots[_current_team].size()));
+
+	_slots[_current_team][slot_index].status = flags;
+}
+
+void loadout_manager::set_sa_index(int slot_index, int index)
+{
+	Assert(slot_index > -1 && slot_index < static_cast<int>(_slots[_current_team].size()));
+
+	_slots[_current_team][slot_index].sa_index = index;
+}
+
+void loadout_manager::set_original_ship_class(int slot_index, int ship_class)
+{
+	Assert(slot_index > -1 && slot_index < static_cast<int>(_slots[_current_team].size()));
+	Assert(ship_class > -2 && ship_class < ship_info_size());
+
+	_slots[_current_team][slot_index].original_ship_class = ship_class;
+}
+
+void loadout_manager::set_is_in_mission(int slot_index, bool in_mission)
+{
+	Assert(slot_index > -1 && slot_index < static_cast<int>(_slots[_current_team].size()));
+
+	_slots[_current_team][slot_index].in_mission = in_mission;
+}
+
+void loadout_manager::set_is_late(int slot_index, bool late)
+{
+	Assert(slot_index > -1 && slot_index < static_cast<int>(_slots[_current_team].size()));
+
+	_slots[_current_team][slot_index].is_late = late;
+}
+
 
 void loadout_manager::reset_ship_pool(team_data *pteam)
 {

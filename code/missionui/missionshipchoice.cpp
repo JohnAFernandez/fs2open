@@ -88,8 +88,6 @@ typedef struct ss_icon_info
 	generic_anim	ss_anim;
 } ss_icon_info;
 
-ss_wing_info	*Ss_wings = NULL;
-
 ss_icon_info	Ss_icons_teams[MAX_TVT_TEAMS][MAX_SHIP_CLASSES];
 ss_icon_info	*Ss_icons = NULL;
 
@@ -701,8 +699,6 @@ void maybe_change_selected_ship(int offset)
 
 void maybe_change_selected_wing_ship(int slot)
 {
-	Assert( (Ss_wings != NULL) );
-	
 	// not an actual ship or not in a wing.
 	if ( slot < 0 || Loadouts.get_wing_index(slot) < 0 ) {
 		return;
@@ -2088,7 +2084,7 @@ void draw_wing_block(int wb_num, int hot_slot, int selected_slot, int class_sele
 		ws = &wb->ss_slots[i];
 		slot_index = wb_num*MAX_WING_SLOTS + i;
 
-		int ship_class = Loadouts.get_ship_calss(slot_index);
+		int ship_class = Loadouts.get_ship_class(slot_index);
 
 		if ( ship_class >= 0 ) {
 			icon = &Ss_icons[ship_class];
