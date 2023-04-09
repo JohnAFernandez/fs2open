@@ -201,7 +201,7 @@ void ai_maybe_add_form_goal(wing* wingp)
 		// need to add a form on my wing goal here.  Ships are always forming on the player's wing.
 		// it is sufficient enough to check the first goal entry to see if it has a valid goal
 		if (aip->goals[0].ai_mode == AI_GOAL_NONE) {
-			// Need to have a more specific target in multi, or they may end up trying to target standalone placeholder.
+			// Need to have a more specific target in multi.
 			// So form on their team leader.  In dogfight, all player-slot ai die, so just exclude.
 			if (MULTIPLAYER_MASTER && !(Netgame.type_flags & NG_TYPE_DOGFIGHT)) {
 				int wingnum;
@@ -210,6 +210,8 @@ void ai_maybe_add_form_goal(wing* wingp)
 					wingnum = TVT_wings[ship_regp->p_objp->team];
 					ai_add_ship_goal_player(AIG_TYPE_PLAYER_SHIP, AI_GOAL_FORM_ON_WING, -1, Ships[Wings[wingnum].ship_index[Wings[wingnum].special_ship]].ship_name, aip);
 				} else {
+					// if there is no starting wing, just continue.
+					
 					wingnum = Starting_wings[0];
 					ai_add_ship_goal_player(AIG_TYPE_PLAYER_SHIP, AI_GOAL_FORM_ON_WING, -1, Ships[Wings[wingnum].ship_index[Wings[wingnum].special_ship]].ship_name, aip);
 				}

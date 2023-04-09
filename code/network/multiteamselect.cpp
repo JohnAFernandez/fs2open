@@ -1705,12 +1705,13 @@ void multi_ts_get_team_and_slot(char* ship_name, int* team_index, int* slot_inde
 // parameters
 void multi_ts_get_shipname( char *ship_name, int team, int slot_index )
 {
+	Assertion(team > -1, "Invalid team of %d sent to multi_ts_get_shipname. This means a coder made a mistake, please report!", team);
+
 	if ( Netgame.type_flags & NG_TYPE_TEAM ) {
-		Assert( (team >= 0) && (team < MULTI_TS_MAX_TVT_TEAMS) );
-		wing_bash_ship_name(ship_name, TVT_wing_names[team], slot_index);
+		Assertion(team < MULTI_TS_MAX_TVT_TEAMS, "Invalid team of %d sent to multi_ts_get_shipname. This exceeds the maximum and means a coder made a mistake, please report!", team);
+		wing_bash_ship_name(ship_name, Wings[Loadouts.team_get_wing_index(team, slot_index)].name, slot_index);
 	} else {
-		Assert( team == 0 );
-		wing_bash_ship_name(ship_name, Starting_wing_names[slot_index / MULTI_TS_NUM_SHIP_SLOTS_TEAM], slot_index % MULTI_TS_NUM_SHIP_SLOTS_TEAM);
+		wing_bash_ship_name(ship_name, Wings[Loadouts.get_wing_index(slot_index)].name, Loadouts.get_wing_ship_index(slot_index)); // TODO! Write me!
 	}
 }
 

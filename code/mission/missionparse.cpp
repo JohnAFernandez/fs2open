@@ -662,7 +662,7 @@ void parse_mission_info(mission *pm, bool basic = false)
 	// the wing name arrays are initialized in ship_level_init
 	if (optional_string("$Starting wing names:"))
 	{
-		stuff_string_list(Starting_wing_names, MAX_STARTING_WINGS);
+		stuff_string_list(Starting_wing_names);
 	}
 
 	if (optional_string("$Squadron wing names:"))
@@ -1909,9 +1909,9 @@ int parse_create_object_sub(p_object *p_objp, bool standalone_ship)
 	// if this is a multiplayer dogfight game, and its from a player wing, make it team traitor
 	if (MULTI_DOGFIGHT && (p_objp->wingnum >= 0))
 	{
-		for (i = 0; i < MAX_STARTING_WINGS; i++)
+		for (auto& wing_name : Starting_wing_names)
 		{
-			if (!stricmp(Starting_wing_names[i], Wings[p_objp->wingnum].name))
+			if (!stricmp(wing_name, Wings[p_objp->wingnum].name))
 				shipp->team = Iff_traitor;
 		}
 	}
@@ -2473,9 +2473,9 @@ void parse_bring_in_docked_wing(p_object *p_objp, int wingnum, int shipnum)
 	p_objp->wing_status_wing_pos = Ships[shipnum].wing_status_wing_pos;
 
 	// set flag if necessary
-	for (j = 0; j < MAX_STARTING_WINGS; j++)
+	for (auto& wing_name : Starting_wing_names)
 	{
-		if (!stricmp(Starting_wing_names[j], wingp->name))
+		if (!stricmp(wing_name[j], wingp->name))
 			Ships[shipnum].flags[Ship::Ship_Flags::From_player_wing];
 	}
 
@@ -4226,9 +4226,9 @@ int parse_wing_create_ships( wing *wingp, int num_to_create, bool force_create, 
 		}
 		else
 		{
-			for (j = 0; j < MAX_STARTING_WINGS; j++)
+			for (auto& wing_name : Starting_wing_names)
 			{
-				if (!stricmp(Starting_wing_names[j], wingp->name))
+				if (!stricmp(wing_name, wingp->name))
 					Ships[Objects[objnum].instance].flags.set(Ship::Ship_Flags::From_player_wing);
 			}
 		}
@@ -4543,8 +4543,8 @@ void parse_wing(mission *pm)
 	// error checking against the player ship wings (i.e. starting & tvt) to be sure that wave count doesn't exceed one for
 	// these wings.
 	if ( MULTI_NOT_TEAM ) {
-		for (i = 0; i < MAX_STARTING_WINGS; i++ ) {
-			if ( !stricmp(Starting_wing_names[i], wingp->name) ) {
+		for (auto& wing_name : Starting_wing_names) {
+			if ( !stricmp(wing_name, wingp->name) ) {
 				if ( wingp->num_waves > 1 ) {
 					// only end the game if we're the server - clients will eventually find out :)
 					if(Net_player->flags & NETINFO_FLAG_AM_MASTER){
@@ -4556,11 +4556,13 @@ void parse_wing(mission *pm)
 	}
 	else if (MULTI_TEAM) {
 		for (i = 0; i < MAX_TVT_WINGS; i++ ) {
-			if ( !stricmp(TVT_wing_names[i], wingp->name) ) {
-				if ( wingp->num_waves > 1 ) {
-					// only end the game if we're the server - clients will eventually find out :)
-					if(Net_player->flags & NETINFO_FLAG_AM_MASTER){
-						multi_quit_game(PROMPT_NONE, MULTI_END_NOTIFY_NONE, MULTI_END_ERROR_WAVE_COUNT);																
+			for (auto& wing_name : TVT_wing_names[i]){
+				if ( !stricmp(wing_name, wingp->name) ) {
+					if ( wingp->num_waves > 1 ) {
+						// only end the game if we're the server - clients will eventually find out :)
+						if(Net_player->flags & NETINFO_FLAG_AM_MASTER){
+							multi_quit_game(PROMPT_NONE, MULTI_END_NOTIFY_NONE, MULTI_END_ERROR_WAVE_COUNT);																
+						}
 					}
 				}
 			}
@@ -4824,7 +4826,7 @@ void post_process_ships_wings()
 	// Now set up the wings.  This must be done after both dock stuff and ship stuff.
 
 	// error checking for custom wings
-	if (strcmp(Starting_wing_names[0], TVT_wing_names[0]) != 0)
+	if (strcmp(Starting_wing_names[0], TVT_wing_names[0][0]) != 0)
 	{
 		Error(LOCATION, "The first starting wing and the first team-versus-team wing must have the same wing name.\n");
 	}
@@ -5999,9 +6001,11 @@ bool post_process_mission(mission *pm)
 		player_set_squad_bitmap(Player, pm->squad_filename, false);
 	}
 
+	Starting_wings.clear();
+
 	// set up wing indexes
-	for (i = 0; i < MAX_STARTING_WINGS; i++ ) {
-		Starting_wings[i] = wing_name_lookup(Starting_wing_names[i], 1);
+	for (auto& wing_name : Starting_wing_names) {
+		Starting_wings.push_back(wing_name_lookup(wing_name, 1));
 	}
 
 	for (i = 0; i < MAX_SQUADRON_WINGS; i++ ) {

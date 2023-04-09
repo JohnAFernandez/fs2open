@@ -63,9 +63,17 @@ END_MESSAGE_MAP()
 BOOL CustomWingNames::OnInitDialog()
 {
 	// init starting wings
-	m_starting_1 = _T(Starting_wing_names[0]);
-	m_starting_2 = _T(Starting_wing_names[1]);
-	m_starting_3 = _T(Starting_wing_names[2]);
+	if (0 < Starting_wing_names.size()){
+		m_starting_1 = _T(Starting_wing_names[0]);
+	}
+
+	if (1 < Starting_wing_names.size()){
+		m_starting_2 = _T(Starting_wing_names[1]);
+	}
+
+	if (2 < Starting_wing_names.size()){
+		m_starting_3 = _T(Starting_wing_names[2]);
+	}
 
 	// init squadron wings
 	m_squadron_1 = _T(Squadron_wing_names[0]);
@@ -129,9 +137,19 @@ void CustomWingNames::OnOK()
 	}
 
 	// copy starting wings
-	strcpy_s(Starting_wing_names[0], m_starting_1);
-	strcpy_s(Starting_wing_names[1], m_starting_2);
-	strcpy_s(Starting_wing_names[2], m_starting_3);
+	Starting_wing_names.clear();
+
+	if (m_starting_1 != ""){
+		Starting_wing_names.emplace_back(m_starting_1);
+	}
+
+	if (m_starting_2 != ""){
+		Starting_wing_names.emplace_back(m_starting_2);
+	}
+
+	if (m_starting_3 != ""){
+		Starting_wing_names.emplace_back(m_starting_3);
+	}
 
 	// copy squadron wings
 	strcpy_s(Squadron_wing_names[0], m_squadron_1);
@@ -179,7 +197,7 @@ void CustomWingNames::OnClose()
 
 int CustomWingNames::query_modified()
 {
-	return strcmp(Starting_wing_names[0], m_starting_1) || strcmp(Starting_wing_names[1], m_starting_2) || strcmp(Starting_wing_names[2], m_starting_3)
+	return (!Starting_wing_names.empty() && strcmp(Starting_wing_names[0], m_starting_1))  || (1 >= Starting_wing_names.size() && strcmp(Starting_wing_names[1], m_starting_2)) || (2 >= Starting_wing_names.size() && strcmp(Starting_wing_names[2], m_starting_3))
 		|| strcmp(Squadron_wing_names[0], m_squadron_1) || strcmp(Squadron_wing_names[1], m_squadron_2) || strcmp(Squadron_wing_names[2], m_squadron_3) || strcmp(Squadron_wing_names[3], m_squadron_4) || strcmp(Squadron_wing_names[4], m_squadron_5)
 		|| strcmp(TVT_wing_names[0], m_tvt_1) || strcmp(TVT_wing_names[1], m_tvt_2);
 }

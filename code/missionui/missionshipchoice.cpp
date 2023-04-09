@@ -1732,8 +1732,7 @@ bool check_for_gaps_in_weapon_slots()
 		if (Loadouts.get_ship_class(slot) >= 0)
 		{
 			// if the player can't modify the weapons, then an empty bank is not his fault
-			auto ss_slot = &Ss_wings[slot / MAX_WING_SLOTS].ss_slots[slot % MAX_WING_SLOTS];
-			if (ss_slot->status & WING_SLOT_WEAPONS_DISABLED)
+			if (Loadouts.get_ship_status(slot) & WING_SLOT_WEAPONS_DISABLED)
 				continue;
 
 			ship_info *sip = &Ship_info[Loadouts.get_ship_class(slot)];
@@ -1760,7 +1759,7 @@ bool check_for_gaps_in_weapon_slots()
 			for (int bank = 0; bank < sip->num_secondary_banks; ++bank)
 			{
 				// is the slot empty?
-				if (Loadouts.get_ewapon_count(slot, MAX_SHIP_PRIMARY_BANKS + bank) <= 0)
+				if (Loadouts.get_weapon_count(slot, bank) <= 0)
 				{
 					empty_slot = true;
 				}
@@ -1973,8 +1972,7 @@ void pick_from_wing(int wb_num, int ws_num)
 	int slot_index;
 	Assert(wb_num >= 0 && wb_num < MAX_WING_BLOCKS);
 	Assert(ws_num >= 0 && ws_num < MAX_WING_SLOTS);
-	Assert( (Ss_wings != NULL) );
-	
+
 	ss_wing_info *wb;
 	ss_slot_info *ws;
 	wb = &Ss_wings[wb_num];
@@ -2917,6 +2915,7 @@ void ss_init_wing_info(int wing_num,int starting_wing_num)
 
 	wp = &Wings[ss_wing->wingnum];
 	// niffiwan: don't overrun the array
+	// TODO: FIX ME!
 	if (wp->current_count > MAX_WING_SLOTS) {
 		Warning(LOCATION, "Starting Wing '%s' has '%d' ships. Truncating ship selection to 'MAX_WING_SLOTS'\n", Starting_wing_names[ss_wing->wingnum],wp->current_count);
 		ss_wing->num_slots = MAX_WING_SLOTS;
@@ -2979,11 +2978,6 @@ void ss_init_units()
 	for ( i = 0; i < Wss_num_wings; i++ ) {
 
 		ss_wing = &Ss_wings[i];
-
-		if ( ss_wing->wingnum < 0 ) {
-			Int3();
-			continue;
-		}
 
 		wp = &Wings[ss_wing->wingnum];
 

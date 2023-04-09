@@ -2664,8 +2664,8 @@ int CFREDView::global_error_check()
 						}
 					}
 				} else {
-					for (n = 0; n < MAX_STARTING_WINGS; n++) {
-						if (!strcmp(Wings[wing].name, Starting_wing_names[n])) {
+					for (auto& wing_name : Starting_wing_names) {
+						if (!strcmp(Wings[wing].name, wing_name.c_str())) {
 							is_in_loadout_screen = true;
 							break;
 						}
@@ -3083,7 +3083,7 @@ int CFREDView::global_error_check_player_wings(int multi)
 		{
 			for (i=0; i<MAX_STARTING_WINGS; i++)
 			{
-				if (Starting_wings[i] >= 0 && Wings[Starting_wings[i]].num_waves > 1)
+				if (Starting_wings[i] >= 0 && Wings[Starting_wings[i]].num_waves > 1 && i < static_cast<int>(Starting_wing_names.size()))
 				{
 					Wings[Starting_wings[i]].num_waves = 1;
 					if (error("%s wing must contain only 1 wave.\nThis change has been made for you.", Starting_wing_names[i]))

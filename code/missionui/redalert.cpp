@@ -950,9 +950,9 @@ void red_alert_bash_wingman_status()
 		bool from_player_wing = false;
 		if (pobjp->wingnum >= 0)
 		{
-			for (j = 0; j < MAX_STARTING_WINGS; j++)
+			for (auto& wing_name : Starting_wing_names)
 			{
-				if (!stricmp(Starting_wing_names[j], Wings[pobjp->wingnum].name))
+				if (!stricmp(wing_name, Wings[pobjp->wingnum].name))
 				{
 					from_player_wing = true;
 					break;

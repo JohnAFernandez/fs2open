@@ -142,16 +142,16 @@ wing	Wings[MAX_WINGS];
 bool	Ships_inited = false;
 bool	Armor_inited = false;
 
-int	Starting_wings[MAX_STARTING_WINGS];  // wings player starts a mission with (-1 = none)
+SCP_vector	Starting_wings[MAX_STARTING_WINGS];  // wings player starts a mission with (-1 = none)
 
 // Goober5000
-int Squadron_wings[MAX_SQUADRON_WINGS];
-int TVT_wings[MAX_TVT_WINGS];
+SCP_vector<int> Squadron_wings;
+std::array<SCP_vector<int>, MAX_TVT_TEAMS> TVT_wings;
 
 // Goober5000
-char Starting_wing_names[MAX_STARTING_WINGS][NAME_LENGTH];
-char Squadron_wing_names[MAX_SQUADRON_WINGS][NAME_LENGTH];
-char TVT_wing_names[MAX_TVT_WINGS][NAME_LENGTH];
+SCP_vector<SCP_string> Starting_wing_names;
+SCP_vector<SCP_string> Squadron_wing_names;
+std::array<SCP_vector<SCP_string>, MAX_TVT_TEAMS> TVT_wing_names;
 
 SCP_vector<engine_wash_info> Engine_wash_info;
 
@@ -6061,9 +6061,10 @@ void ship_level_init()
 	// Goober5000
 
 	// set starting wing names to default
-	strcpy_s(Starting_wing_names[0], "Alpha");
-	strcpy_s(Starting_wing_names[1], "Beta");
-	strcpy_s(Starting_wing_names[2], "Gamma");
+	Starting_wing_names.clear();
+	Starting_wing_names.emplace_back("Alpha");
+	Starting_wing_names.emplace_back("Beta");
+	Starting_wing_names.emplace_back("Gamma");
 
 	// set squadron wing names to default
 	strcpy_s(Squadron_wing_names[0], "Alpha");
@@ -18887,7 +18888,7 @@ int ship_starting_wing_lookup(const char *wing_name)
 {
 	Assertion(wing_name != nullptr, "NULL wing_name passed to ship_starting_wing_lookup");
 
-	for (int i = 0; i < MAX_STARTING_WINGS; i++)
+	for (int i = 0; i < static_cast<int>(Starting_wing_names.size()); ++i)
 	{
 		if (!stricmp(Starting_wing_names[i], wing_name))
 			return i;
