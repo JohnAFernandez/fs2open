@@ -425,13 +425,14 @@ jobs:
         with:
           files: ${{ steps.generate_package.outputs.package_path }}
 
-  post_build:
-    name: Post builds to Nebula and Forum
-    needs: [linux_zip, windows_zip, mac_zip]
-    uses: ./.github/workflows/post-build-release.yaml
-    with:
-      linux_result: ${{ needs.linux_zip.result }}
-      windows_result: ${{ needs.windows_zip.result }}
-      mac_result: ${{ needs.mac_zip.result }}
-      releaseTag: ${{ github.ref_name }}
-    secrets: inherit
+#  keep from publishing while we test out functionality.
+#  post_build:
+#    name: Post builds to Nebula and Forum
+#    needs: [linux_zip, windows_zip, mac_zip]
+#    uses: ./.github/workflows/post-build-release.yaml
+#    with:
+#      linux_result: ${{ needs.linux_zip.result }}
+#      windows_result: ${{ needs.windows_zip.result }}
+#      mac_result: ${{ needs.mac_zip.result }}
+#      releaseTag: ${{ github.ref_name }}
+#    secrets: inherit
