@@ -1386,14 +1386,7 @@ ADE_INDEXER(l_Loadout_Wings,
 
 ADE_FUNC(__len, l_Loadout_Wings, nullptr, "The number of loadout wings", "number", "The number of loadout wings.")
 {
-	int count = 0;
-
-	for (int i = 0; i < MAX_STARTING_WINGS; i++) {
-		if (Ss_wings[i].ss_slots[0].in_mission)
-			count++;
-	};
-
-	return ade_set_args(L, "i", count);
+	return ade_set_args(L, "i", Loadouts.get_wing_count());
 }
 
 ADE_LIB_DERIV(l_Loadout_Ships, "Loadout_Ships", nullptr, nullptr, l_UserInterface_ShipWepSelect);

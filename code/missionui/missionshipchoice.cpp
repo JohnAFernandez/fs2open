@@ -1969,18 +1969,11 @@ int pick_from_ship_list(int screen_offset, int ship_class)
 // mouse in a realistic way
 void pick_from_wing(int wb_num, int ws_num)
 {
-	int slot_index;
-	Assert(wb_num >= 0 && wb_num < MAX_WING_BLOCKS);
-	Assert(ws_num >= 0 && ws_num < MAX_WING_SLOTS);
+	int slot_index = Loadouts.get_slot_via_wing_and_ship(wb_num, ws_num);
 
-	ss_wing_info *wb;
-	ss_slot_info *ws;
-	wb = &Ss_wings[wb_num];
-	ws = &wb->ss_slots[ws_num];
-	slot_index = wb_num*MAX_WING_SLOTS+ws_num;
-
-	if ( wb->wingnum < 0 )
+	if (slot_index < 0){
 		return;
+	}
 
 	// Take care of case where the mouse button goes from up to down in one frame while
 	// carrying an icon
@@ -1999,11 +1992,14 @@ void pick_from_wing(int wb_num, int ws_num)
 		return;
 	}
 
-	if ( ws->status & WING_SLOT_IGNORE_SHIPS) {
+	int status = Loadouts.get_ship_status(slot_index);
+
+
+	if ( status & WING_SLOT_IGNORE_SHIPS) {
 		return;
 	}
 
-	switch ( ws->status & ~WING_SLOT_WEAPONS_DISABLED ) {
+	switch ( status & ~WING_SLOT_WEAPONS_DISABLED ) {
 		case WING_SLOT_EMPTY:
 		case WING_SLOT_EMPTY|WING_SLOT_IS_PLAYER:
 			// TODO: add fail sound
@@ -2027,7 +2023,7 @@ void pick_from_wing(int wb_num, int ws_num)
 			break;
 	
 		default:
-			Int3();
+			UNREACHABLE("Unknown slot type found in pick_from_wing.  Please report to an SCP coder!");
 			break;
 
 	} // end switch
@@ -2137,7 +2133,7 @@ void draw_wing_block(int wb_num, int hot_slot, int selected_slot, int class_sele
 					bitmap_to_draw = icon->icon_bmaps[ICON_FRAME_NORMAL];
 				else
 					color_to_draw = &Icon_colors[ICON_FRAME_NORMAL];
-				if ( selected_slot == slot_index || class_select == Loadouts.get_ship_calss(slot_index) )
+				if ( selected_slot == slot_index || class_select == Loadouts.get_ship_class(slot_index) )
 				{
 					if(icon->model_index == -1)
 						bitmap_to_draw = icon->icon_bmaps[ICON_FRAME_SELECTED];
@@ -2210,45 +2206,25 @@ void draw_wing_block(int wb_num, int hot_slot, int selected_slot, int class_sele
 // called by multiplayer team select to set the slot based flags
 void ss_make_slot_empty(int slot_index)
 {
-	int wing_num,slot_num;
-	ss_wing_info	*wb;
-	ss_slot_info	*ws;
-
-	Assert( Ss_wings != NULL );
-
-	// calculate the wing #
-	wing_num = slot_index / MAX_WING_SLOTS;
-	slot_num = slot_index % MAX_WING_SLOTS;
-
-	// get the wing and slot entries
-	wb = &Ss_wings[wing_num];
-	ws = &wb->ss_slots[slot_num];
+	int status = Loadouts.get_ship_status(slot_index);
 
 	// set the flags
-	ws->status &= ~(WING_SLOT_FILLED | WING_SLOT_SHIPS_DISABLED | WING_SLOT_WEAPONS_DISABLED);
-	ws->status |= WING_SLOT_EMPTY;
+	status &= ~(WING_SLOT_FILLED | WING_SLOT_SHIPS_DISABLED | WING_SLOT_WEAPONS_DISABLED);
+	status |= WING_SLOT_EMPTY;
+
+	Loadouts.set_ship_status(slot_index, status);
 }
 
 // called by multiplayer team select to set the slot based flags
 void ss_make_slot_full(int slot_index)
 {
-	int wing_num,slot_num;
-	ss_wing_info	*wb;
-	ss_slot_info	*ws;
-
-	Assert( Ss_wings != NULL );
-
-	// calculate the wing #
-	wing_num = slot_index / MAX_WING_SLOTS;
-	slot_num = slot_index % MAX_WING_SLOTS;
-
-	// get the wing and slot entries
-	wb = &Ss_wings[wing_num];
-	ws = &wb->ss_slots[slot_num];
+	int status = Loadouts.get_ship_status(slot_index);
 
 	// set the flags
-	ws->status &= ~(WING_SLOT_EMPTY | WING_SLOT_SHIPS_DISABLED | WING_SLOT_WEAPONS_DISABLED);
-	ws->status |= WING_SLOT_FILLED;
+	status &= ~(WING_SLOT_EMPTY | WING_SLOT_SHIPS_DISABLED | WING_SLOT_WEAPONS_DISABLED);
+	status |= WING_SLOT_FILLED;
+
+	Loadouts.set_ship_status(slot_index, status);
 }
 
 void ss_blit_ship_icon(int x,int y,int ship_class,int bmap_num)
@@ -2327,8 +2303,6 @@ commit_pressed_status create_wings(bool API_Access)
 	int shipnum, objnum, slot_index;
 	int cleanup_ship_index[MAX_WING_SLOTS];
 	int i,j,k;
-
-	Assert( (Ss_wings != NULL) );
 
 	for ( i = 0; i < MAX_WING_BLOCKS; i++ ) {
 		
@@ -2527,19 +2501,6 @@ int create_default_player_ship(int use_last_flown)
 #endif
 
 	return 0;
-}
-
-// return the original ship class for the specified slot
-int ss_return_original_ship_class(int slot_num)
-{
-	int wnum, snum;
-
-	Assert( Ss_wings != NULL );
-
-	wnum = slot_num/MAX_WING_SLOTS;
-	snum = slot_num%MAX_WING_SLOTS;
-
-	return Ss_wings[wnum].ss_slots[snum].original_ship_class;
 }
 
 // return the ship arrival index for the slot (-1 means no ship arrival index)
@@ -3079,7 +3040,6 @@ void ss_reset_team_pointers()
 	if ( Ship_select_open )
 		return;
 
-	Ss_wings = NULL;
 	Ss_icons = NULL;
 }
 

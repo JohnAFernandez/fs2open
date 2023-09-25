@@ -80,8 +80,6 @@ extern int Ship_select_overlay_id;
 //	ss_slot_info ss_slots[MAX_WING_SLOTS];
 //} ss_wing_info;
 
-extern ss_wing_info* Ss_wings;
-
 void draw_wing_block(int wb_num, int hot_slot, int selected_slot, int class_select, bool ship_selection = true);
 void ship_select_init();
 void ship_select_do(float frametime);
@@ -97,7 +95,6 @@ void ss_blit_ship_icon(int x,int y,int ship_class,int bmap_num);
 // called from weapon select
 int	ss_return_ship(int wing_block, int wing_slot, int *ship_index, p_object **ppobjp);
 void	ss_return_name(int wing_block, int wing_slot, char *name);
-int	ss_return_original_ship_class(int slot_num);
 int	ss_return_saindex(int slot_num);
 int	ss_disabled_slot(int slot_num, bool ship_selection = true);
 int	ss_valid_slot(int slot_num);

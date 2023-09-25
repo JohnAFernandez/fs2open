@@ -1717,7 +1717,7 @@ void wl_get_default_weapons(int ship_class, int slot_num, int *wep, int *wep_cou
 	if ( ship_class < 0 )
 		return;
 
-	original_ship_class = ss_return_original_ship_class(slot_num);
+	original_ship_class = Loadouts.get_original_ship_class(slot_num);
 
 	if ( original_ship_class != ship_class ) {
 		wl_get_ship_class_weapons(ship_class, wep, wep_count);

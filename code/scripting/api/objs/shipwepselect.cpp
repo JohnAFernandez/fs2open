@@ -321,8 +321,9 @@ ADE_VIRTVAR(ShipClassIndex,
 			} else {
 				Loadouts.set_ship_class(current, shipIndex);
 				//Reset all currently loaded weapons here
-				for (int i = 0; i < MAX_SHIP_WEAPONS; i++) {
-					Loadouts.set_weapon(current, i, -1);
+				for (int i = 0; i < MAX_SHIP_PRIMARY_BANKS; i++) {
+					Loadouts.empty_bank_and_refill_pool()
+					Loadouts.set_weapon(current, i, -1, );
 					Loadouts.set_weapon_count(current, i, -1);
 				}
 			}
