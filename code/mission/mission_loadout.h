@@ -155,7 +155,7 @@ public:
 	void swap_weapon_slots(int slot_index, int bank_a, int bank_b, bool primary);
 
 	// for scripting access
-	const loadout_slot* get_slot(int slot_index);
+	loadout_slot* get_slot(int slot_index);
 
 	// TODO Finish me!
 	void empty_slot_into_pool(int slot_index);
