@@ -102,6 +102,8 @@ int Hot_ss_slot;			// index for slot that mouse is over (0..MAX_WSS_SLOTS)
 ////////////////////////////////////////////////////////////
 UI_WINDOW	Ship_select_ui_window;	
 
+#define SNAZZY_MAX_WING_SLOTS 4 // what is the max number of ships according to retail UI.
+
 int Ship_select_overlay_id = -1;
 
 static int Ship_anim_coords[GR_NUM_RESOLUTIONS][2] = {
@@ -2296,135 +2298,108 @@ void unload_wing_icons()
 //           !0 ==> failure
 commit_pressed_status create_wings(bool API_Access)
 {
-	ss_wing_info		*wb;
-	ss_slot_info		*ws;
-	wing					*wp;
-
+	wing* wp;
 	int shipnum, objnum, slot_index;
-	int cleanup_ship_index[MAX_WING_SLOTS];
 	int i,j,k;
 
-	for ( i = 0; i < MAX_WING_BLOCKS; i++ ) {
-		
-		wb = &Ss_wings[i];
+	for ( i = 0; i < Loadouts.get_number_of_slots(); i++ ) {
+		int status = Loadouts.get_ship_status(i);
 
-		if ( wb->wingnum ==  -1 )
-			continue;
-
-		wp = &Wings[wb->wingnum];		
-		
-		for ( j = 0; j < MAX_WING_SLOTS; j++ ) {
-			slot_index = i * MAX_WING_SLOTS + j;
-			ws = &wb->ss_slots[j];
-			if ((ws->status & WING_SLOT_FILLED ) || (ws->status & WING_SLOT_SHIPS_DISABLED ) || (ws->status & WING_SLOT_WEAPONS_DISABLED )){
-				if ( wp->ship_index[j] >= 0 ) {
-					Assert(Ships[wp->ship_index[j]].objnum >= 0);
-				}
-
-				if ( ws->status & WING_SLOT_IS_PLAYER ) {
-					update_player_ship(Loadouts.get_ship_class(slot_index));
-
-					if ( loadouts_update_ship_weapons(Ships[Player_obj->instance].objnum, (i * MAX_WING_SLOTS + j )) == -1 ) {
-						if (!API_Access) {
-							popup(PF_USE_AFFIRMATIVE_ICON, 1, POPUP_OK, XSTR("Player ship has no weapons", 461));
-						}
-						return commit_pressed_status::PLAYER_NO_WEAPONS;
-					}
-
-					objnum = OBJ_INDEX(Player_obj);
-					shipnum = Objects[objnum].instance;
-				} else {
-					// We should always update the parse object information, even if the ship is present at start,
-					// because the wing might have more than one wave or scripting functions might need accurate data
-					bool found_pobj = false;
-					int ship_class = Loadouts.get_ship_class(slot_index);
-
-					for ( auto &p_obj: Parse_objects ) {
-						if ( p_obj.wingnum == WING_INDEX(wp) ) {
-							if ( p_obj.pos_in_wing == j ) {
-								p_obj.ship_class = ship_class;
-								wl_update_parse_object_weapons(&p_obj, slot_index );
-								found_pobj = true;
-								break;
-							}
-						}
-					}
-					Assert(found_pobj);
-
-					if (!wb->is_late) {
-						// AL 10/04/97
-						// Change the ship type of the ship if different than current.
-						// NOTE: This will reset the weapons for this ship.  I think this is
-						//       the right thing to do, since the ships may have different numbers
-						//			of weapons and may not have the same allowed weapon types
-						if ( Ships[wp->ship_index[j]].ship_info_index != ship_class )
-							change_ship_type(wp->ship_index[j], ship_class);
-						loadouts_update_ship_weapons(Ships[wp->ship_index[j]].objnum, (slot_index));
-					}
-				}
+		if ((status & WING_SLOT_FILLED ) || (status & WING_SLOT_SHIPS_DISABLED ) || (status & WING_SLOT_WEAPONS_DISABLED )){
+			if ( wp->ship_index[j] >= 0 ) {
+				Assert(Ships[wp->ship_index[j]].objnum >= 0);
 			}
-			else if (ws->status & WING_SLOT_EMPTY) {
-				if ( ws->status & WING_SLOT_IS_PLAYER ) {						
+
+			if ( status & WING_SLOT_IS_PLAYER ) {
+				update_player_ship(Loadouts.get_ship_class(i));
+
+				if ( loadouts_update_ship_weapons(Ships[Player_obj->instance].objnum, (i)) == -1 ) {
 					if (!API_Access) {
-						popup(PF_USE_AFFIRMATIVE_ICON,
-							1,
-							POPUP_OK,
-							XSTR("Player %s must select a place in player wing", 462),
-							Player->callsign);
+						popup(PF_USE_AFFIRMATIVE_ICON, 1, POPUP_OK, XSTR("Player ship has no weapons", 461));
 					}
-					return commit_pressed_status::PLAYER_NO_SLOT;
+					return commit_pressed_status::PLAYER_NO_WEAPONS;
+				}
+
+				objnum = OBJ_INDEX(Player_obj);
+				shipnum = Objects[objnum].instance;
+			} else {
+				// We should always update the parse object information, even if the ship is present at start,
+				// because the wing might have more than one wave or scripting functions might need accurate data
+				bool found_pobj = false;
+				int ship_class = Loadouts.get_ship_class(i);
+
+				for ( auto &p_obj: Parse_objects ) {
+					if ( p_obj.wingnum == WING_INDEX(wp) ) {
+						if ( p_obj.pos_in_wing == j ) {
+							p_obj.ship_class = ship_class;
+							wl_update_parse_object_weapons(&p_obj, i );
+							found_pobj = true;
+							break;
+						}
+					}
+				}
+				Assert(found_pobj);
+
+				if (!Loadouts.is_late(i)) {
+					// AL 10/04/97
+					// Change the ship type of the ship if different than current.
+					// NOTE: This will reset the weapons for this ship.  I think this is
+					//       the right thing to do, since the ships may have different numbers
+					//			of weapons and may not have the same allowed weapon types
+					if ( Ships[wp->ship_index[j]].ship_info_index != ship_class )
+						change_ship_type(wp->ship_index[j], ship_class);
+					loadouts_update_ship_weapons(Ships[wp->ship_index[j]].objnum, i);
 				}
 			}
-		}	// end for (wing slot)	
-	}	// end for (wing block)
-
-	for ( i = 0; i < MAX_WING_BLOCKS; i++ ) {
-		wb = &Ss_wings[i];
-
-		if ( wb->wingnum == -1 )
-			continue;
-
-		wp = &Wings[wb->wingnum];
-
-		for ( k = 0; k < MAX_WING_SLOTS; k++ ) {
-			cleanup_ship_index[k] = -1;
 		}
-
-		for ( j = 0; j < MAX_WING_SLOTS; j++ ) {
-			ws = &wb->ss_slots[j];
-			switch( ws->status & ~WING_SLOT_WEAPONS_DISABLED ) {
-				case WING_SLOT_EMPTY:	
-					// delete ship that is not going to be used by the wing
-					if ( wb->is_late ) {
-						list_remove( &Ship_arrival_list, &Parse_objects[ws->sa_index]);
-						wp->wave_count--;
-						Assert(wp->wave_count >= 0);
-					}
-					else {
-						shipnum = wp->ship_index[j];
-						Assert( shipnum >= 0 && shipnum < MAX_SHIPS );
-						cleanup_ship_index[j] = shipnum;
-						ship_add_exited_ship( &Ships[shipnum], Ship::Exit_Flags::Player_deleted );
-						obj_delete(Ships[shipnum].objnum);
-						hud_set_wingman_status_none( Ships[shipnum].wing_status_wing_index, Ships[shipnum].wing_status_wing_pos);
-					}
-					break;
-
-				default:
-					break;
-
-			} // end switch
-
-		}	// end for (wing slot)	
-
-		for ( k = 0; k < MAX_WING_SLOTS; k++ ) {
-			if ( cleanup_ship_index[k] != -1 ) {
-				ship_wing_cleanup( cleanup_ship_index[k], wp );
+		else if (status & WING_SLOT_EMPTY) {
+			if ( status & WING_SLOT_IS_PLAYER ) {						
+				if (!API_Access) {
+					popup(PF_USE_AFFIRMATIVE_ICON,
+						1,
+						POPUP_OK,
+						XSTR("Player %s must select a place in player wing", 462),
+						Player->callsign);
+				}
+				return commit_pressed_status::PLAYER_NO_SLOT;
 			}
 		}
+	}	// end for (wing slot)	
 
-	}	// end for (wing block)
-	
+	SCP_vector<int> ship_removals;
+
+	for ( i = 0; i < Loadouts.get_number_of_slots(); i++ ) {
+		int wing_index = Loadouts.get_wing_index(i);
+
+		if(	wing_index == -1 )
+			continue;
+
+		wp = &Wings[wing_index];
+
+		// Cyborg - This is truly a bizarre check, but this is how it was originally done, just in a more difficult format.
+		// Basically, I'm just here to convert, not to refactor 
+		if ((Loadouts.get_ship_status(i) & ~WING_SLOT_WEAPONS_DISABLED) == WING_SLOT_EMPTY){
+			// delete ship that is not going to be used by the wing
+			if (Loadouts.is_late(i)) {
+				list_remove( &Ship_arrival_list, &Parse_objects[Loadouts.get_sa_index(i)]);
+				wp->wave_count--;
+				Assert(wp->wave_count >= 0);
+			}
+			else {
+				shipnum = wp->ship_index[j];
+				Assert( shipnum >= 0 && shipnum < MAX_SHIPS );
+				ship_removals.push_back(shipnum);
+				ship_add_exited_ship( &Ships[shipnum], Ship::Exit_Flags::Player_deleted );
+				obj_delete(Ships[shipnum].objnum);
+				hud_set_wingman_status_none( Ships[shipnum].wing_status_wing_index, Ships[shipnum].wing_status_wing_pos);
+			}
+		}
+	}
+
+	for (const auto& item : ship_removals) {
+		ship_wing_cleanup( item, &Wings[Ships[item].wingnum] );
+	}
+
 	return commit_pressed_status::SUCCESS;
 }
 

@@ -70,7 +70,6 @@ UI_TIMESTAMP Flash_timer;						// timestamp used to start flashing
 UI_TIMESTAMP Flash_toggle;						// timestamp used to toggle flashing
 int Flash_bright;								// state of button to flash
 
-#define SNAZZY_MAX_WING_SLOTS 4 // what is the max number of ships according to retail UI.
 
 //////////////////////////////////////////////////////////////////
 // Global to modulde
