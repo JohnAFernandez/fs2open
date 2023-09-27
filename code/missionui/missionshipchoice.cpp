@@ -1784,7 +1784,7 @@ commit_pressed_status commit_pressed(bool API_Access)
 {
 	int j, player_ship_info_index;
 	
-	if ( Wss_num_wings > 0 ) {
+	if ( Loadouts.get_wing_count() ) {
 		if(!(Game_mode & GM_MULTIPLAYER)){
 			commit_pressed_status rc;
 			rc = create_wings(API_Access);
@@ -1942,7 +1942,7 @@ int pick_from_ship_list(int screen_offset, int ship_class)
 	Assert(ship_class >= 0);
 	Assert( Ss_pool != NULL );
 
-	if ( Wss_num_wings == 0 )
+	if ( !Loadouts.get_wing_count() )
 		return rval;
 
 	// If carrying an icon, then do nothing
@@ -2508,7 +2508,7 @@ int ss_return_ship(int wing_block, int wing_slot, int *ship_index, p_object **pp
 
 	Assert( Ss_wings != NULL );
 
-	if (!Wss_num_wings) {
+	if (!Loadouts.get_wing_count()) {
 		*ppobjp = NULL;
 		*ship_index = Player_obj->instance;
 		return Player_ship->ship_info_index;
@@ -2584,7 +2584,7 @@ void ss_reset_selected_ship()
 
 	Selected_ss_class = -1;
 
-	if ( Wss_num_wings <= 0 ) {
+	if ( Loadouts.get_wing_count() <= 0 ) {
 		Selected_ss_class = Team_data[Loadouts.get_team()].default_ship;
 		return;
 	}
@@ -2746,7 +2746,7 @@ int ss_disabled_slot(int slot_num, bool ship_selection)
 {
 	int status; 
 
-	if ( Wss_num_wings <= 0 ){
+	if ( Loadouts.get_wing_count() <= 0 ){
 		return 0;
 	}
 
@@ -2801,7 +2801,7 @@ void ss_clear_wings()
 	}
 }
 
-// set up Wss_num_wings and Wss_wings[] based on Starting_wings[] info
+// set up Loadout manager with info from starting wings.
 void ss_init_wing_info(int wing_num,int starting_wing_num)
 {
 	wing				*wp;
@@ -2817,7 +2817,6 @@ void ss_init_wing_info(int wing_num,int starting_wing_num)
 	}
 
 	ss_wing->wingnum = Starting_wings[starting_wing_num];
-	Wss_num_wings++;
 
 	wp = &Wings[ss_wing->wingnum];
 	// niffiwan: don't overrun the array
@@ -2858,7 +2857,7 @@ int ss_wing_slot_is_console_player(int index)
 	wingnum=index/MAX_WING_SLOTS;
 	slotnum=index%MAX_WING_SLOTS;
 
-	if ( wingnum >= Wss_num_wings ) {
+	if ( wingnum >= Loadouts.get_wing_count() ) {
 		return 0;
 	}
 
@@ -2881,7 +2880,7 @@ void ss_init_units()
 
 	Assert( (Ss_wings != NULL) );
 
-	for ( i = 0; i < Wss_num_wings; i++ ) {
+	for ( i = 0; i < Loadouts.get_wing_count(); i++ ) {
 
 		ss_wing = &Ss_wings[i];
 
@@ -3000,22 +2999,20 @@ void ship_select_init_team_data(int team_num)
 	Loadouts.reset_ship_pool(&Team_data[team_num]);
 	Loadouts.clear_slots();
 
-	// determine how many wings we should be checking for
-	Wss_num_wings = 0;
-
+	// init inidividual wings
 	if(MULTI_TEAM){
 		// now setup wings for easy reference		
 		ss_init_wing_info(0,team_num);			
 	} else {			
 		// now setup wings for easy reference
 		for (idx = 0; idx < MAX_STARTING_WINGS; idx++) {
-			ss_init_wing_info(Wss_num_wings, idx);	
+			ss_init_wing_info(Loadouts.get_wing_count(), idx);	
 		}
 	}
 	
 
 	// if there are no wings, don't call the init_units() function
-	if ( Wss_num_wings <= 0 ) {
+	if ( Loadouts.get_wing_count() <= 0 ) {
 		Loadouts.set_ship_class(0, Team_data[team_num].default_ship);
 		return;
 	}
@@ -3294,40 +3291,16 @@ void ss_drop(int from_slot,int from_list,int to_slot,int to_list,int player_inde
 // lock/unlock any necessary slots for multiplayer
 void ss_recalc_multiplayer_slots()
 {
-	int				i,j;
-	ss_slot_info	*ss_slot;
-	ss_wing_info	*ss_wing;
-	
 	// no wings
-	if ( Wss_num_wings <= 0 ) {
+	if ( Loadouts.get_wing_count() <= 0 ) {
 		// TODO, wait which ship am I setting???
 		Loadouts.set_ship_class( Team_data[Loadouts.get_team()].default_ship);
 		return;
 	}
 
-	Assert( Ss_wings != NULL );
-
-	for ( i = 0; i < Wss_num_wings; i++ ) {
-		ss_wing = &Ss_wings[i];
-		if ( ss_wing->wingnum < 0 ) {
-			Int3();
-			continue;
-		}
-
-		// NOTE : the method below will eventually have to change to account for all possible netgame options	
-		for ( j = 0; j < ss_wing->num_slots; j++ ) {				
-			// get the slot pointer
-			ss_slot = &ss_wing->ss_slots[j];			
-			
-			if (ss_slot->sa_index == -1) {					
-				// lock all slots by default
-				ss_slot->status |= WING_SLOT_LOCKED;
-				
-				// if this is my slot, then unlock it
-				if(!multi_ts_disabled_slot((i*MAX_WING_SLOTS)+j)){				
-					ss_slot->status &= ~WING_SLOT_LOCKED;
-				}
-			}
+	for (int i = 0; i < Loadouts.get_number_of_slots(); i++ ) {
+		if(!multi_ts_disabled_slot(Loadouts.get_ui_index(i))){				
+			Loadouts.set_ship_status(i, Loadouts.get_ship_status(i) & ~WING_SLOT_LOCKED);
 		}
 	}
 }

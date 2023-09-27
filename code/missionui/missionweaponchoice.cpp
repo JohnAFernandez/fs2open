@@ -1201,7 +1201,7 @@ void wl_set_disabled_weapons(int ship_class)
  */
 void maybe_select_wl_slot(int block, int slot)
 {
-	if ( Wss_num_wings <= 0 )
+	if ( Loadouts.get_wing_count() <= 0 )
 		return;
 
 	int sidx = block * MAX_WING_SLOTS + slot;
@@ -1791,7 +1791,7 @@ void wl_remove_weps_from_pool(int *wep, int *wep_count, int ship_class)
 				// not enough weapons in pool
 				// TEMP HACK: FRED doesn't fill in a weapons pool if there are no starting wings... so
 				//            add to the pool.  This should be fixed.
-				if ( Wss_num_wings <= 0 ) {
+				if ( Loadouts.get_wing_counts() <= 0 ) {
 					wl_add_index_to_list(wi_index);
 				} else {
 

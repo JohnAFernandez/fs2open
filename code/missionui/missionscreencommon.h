@@ -133,9 +133,6 @@ int common_scroll_up_pressed(int *start, int size, int max_show);
 extern color Icon_colors[NUM_ICON_FRAMES];
 extern shader Icon_shaders[NUM_ICON_FRAMES];
 
-extern int Wss_num_wings; // number of player wings
-extern int Wss_num_wings_teams[MAX_TVT_TEAMS];
-
 //////////////////////////////////////////////
 // Weapon pool
 //////////////////////////////////////////////

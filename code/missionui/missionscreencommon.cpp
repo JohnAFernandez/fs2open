@@ -82,7 +82,6 @@ shader Icon_shaders[NUM_ICON_FRAMES];
 
 //int		Wl_pool[MAX_WEAPON_TYPES];				// weapon pool 
 //int		Ss_pool[MAX_SHIP_CLASSES];				// ship pool
-//int		Wss_num_wings;								// number of player wings
 
 
 
@@ -90,11 +89,9 @@ shader Icon_shaders[NUM_ICON_FRAMES];
 loadout_slot	Wss_slots_teams[MAX_TVT_TEAMS][MAX_WSS_SLOTS];
 int		Wl_pool_teams[MAX_TVT_TEAMS][MAX_WEAPON_TYPES];
 int		Ss_pool_teams[MAX_TVT_TEAMS][MAX_SHIP_CLASSES];
-int		Wss_num_wings_teams[MAX_TVT_TEAMS];
 
 int		*Wl_pool = NULL;
 int		*Ss_pool = NULL;
-int		Wss_num_wings;
 
 //////////////////////////////////////////////////////////////////
 // Externs
