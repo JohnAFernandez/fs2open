@@ -194,7 +194,7 @@ int Wing_icon_coords[GR_NUM_RESOLUTIONS][MAX_WSS_SLOTS][2] = {
 static SCP_vector<int>	SS_active_items;
 
 // helper variables to figure out where we are in the vector of items for ships on the screen.
-static int SS_active_classes_start;
+static int SS_active_items_start;
 
 //////////////////////////////////////////////////////
 // Background bitmaps data for ship_select
@@ -507,7 +507,7 @@ void ship_select_button_do(int i)
 			if ( Current_screen != ON_SHIP_SELECT )
 				break;
 
-			if ( common_scroll_down_pressed(&SS_active_classes_start, static_cast<int>(SS_active_items.size()) , MAX_ICONS_ON_SCREEN) ) {
+			if ( common_scroll_down_pressed(&SS_active_items_start, static_cast<int>(SS_active_items.size()) , MAX_ICONS_ON_SCREEN) ) {
 				gamesnd_play_iface(InterfaceSounds::SCROLL);
 			} else {
 				gamesnd_play_iface(InterfaceSounds::GENERAL_FAIL);
@@ -518,7 +518,7 @@ void ship_select_button_do(int i)
 			if ( Current_screen != ON_SHIP_SELECT )
 				break;
 
-			if ( common_scroll_up_pressed(&SS_active_classes_start, static_cast<int>(SS_active_items.size()), MAX_ICONS_ON_SCREEN) ) {
+			if ( common_scroll_up_pressed(&SS_active_items_start, static_cast<int>(SS_active_items.size()), MAX_ICONS_ON_SCREEN) ) {
 				gamesnd_play_iface(InterfaceSounds::SCROLL);
 			} else {
 				gamesnd_play_iface(InterfaceSounds::GENERAL_FAIL);
@@ -646,9 +646,9 @@ void ship_select_init()
 //
 int ss_get_ship_class_from_list(int index)
 {
-	for ( int i = SS_active_classes_start; i < static_cast<int>(SS_active_items.size()); ++i) {
+	for ( int i = SS_active_items_start; i < static_cast<int>(SS_active_items.size()); ++i) {
 
-		if ( i - SS_active_classes_start >= MAX_ICONS_ON_SCREEN )
+		if ( i - SS_active_items_start >= MAX_ICONS_ON_SCREEN )
 			break;
 
 		if ( i == index ) {
@@ -1497,11 +1497,11 @@ void ss_unload_all_icons()
 //	draw_ship_icons() will request which icons to draw on screen.
 void draw_ship_icons()
 {
-	for ( int i = SS_active_classes_start; i < static_cast<int>(SS_active_items.size()); ++i ) {
-		if ( i - SS_active_classes_start  >= MAX_ICONS_ON_SCREEN )
+	for ( int i = SS_active_items_start; i < static_cast<int>(SS_active_items.size()); ++i ) {
+		if ( i - SS_active_items_start  >= MAX_ICONS_ON_SCREEN )
 			break;
 
-		draw_ship_icon_with_number(i - SS_active_classes_start, SS_active_items[i]);
+		draw_ship_icon_with_number(i - SS_active_items_start, SS_active_items[i]);
 	}
 }
 
@@ -3063,12 +3063,12 @@ void ss_synch_interface()
 
 	Assert( Ss_wings != NULL );
 
-	int old_list_start = static_cast<int>(SS_active_classes.size());
+	int old_list_start = static_cast<int>(SS_active_items.size());
 
 	init_active_classes();	// build the list of pool ships
 
-	if ( old_list_start < static_cast<int>(SS_active_classes.size()) ) {
-		SS_active_classes_start = old_list_start;
+	if ( old_list_start < static_cast<int>(SS_active_items.size()) ) {
+		SS_active_items_start = old_list_start;
 	}
 
 	for ( i = 0; i < MAX_WSS_SLOTS; i++ ) {
