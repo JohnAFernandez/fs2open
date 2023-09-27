@@ -2839,94 +2839,109 @@ int ss_wing_slot_is_console_player(int index)
 // init the ship selection portion of the units, and set up the ui data
 void ss_init_units()
 {
-	int				i,j;
-	wing				*wp;
-	ss_slot_info	*ss_slot;
-	ss_wing_info	*ss_wing;	
+	int ship_index = 0;
+	int old_wing_index = Loadouts.get_wing_index(0);
 
-	Assert( (Ss_wings != NULL) );
+	for ( int i = 0; i < Loadouts.get_wing_count(); i++ ) {
+		int new_wing_index = Loadouts.get_wing_index(i);
 
-	for ( i = 0; i < Loadouts.get_wing_count(); i++ ) {
-
-		ss_wing = &Ss_wings[i];
-
-		wp = &Wings[ss_wing->wingnum];
-
-		for ( j = 0; j < ss_wing->num_slots; j++ ) {
-				
-			ss_slot = &ss_wing->ss_slots[j];
-			ss_slot->in_mission = true;
-
-			if ( ss_slot->sa_index == -1 ) {
-				ss_slot->original_ship_class = Ships[wp->ship_index[j]].ship_info_index;
-			}
-
-			//set the lock to the default
-			if (Game_mode & GM_MULTIPLAYER) {
-				ss_slot->status = WING_SLOT_LOCKED;
-			}
-			else {
-				ss_slot->status = 0;
-			}
-
-			// Set the type of slot.  Check if the slot is marked as locked, if so then the player is not
-			// going to be able to modify that ship.
-			if ( ss_slot->sa_index == -1 ) {
-				int objnum;
-				if ( Ships[wp->ship_index[j]].flags[Ship::Ship_Flags::Ship_locked] ) {
-					ss_slot->status |= WING_SLOT_SHIPS_DISABLED;
-				} 
-				if ( Ships[wp->ship_index[j]].flags[Ship::Ship_Flags::Weapons_locked] ) {
-					ss_slot->status |= WING_SLOT_WEAPONS_DISABLED;
-				}  
-
-				// if neither the ship or weapon has been locked, mark the slot as filled
-				if (!(ss_slot->status & WING_SLOT_DISABLED)) {
-					ss_slot->status = WING_SLOT_FILLED;
-				}
-
-				objnum = Ships[wp->ship_index[j]].objnum;
-				if ( Objects[objnum].flags[Object::Object_Flags::Player_ship] ) {
-					if ( ss_slot->status & WING_SLOT_LOCKED ) {
-						// Int3();	// Get Alan
-						
-						// just unflag it
-						ss_slot->status &= ~(WING_SLOT_LOCKED);
-					}
-					ss_slot->status |= WING_SLOT_FILLED;
-					if ( objnum == OBJ_INDEX(Player_obj) ) {
-						ss_slot->status |= WING_SLOT_IS_PLAYER;
-					}
-				}
+		if (Loadouts.get_wing_index(i) == -1){
+			if (old_wing_index == new_wing_index) {
+				++ship_index;
 			} else {
-                if (Parse_objects[ss_slot->sa_index].flags[Mission::Parse_Object_Flags::SF_Ship_locked]) {
-					ss_slot->status |= WING_SLOT_SHIPS_DISABLED;
-				} 
-				if ( Parse_objects[ss_slot->sa_index].flags[Mission::Parse_Object_Flags::SF_Weapons_locked] ) {
-					ss_slot->status |= WING_SLOT_WEAPONS_DISABLED;
-				} 
-				
-				// if the slot is not marked as locked, it's filled
-				if (!(ss_slot->status & WING_SLOT_DISABLED)) {
-					ss_slot->status = WING_SLOT_FILLED;
-				}
-				if ( Parse_objects[ss_slot->sa_index].flags[Mission::Parse_Object_Flags::OF_Player_start] ) {
-					if ( ss_slot->status & WING_SLOT_LOCKED ) {
-						// Int3();	// Get Alan
+				old_wing_index = new_wing_index;
+				ship_index = 0;
+			}
+			continue;
+		}
 
-						// just unflag it
-						ss_slot->status &= ~(WING_SLOT_LOCKED);
-					}
-					ss_slot->status |= WING_SLOT_FILLED;
-					ss_slot->status |= WING_SLOT_IS_PLAYER;
+		wing* wp = &Wings[Loadouts.get_wing_index(i)];
+
+		Loadouts.set_is_in_mission(i, true);
+
+		if ( Loadouts.get_sa_index(i) == -1 ) {
+			Loadouts.set_original_ship_class(i, Ships[wp->ship_index[ship_index]].ship_info_index);
+		}
+
+		int status;
+
+		//set the lock to the default
+		if (Game_mode & GM_MULTIPLAYER) {
+			status = WING_SLOT_LOCKED;
+		}
+		else {
+			status= 0;
+		}
+
+		int sa_index = Loadouts.get_sa_index(i);
+
+		// Set the type of slot.  Check if the slot is marked as locked, if so then the player is not
+		// going to be able to modify that ship.
+		if ( sa_index == -1 ) {
+			int objnum;
+			if ( Ships[wp->ship_index[ship_index]].flags[Ship::Ship_Flags::Ship_locked] ) {
+				status |= WING_SLOT_SHIPS_DISABLED;
+			} 
+			if ( Ships[wp->ship_index[ship_index]].flags[Ship::Ship_Flags::Weapons_locked] ) {
+				status |= WING_SLOT_WEAPONS_DISABLED;
+			}  
+
+			// if neither the ship or weapon has been locked, mark the slot as filled
+			if (!(status & WING_SLOT_DISABLED)) {
+				status = WING_SLOT_FILLED;
+			}
+
+			objnum = Ships[wp->ship_index[ship_index]].objnum;
+
+			if ( Objects[objnum].flags[Object::Object_Flags::Player_ship] ) {
+				if ( status & WING_SLOT_LOCKED ) {
+					// Int3();	// Get Alan
+					
+					// just unflag it
+					status &= ~(WING_SLOT_LOCKED);
+				}
+
+				status |= WING_SLOT_FILLED;
+
+				if ( objnum == OBJ_INDEX(Player_obj) ) {
+					status |= WING_SLOT_IS_PLAYER;
 				}
 			}
 
-			// Assign the ship class to the unit
-			Loadouts.set_ship_class(i * MAX_WING_SLOTS + j, ss_slot->original_ship_class);
+		} else {
+			if (Parse_objects[sa_index].flags[Mission::Parse_Object_Flags::SF_Ship_locked]) {
+				status |= WING_SLOT_SHIPS_DISABLED;
+			} 
+			if ( Parse_objects[sa_index].flags[Mission::Parse_Object_Flags::SF_Weapons_locked] ) {
+				status |= WING_SLOT_WEAPONS_DISABLED;
+			} 
+			
+			// if the slot is not marked as locked, it's filled
+			if (!(status & WING_SLOT_DISABLED)) {
+				status = WING_SLOT_FILLED;
+			}
+			if ( Parse_objects[sa_index].flags[Mission::Parse_Object_Flags::OF_Player_start] ) {
+				if ( status & WING_SLOT_LOCKED ) {
+					status &= ~(WING_SLOT_LOCKED);
+				}
 
-		}	// end for
-	}	// end for
+				status |= WING_SLOT_FILLED;
+				status |= WING_SLOT_IS_PLAYER;
+			}
+		}
+
+		Loadouts.set_ship_status(i, status);
+		// Assign the ship class to the unit
+		Loadouts.set_ship_class(i, Loadouts.get_original_ship_class(i));
+
+		if (old_wing_index == new_wing_index) {
+			++ship_index;
+		} else {
+			old_wing_index = new_wing_index;
+			ship_index = 0;
+		}
+
+	}
 
 	// lock/unlock any necessary slots for multiplayer
 	if(Game_mode & GM_MULTIPLAYER){
