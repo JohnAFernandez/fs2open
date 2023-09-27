@@ -1706,7 +1706,7 @@ void wl_get_default_weapons(int ship_class, int slot_num, int *wep, int *wep_cou
 {
 	int original_ship_class, i;
 
-	Assert(slot_num >= 0 && slot_num < MAX_WSS_SLOTS);
+	Assert(slot_num >= 0 && slot_num < Loadouts.get_number_of_slots());
 
 	// clear out wep and wep_count
 	for ( i = 0; i < MAX_SHIP_WEAPONS; i++ ) {
@@ -1723,7 +1723,7 @@ void wl_get_default_weapons(int ship_class, int slot_num, int *wep, int *wep_cou
 		wl_get_ship_class_weapons(ship_class, wep, wep_count);
 	} else {
 		int sa_index;	// ship arrival index
-		sa_index = ss_return_saindex(slot_num);
+		sa_index = Loadouts.get_sa_index(slot_num);
 
 		if ( sa_index >= 0 ) {
 			// still a parse object

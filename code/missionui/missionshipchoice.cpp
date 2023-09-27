@@ -2478,18 +2478,6 @@ int create_default_player_ship(int use_last_flown)
 	return 0;
 }
 
-// return the ship arrival index for the slot (-1 means no ship arrival index)
-int ss_return_saindex(int slot_num)
-{
-	int wnum, snum;
-
-	Assert( Ss_wings != NULL );
-
-	wnum = slot_num/MAX_WING_SLOTS;
-	snum = slot_num%MAX_WING_SLOTS;
-
-	return Ss_wings[wnum].ss_slots[snum].sa_index;
-}
 
 // ----------------------------------------------------------------------------
 // ss_return_ship()

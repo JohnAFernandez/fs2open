@@ -95,7 +95,6 @@ void ss_blit_ship_icon(int x,int y,int ship_class,int bmap_num);
 // called from weapon select
 int	ss_return_ship(int wing_block, int wing_slot, int *ship_index, p_object **ppobjp);
 void	ss_return_name(int wing_block, int wing_slot, char *name);
-int	ss_return_saindex(int slot_num);
 int	ss_disabled_slot(int slot_num, bool ship_selection = true);
 int	ss_valid_slot(int slot_num);
 int	ss_wing_slot_is_console_player(int index);
