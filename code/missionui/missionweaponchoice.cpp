@@ -1016,15 +1016,17 @@ void wl_render_overhead_view(float frametime)
 	}
 
 	wl_ship_class_info	*wl_ship;
-	int						ship_class;
 
-	ship_class = Loadouts.get_ship_class(Selected_wl_slot);
+	int converted_slot = Loadouts.convert_ui_slot_to_loadouts_slot(Selected_wl_slot/MAX_WING_SLOTS, Selected_wl_slot%MAX_WING_SLOTS);
+	int ship_class = Loadouts.get_ship_class(converted_slot);	
+
+	// TODO!  We have an issue here where we need to figure out how to maintain finding the one that the UI is using.
+	// I'm thinking we need a function to find the nth slot in a certain wing by count.
 	if (ship_class < 0 || ship_class >= ship_info_size())
 	{
 		Warning(LOCATION, "Invalid ship class (%d) passed for render_overhead_view", ship_class);
 		return;
 	}
-	ship_info * sip = &Ship_info[ship_class];
 
 	// check if ship class has changed and maybe play sound
 	if (Last_wl_ship_class != ship_class) {
@@ -1036,11 +1038,11 @@ void wl_render_overhead_view(float frametime)
 	}
 
 	wl_ship = &Wl_ships[ship_class];
-	ship_class = Loadouts.get_ship_class(Selected_wl_slot);
 
 	if (new_ship)
 	{
 		display_type = -1;
+		ship_info* sip = &Ship_info[ship_class];
 
 		if (Use_3d_overhead_ship || !strlen(sip->overhead_filename))
 		{
@@ -1143,6 +1145,7 @@ void wl_render_overhead_view(float frametime)
 	char						name[NAME_LENGTH + CALLSIGN_LEN];
 
 	ss_return_name(Selected_wl_slot/MAX_WING_SLOTS, Selected_wl_slot%MAX_WING_SLOTS, name);
+
 	gr_set_color_fast(&Color_normal);
 	gr_string(Wl_ship_name_coords[gr_screen.res][0], Wl_ship_name_coords[gr_screen.res][1], name, GR_RESIZE_MENU);
 }
@@ -3954,7 +3957,9 @@ void wl_apply_current_loadout_to_all_ships_in_current_wing()
 
 		// get the ship's name and class
 		ship_info* sip = &Ship_info[Loadouts.get_ship_class(cur_wss_slot)];	
-		ss_return_name(wing_block, cur_wing_slot, ship_name);
+
+		ss_return_name(Selected_wl_slot/MAX_WING_SLOTS, Selected_wl_slot%MAX_WING_SLOTS, ship_name);
+	
 
 		// don't process the selected ship
 		if (cur_wss_slot == source_wss_slot)

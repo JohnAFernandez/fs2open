@@ -387,6 +387,10 @@ void loadout_manager::apply_default_weapons(int slot_index)
 	
 }
 
+int loadout_manager::convert_ui_slot_to_loadouts_slot(int wing_index, int ship_index){
+
+}
+
 // TODO! Safety Checks
 // for retrieving a pointer to a slot for scripting access.
 loadout_slot* loadout_manager::get_slot(int index)
@@ -695,6 +699,16 @@ void loadout_manager::empty_slot_into_pool(int slot_index)
 
 		slot.ship_class = -1;
 	}
+}
+
+void loadout_manager::clear_slots() 
+{
+	// I've found it safer to clear the individual 
+	for (auto& slot : _slots) {
+		slot.clear();
+	}
+
+	_slots.clear();
 }
 
 void loadout_manager::add_loaded_slot(const loadout_slot& slot)

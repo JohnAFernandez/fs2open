@@ -2536,27 +2536,25 @@ int ss_return_ship(int wing_block, int wing_slot, int *ship_index, p_object **pp
 // player ship, return the player callsign
 //
 // input: ensure at least NAME_LENGTH bytes allocated for name buffer
-void ss_return_name(int wing_block, int wing_slot, char *name)
+void ss_return_name(int slot, char *name)
 {
-	ss_slot_info	*ws;
-	wing				*wp;
+	wing *wp;
 
-	Assert( Ss_wings != NULL );
+	int sa_index = Loadouts.get_sa_index(slot);
 
-	ws = &Ss_wings[wing_block].ss_slots[wing_slot];
-	wp = &Wings[Ss_wings[wing_block].wingnum];		
-
-	if (!Wss_num_wings) {
+	if (!Loadouts.get_wing_count()) {
 		strcpy(name, Player->callsign);
-		return;
 	}
 
+	wp = &Wings[Loadouts.get_wing_index(slot)];		
+
+
 	// Check to see if ship is on the ship arrivals list
-	if ( ws->sa_index != -1 ) {
-		strcpy(name, Parse_objects[ws->sa_index].get_display_name());
+	if ( sa_index != -1 ) {
+		strcpy(name, Parse_objects[sa_index].get_display_name());
 	} else {
 		ship *sp;
-		sp = &Ships[wp->ship_index[wing_slot]];
+		sp = &Ships[Objects[Loadouts.]];
 
 		// in multiplayer, return the callsigns of the players who are in the ships
 		if(Game_mode & GM_MULTIPLAYER){
@@ -2787,22 +2785,6 @@ int ss_valid_slot(int slot_num)
 // reset the slot data
 void ss_clear_slots()
 {
-	int				i,j;
-	ss_slot_info	*slot;
-
-	Assert( (Ss_wings != NULL) );
-
-	Loadouts.reset_all_slots(i);
-
-	for ( i = 0; i < MAX_WING_BLOCKS; i++ ) {
-		for ( j = 0; j < MAX_WING_SLOTS; j++ ) {
-			slot = &Ss_wings[i].ss_slots[j];
-			slot->status = WING_SLOT_LOCKED;
-			slot->sa_index = -1;
-			slot->original_ship_class = -1;
-			slot->in_mission = false;
-		}
-	}
 }
 
 // initialize all wing struct stuff
@@ -3016,9 +2998,7 @@ void ship_select_init_team_data(int team_num)
 	
 	ss_fixup_team_data(&Team_data[team_num]);
 	Loadouts.reset_ship_pool(&Team_data[team_num]);
-	
-	ss_clear_slots();		// reset data for slots	
-	ss_clear_wings();
+	Loadouts.clear_slots();
 
 	// determine how many wings we should be checking for
 	Wss_num_wings = 0;

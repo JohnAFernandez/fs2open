@@ -154,6 +154,8 @@ public:
 
 	void swap_weapon_slots(int slot_index, int bank_a, int bank_b, bool primary);
 
+	int convert_ui_slot_to_loadouts_slot(int wing_index, int ship_index);
+
 	// for scripting access
 	loadout_slot* get_slot(int slot_index);
 
@@ -171,6 +173,8 @@ public:
 
 	// This is a very important function for making things dynamic.
 	int get_slot_via_wing_and_ship(int wing, int ship);
+
+	void clear_slots();
 
 	// To assist with CSG and loadout saves.
 	void add_loaded_slot(const loadout_slot& slot);
