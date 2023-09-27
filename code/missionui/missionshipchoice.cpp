@@ -2504,30 +2504,28 @@ int ss_return_ship(int wing_block, int wing_slot, int *ship_index, p_object **pp
 	*ship_index = -1;
 	*ppobjp = NULL;
 
-	ss_slot_info	*ws;
-
 	if (!Loadouts.get_wing_count()) {
 		*ppobjp = NULL;
 		*ship_index = Player_obj->instance;
 		return Player_ship->ship_info_index;
 	}
 
-	if ( Ss_wings[wing_block].wingnum < 0 ) {
+	int slot = Loadouts.get_slot_via_wing_and_ship(wing_block, wing_slot);
+
+	if ( Loadouts.get_wing_index(slot) < 0 ) {
 		return -1;
 	}
 
-	ws = &Ss_wings[wing_block].ss_slots[wing_slot];
-
 	// Check to see if ship is on the ship arrivals list
-	if ( ws->sa_index != -1 ) {
+	if ( Loadouts.get_sa_index(slot) != -1 ) {
 		*ship_index = -1;
-		*ppobjp = &Parse_objects[ws->sa_index];
+		*ppobjp = &Parse_objects[Loadouts.get_sa_index(slot)];
 	} else {
-		*ship_index = Wings[Ss_wings[wing_block].wingnum].ship_index[wing_slot];
-		Assert(*ship_index != -1);		
+		*ship_index = Wings[Loadouts.get_wing_index(slot)].ship_index[wing_slot];
+		Assertion(*ship_index != -1, "Loadout code is getting a bad ship_index value of %d in ss_return_ship.  Please get an SCP member (not Alan)!", *ship_index);		
 	}
 
-	return ws->original_ship_class;
+	return Loadouts.get_original_ship_class(slot);
 }
 
 // return the name of the ship in the specified wing position... if the ship is the
@@ -2748,14 +2746,12 @@ int ss_disabled_slot(int slot_num, bool ship_selection)
 		return 0;
 	}
 
-	Assert( Ss_wings != NULL );
-
 	// HACK HACK HACK - call the team select function in multiplayer
 	if(Game_mode & GM_MULTIPLAYER) {
 		return multi_ts_disabled_slot(slot_num);
 	} 
 
-	status = Ss_wings[slot_num/MAX_WING_SLOTS].ss_slots[slot_num%MAX_WING_SLOTS].status;
+	status = Loadouts.get_ship_status(slot_num);
 
 	if (ship_selection) {
 		return ( status & WING_SLOT_IGNORE_SHIPS );
