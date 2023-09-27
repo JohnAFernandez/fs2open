@@ -2552,13 +2552,13 @@ void ss_return_name(int slot, char *name)
 		strcpy(name, Parse_objects[sa_index].get_display_name());
 	} else {
 		ship *sp;
-		sp = &Ships[Objects[Loadouts.]];
+		sp = &Ships[Loadouts.get_wing_ship_index(slot)];
 
 		// in multiplayer, return the callsigns of the players who are in the ships
 		if(Game_mode & GM_MULTIPLAYER){
 			int player_index = multi_find_player_by_object(&Objects[sp->objnum]);
 			if(player_index != -1){
-				strcpy(name,Net_players[player_index].m_player->callsign);
+				strcpy(name, Net_players[player_index].m_player->callsign);
 			} else {
 				strcpy(name, sp->get_display_name());
 			}
