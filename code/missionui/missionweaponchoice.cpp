@@ -1456,7 +1456,7 @@ void wl_reset_selected_slot()
 		return;
 	}
 
-	for ( i=0; i<MAX_WSS_SLOTS; i++ ) {
+	for ( i=0; i<Loadouts.get_number_of_slots() ; i++ ) {
 		if ( !ss_disabled_slot(i, false) ) {
 			if ( ss_wing_slot_is_console_player(i) && (Loadouts.get_ship_class(i) >= 0 )) {
 				wl_set_selected_slot(i);

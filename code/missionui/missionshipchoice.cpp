@@ -2506,8 +2506,6 @@ int ss_return_ship(int wing_block, int wing_slot, int *ship_index, p_object **pp
 
 	ss_slot_info	*ws;
 
-	Assert( Ss_wings != NULL );
-
 	if (!Loadouts.get_wing_count()) {
 		*ppobjp = NULL;
 		*ship_index = Player_obj->instance;
@@ -2775,30 +2773,9 @@ int ss_valid_slot(int slot_num)
 	if (ss_disabled_slot(slot_num))
 		return 0;
 
-	Assert( Ss_wings != NULL );
-
-	status = Ss_wings[slot_num/MAX_WING_SLOTS].ss_slots[slot_num%MAX_WING_SLOTS].status;
+	status = Loadouts.get_ship_status(slot_num);
 
 	return (status & WING_SLOT_FILLED) && !(status & WING_SLOT_EMPTY);
-}
-
-// reset the slot data
-void ss_clear_slots()
-{
-}
-
-// initialize all wing struct stuff
-void ss_clear_wings()
-{
-	int idx;
-
-	Assert( Ss_wings != NULL );
-
-	for(idx=0;idx<MAX_STARTING_WINGS;idx++){
-		Ss_wings[idx].wingnum = -1;
-		Ss_wings[idx].num_slots = 0;
-		Ss_wings[idx].is_late = 0;
-	}
 }
 
 // set up Loadout manager with info from starting wings.
@@ -2852,18 +2829,7 @@ void ss_init_wing_info(int wing_num,int starting_wing_num)
 // Determine if a ship is actually a console player ship
 int ss_wing_slot_is_console_player(int index)
 {
-	int wingnum, slotnum;
-	
-	wingnum=index/MAX_WING_SLOTS;
-	slotnum=index%MAX_WING_SLOTS;
-
-	if ( wingnum >= Loadouts.get_wing_count() ) {
-		return 0;
-	}
-
-	Assert( Ss_wings != NULL );
-
-	if ( Ss_wings[wingnum].ss_slots[slotnum].status & WING_SLOT_IS_PLAYER ) {
+	if ( Loadouts.get_ship_status(index) & WING_SLOT_IS_PLAYER ) {
 		return 1;
 	}
 
@@ -3058,11 +3024,6 @@ void ship_select_common_close()
 // change any interface data based on updated loadout manager and Ss_pool[]
 void ss_synch_interface()
 {
-	int				i;
-	ss_slot_info	*slot;
-
-	Assert( Ss_wings != NULL );
-
 	int old_list_start = static_cast<int>(SS_active_items.size());
 
 	init_active_classes();	// build the list of pool ships
@@ -3071,19 +3032,15 @@ void ss_synch_interface()
 		SS_active_items_start = old_list_start;
 	}
 
-	for ( i = 0; i < MAX_WSS_SLOTS; i++ ) {
-		slot = &Ss_wings[i/MAX_WING_SLOTS].ss_slots[i%MAX_WING_SLOTS];
+	for (int i = 0; i < Loadouts.get_number_of_slots(); i++ ) {
+		int status = Loadouts.get_ship_status(i);
 
-		if ( Loadouts.get_ship_class(i) == -1 ) {
-			if ( slot->status & WING_SLOT_FILLED ) {
-				slot->status &= ~WING_SLOT_FILLED;
-				slot->status |= WING_SLOT_EMPTY;
-			}
-		} else {
-			if ( slot->status & WING_SLOT_EMPTY ) {
-				slot->status &= ~WING_SLOT_EMPTY;
-				slot->status |= WING_SLOT_FILLED;
-			}
+		if ( Loadouts.get_ship_class(i) == -1 && status & WING_SLOT_FILLED ) {
+			Loadouts.set_ship_status(i, status & ~WING_SLOT_FILLED);
+			Loadouts.set_ship_status(i, status | WING_SLOT_EMPTY);
+		} else if ( status & WING_SLOT_EMPTY ) {
+			Loadouts.set_ship_status(i, status  & ~WING_SLOT_EMPTY);
+			Loadouts.set_ship_status(i, status |= WING_SLOT_FILLED);
 		}
 	}
 }
@@ -3113,7 +3070,7 @@ int ss_swap_slot_slot(int from_slot, int to_slot, interface_snd_id *sound)
 	// swap primary weapons
 	for ( i = 0; i < MAX_SHIP_PRIMARY_BANKS; i++ ) {
 		tmp = Loadouts.get_weapon(from_slot, i, true);
-		Loadouts.set_weapon(from_slot, i, Loadouts.get_weapon(to_slot, i, true));
+		Loadouts.set_weapon(from_slot, i, Loadouts.get_weapon(to_slot, i, true), true);
 		Loadouts.set_weapon(to_slot, i, tmp, true);
 	}
 
