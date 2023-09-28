@@ -1821,7 +1821,7 @@ commit_pressed_status commit_pressed(bool API_Access)
 	SCP_string weapon_list;
 	for (j=0; j<weapon_info_size(); j++)
 	{
-		if (Team_data[Loadouts.get_team()].weapon_required[j])
+		if (Team_data[Loadouts.get_team()].weapon_pool[j].required)
 		{
 			// add it to the message list
 			num_required_weapons++;
@@ -2055,7 +2055,7 @@ void draw_wing_block(int wb_num, int hot_slot, int selected_slot, int class_sele
 	//shader			*shader_to_use = NULL;
 
 	Assert(wb_num >= 0 && wb_num < MAX_WING_BLOCKS);
-	Assert( (Ss_wings != NULL) && (Ss_icons != NULL) );
+	Assert( (Ss_icons != NULL) );
 
 	wb = &Ss_wings[wb_num];
 	
@@ -2775,51 +2775,28 @@ int ss_valid_slot(int slot_num)
 }
 
 // set up Loadout manager with info from starting wings.
-void ss_init_wing_info(int wing_num,int starting_wing_num)
+void ss_init_wing_info()
 {
-	wing				*wp;
-	ss_wing_info	*ss_wing;
-	ss_slot_info	*slot;
-
-	Assert( Ss_wings != NULL );
-
-	ss_wing = &Ss_wings[wing_num];
-
-	if ( Starting_wings[starting_wing_num] < 0 ) {
-		return;
-	}
-
-	ss_wing->wingnum = Starting_wings[starting_wing_num];
-
-	wp = &Wings[ss_wing->wingnum];
-	// niffiwan: don't overrun the array
-	// TODO: FIX ME!
-	if (wp->current_count > MAX_WING_SLOTS) {
-		Warning(LOCATION, "Starting Wing '%s' has '%d' ships. Truncating ship selection to 'MAX_WING_SLOTS'\n", Starting_wing_names[ss_wing->wingnum],wp->current_count);
-		ss_wing->num_slots = MAX_WING_SLOTS;
-	} else {
-		ss_wing->num_slots = wp->current_count;
-	}
-
-	// deal with wing arriving after mission start
-	if ( wp->current_count == 0 || wp->ship_index[0] == -1 ) {
-		p_object *p_objp;
-		// Temporarily fill in the current count and initialize the ship list in the wing
-		// This gets cleaned up before the mission is started
-		for ( p_objp = GET_FIRST(&Ship_arrival_list); p_objp != END_OF_LIST(&Ship_arrival_list); p_objp = GET_NEXT(p_objp) ) {
-			if ( p_objp->wingnum == WING_INDEX(wp) ) {
-				// niffiwan: don't overrun the array
-				if (ss_wing->num_slots >= MAX_WING_SLOTS) {
-					Warning(LOCATION, "Starting Wing '%s' has more than 'MAX_WING_SLOTS' ships\n", Starting_wing_names[ss_wing->wingnum]);
-					break;
-				}
-				slot = &ss_wing->ss_slots[ss_wing->num_slots++];
-				slot->sa_index = POBJ_INDEX(p_objp);
-				slot->original_ship_class = p_objp->ship_class;
-			}
-			ss_wing->is_late = 1;
+	for (int i; i < MAX_STARTING_WINGS; ++i) {
+		if ( Starting_wings[i] < 0 ) {
+			continue;
 		}
-	}	
+
+		wing* wp = &Wings[Starting_wings[i]];
+
+		// deal with wing arriving after mission start
+		if ( wp->current_count == 0 || wp->ship_index[0] == -1 ) {
+			p_object *p_objp;
+
+			// Init each slot with basic info
+			// This gets cleaned up before the mission is started
+			for ( p_objp = GET_FIRST(&Ship_arrival_list); p_objp != END_OF_LIST(&Ship_arrival_list); p_objp = GET_NEXT(p_objp) ) {
+				if ( p_objp->wingnum == Starting_wings[i] ) {
+					Loadouts.add_slot(POBJ_INDEX(p_objp), p_objp->ship_class, Starting_wings[i], true);
+				}
+			}
+		}	
+	}
 }
 
 // Determine if a ship is actually a console player ship
@@ -2976,17 +2953,7 @@ void ship_select_init_team_data(int team_num)
 	Loadouts.reset_ship_pool(&Team_data[team_num]);
 	Loadouts.clear_slots();
 
-	// init inidividual wings
-	if(MULTI_TEAM){
-		// now setup wings for easy reference		
-		ss_init_wing_info(0,team_num);			
-	} else {			
-		// now setup wings for easy reference
-		for (idx = 0; idx < MAX_STARTING_WINGS; idx++) {
-			ss_init_wing_info(Loadouts.get_wing_count(), idx);	
-		}
-	}
-	
+	ss_init_wing_info();	
 
 	// if there are no wings, don't call the init_units() function
 	if ( Loadouts.get_wing_count() <= 0 ) {

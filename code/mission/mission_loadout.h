@@ -176,6 +176,8 @@ public:
 
 	void clear_slots();
 
+	void add_slot(int sa_index, int original_ship_class, int wing_index, bool is_late);
+
 	// To assist with CSG and loadout saves.
 	void add_loaded_slot(const loadout_slot& slot);
 	void clear_loaded_slots();

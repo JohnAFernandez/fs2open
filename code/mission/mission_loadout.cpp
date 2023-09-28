@@ -711,6 +711,18 @@ void loadout_manager::clear_slots()
 	_slots.clear();
 }
 
+void loadout_manager::add_slot(int sa_index, int original_ship_class, int wing_index, bool is_late){
+	loadout_slot new_slot;
+
+	new_slot.sa_index = sa_index;
+	new_slot.original_ship_class = original_ship_class;
+	new_slot.wing_index = wing_index;
+	new_slot.is_late = is_late;
+	
+	_slots[_current_team].push_back(new_slot);
+}
+
+
 void loadout_manager::add_loaded_slot(const loadout_slot& slot)
 {
 	_loaded_slots.push_back(slot);
