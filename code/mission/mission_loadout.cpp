@@ -628,6 +628,48 @@ int loadout_manager::get_slot_via_wing_and_ship(int wing, int ship)
 	return slot_index + ship;
 }
 
+int loadout_manager::get_wing_ship_index(int slot_index){
+	Assert(slot_index > -1 && slot_index < static_cast<int>(_slots[_current_team].size()));
+
+	int wing_index = _slots[_current_team][slot_index].wing_index;
+	
+	// If a ship is not in a wing, then it is the "first" (and only) ship
+	if (slot_index == 0 || wing_index == -1){
+		return 0;
+	}
+
+	for (int i = slot_index - 1; i > -1; --i){
+		if (_slots[_current_team][i].wing_index != wing_index){
+			return slot_index - (i + 1);
+		}
+	}
+
+	// If there were some error in release mode then we need to 
+	return 0;
+}
+
+int loadout_manager::get_retail_ui_index(int slot_index){
+	Assert(slot_index > -1 && slot_index < static_cast<int>(_slots[_current_team].size()));
+
+	if (slot_index == 0){
+		return 0;
+	}
+
+	int wing_count = 1;
+	int old_wing = _slots[_current_team][0].wing_index;
+
+	for (int i = 1; i < slot_index + 1; ++i){
+		int new_wing = _slots[_current_team][i].wing_index;
+
+		if(old_wing != new_wing){
+			wing_count = 0;
+			old_wing = new_wing;
+		} else {
+			++wing_count;
+		}
+	}
+}
+
 void loadout_manager::empty_primary_bank_and_refill_pool(int slot_index, int bank_index)
 {
 	Assert(slot_index > -1 && slot_index < static_cast<int>(_slots[_current_team].size()));

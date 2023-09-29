@@ -173,6 +173,9 @@ public:
 
 	// This is a very important function for making things dynamic.
 	int get_slot_via_wing_and_ship(int wing, int ship);
+	// Get the index of the ship within the wing.
+	int get_wing_ship_index(int slot_index);
+	int get_retail_ui_index(int slot_index);
 
 	void clear_slots();
 

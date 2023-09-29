@@ -844,7 +844,7 @@ void multi_ts_assign_players_all()
 	else {
 		// To account for cases where <Wingname> 1 is not a player ship
 		for (int i = 0; i < MAX_SHIPS_PER_WING; i++) {
-			wing_bash_ship_name(name_lookup, TVT_wing_names[0], i + 1);
+			wing_bash_ship_name(name_lookup, TVT_wing_names[0].c_string(), i + 1);
 			if (!stricmp(name_lookup, Player_start_shipname))
 				break;
 		}

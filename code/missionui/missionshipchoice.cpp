@@ -3234,7 +3234,7 @@ void ss_recalc_multiplayer_slots()
 	}
 
 	for (int i = 0; i < Loadouts.get_number_of_slots(); i++ ) {
-		if(!multi_ts_disabled_slot(Loadouts.get_ui_index(i))){				
+		if(!multi_ts_disabled_slot(Loadouts.get_retail_ui_index(i))){				
 			Loadouts.set_ship_status(i, Loadouts.get_ship_status(i) & ~WING_SLOT_LOCKED);
 		}
 	}
