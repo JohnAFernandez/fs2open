@@ -503,23 +503,13 @@ void HudGauge::setGaugeColor(int bright_index)
 		// intensity
 		default: 
 			Assert((bright_index >= 0) && (bright_index < HUD_NUM_COLOR_LEVELS));
-			if(bright_index < 0){
-				bright_index = 0;
-			}
-			if(bright_index >= HUD_NUM_COLOR_LEVELS){
-				bright_index = HUD_NUM_COLOR_LEVELS - 1;
-			}
-
-			// alpha = 255 - (255 / (bright_index + 1));
-			// alpha = (int)((float)alpha * 1.5f);
+			CLAMP(bright_index, 0, HUD_NUM_COLOR_LEVELS - 1);
+			
 			int level = 255 / (HUD_NUM_COLOR_LEVELS);
 			alpha = level * bright_index;
-			if(alpha > 255){
-				alpha = 255;
-			}
-			if(alpha < 0){
-				alpha = 0;
-			}
+			Assert(alpha >= 0 && alpha < 256);
+			CLAMP(alpha, 0, 255);
+
 			gr_init_alphacolor(&gauge_color, gauge_color.red, gauge_color.green, gauge_color.blue, alpha);
 			break;
 		}
