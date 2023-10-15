@@ -1299,7 +1299,8 @@ void flash_ball::parse_bsp(int offset, ubyte *bsp_data){
 
 	while(ID!=0){
 		switch(ID){
-		case OP_EOF:	
+		case OP_EOF:
+			UNREACHABLE("Found an ID of 0 (OP_EOF) within a while(ID!=0) code block. Very weird error, please get an SCP member.");	
 			return;
 			break;
 		case OP_DEFPOINTS:	defpoint(offset, bsp_data);
