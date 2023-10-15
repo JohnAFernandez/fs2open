@@ -249,7 +249,6 @@ SCP_vector<intel_data> Intel_info;
 bool Intel_inited = false;
 
 // some prototypes to make you happy
-int techroom_load_ani(anim **animpp, char *name);
 void tech_common_render();
 void tech_scroll_list_up();
 void tech_scroll_list_down();
@@ -1036,31 +1035,6 @@ int techroom_button_pressed(int num)
 			break;
 	}
 
-	return 0;
-}
-
-int techroom_load_ani(anim ** /*animpp*/, char *name)
-{
-	int load_attempts = 0;
-	char anim_filename[64] = "2_";
-
-	// hi-res support
-	// (i don't think there are any hi-res anims for these tho)
-	if (gr_screen.res == GR_1024) {
-		strcat_s(anim_filename, name);
-	} else {
-		strcpy_s(anim_filename, name);
-	}
-
-	while(1) {
-		if ( load_attempts++ > 5 ) {
-			return 0;
-		}
-
-		return 1;
-	}
-
-	// bogus
 	return 0;
 }
 
