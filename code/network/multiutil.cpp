@@ -645,26 +645,16 @@ int multi_get_player_ship(int np_index)
 // NOTE : this attempts to preserve a player object as long as possible for him to come back to
 int multi_find_open_netplayer_slot()
 {
-	int i;
-	int found_first;
+	int found_first = -1;
 
-	found_first = -1;
-	for (i = 0; i < MAX_PLAYERS; i++)
+	for (int i = 0; i < MAX_PLAYERS; i++){
 		if ( !MULTI_CONNECTED(Net_players[i]) ){
-		   if(found_first == -1) {
-				found_first = i;
-				break;
-			}
+			found_first = i;
+			break;
 		}
-
-	if(i == MAX_PLAYERS){
-		if(found_first == -1)
-			return -1;
-		else
-			return found_first;
 	}
 
-	return i;
+	return found_first;
 }
 
 // find_open_player_slot() attempts to find an open player array slot.  The 0th element of the array
