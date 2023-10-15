@@ -4531,7 +4531,6 @@ void process_player_order_packet(ubyte *data, header *hinfo)
 
 	targeted_subsys = NULL;
 	if ( t_subsys != -1 ) {
-		Assert( target_objp != NULL );
 		targeted_subsys = ship_get_indexed_subsys( &Ships[target_objp->instance], t_subsys);
 	}
 
@@ -4540,12 +4539,7 @@ void process_player_order_packet(ubyte *data, header *hinfo)
 	tobjnum_save = aip->target_objnum;
 	tsubsys_save = aip->targeted_subsys;
 
-	if ( target_objp ) {
-		aip->target_objnum = OBJ_INDEX(target_objp);
-	} else {
-		aip->target_objnum = -1;
-	}
-
+	aip->target_objnum = OBJ_INDEX(target_objp);
 	aip->targeted_subsys = targeted_subsys;
 
 	if ( type == SQUAD_MSG_SHIP ) {
