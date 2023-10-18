@@ -1,0 +1,104 @@
+name: Coverity for Freespace Open
+# adapted from code by "albert-github" on the doxygen repository
+
+# Just for tests
+on: [push, pull_request]
+
+# The right schedule
+#on:
+#  schedule:
+#    we don't need more frequent than once a week.
+#    - cron: '30 2 * * 1'  # Run once per a week on Monday early morning, to avoid Coverity's submission limits
+#  workflow_dispatch:
+
+env:
+  QT_VERSION: 5.12.9
+
+jobs:
+  build:
+    name: Build FSO With Coverity Wrapper
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {
+              name: "Windows Latest MSVC Release",
+              os: windows-latest,
+              build_type: "Release",
+              cc: "cl",
+              cxx: "cl",
+              build_gen: "NMake Makefiles",
+            }
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true # `true` to checkout submodules, `recursive` to recursively checkout submodules
+
+      - name: Download Coverity
+        run: |
+          wget https://scan.coverity.com/download/cxx/win64 --post-data "token=$TOKEN&project=JohnAFernandez%2Ffs2open" -O cov-analysis-win64-2020.09.zip
+          unzip cov-analysis-win64-2020.09.zip
+        env:
+          TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
+
+      - name: Set up coverity environment variable
+        run: echo "$(pwd)/cov-analysis-win64-2020.09/bin" >> $GITHUB_PATH
+      - name: Install libiconv (Windows)
+        uses: suisei-cn/actions-download-file@v1
+        with:
+          url: "https://github.com/pffang/libiconv-for-Windows/releases/download/v1.16/libiconv-for-Windows_1.16.7z"
+          target: .
+
+      - name: Setup VS Environment (Windows)
+        uses: seanmiddleditch/gha-setup-vsdevenv@master
+
+      - name: Refresh Env (Windows)
+        run: refreshenv
+
+      - name: Prepare Vulkan SDK
+        uses: humbletim/setup-vulkan-sdk@v1.2.0
+        with:
+          vulkan-query-version: 1.3.204.0
+          vulkan-components: Vulkan-Headers, Vulkan-Loader
+          vulkan-use-cache: true
+
+      - name: Configure CMake
+        env:
+          CONFIGURATION: Release
+          ARCHITECTURE: x64
+          SIMD: AVX
+          shell: bash
+        run: |
+          set(ENV{CC} ${{ matrix.config.cc }})
+          set(ENV{CXX} ${{ matrix.config.cxx }})
+          execute_process(
+            cmake -DCMAKE_INSTALL_PREFIX="$(pwd)/install" -DFSO_USE_SPEECH="ON" \
+            -DFSO_USE_VOICEREC="ON" -DMSVC_SIMD_INSTRUCTIONS="$SIMD" \
+            -DFSO_BUILD_QTFRED=OFF -DFSO_BUILD_TESTS=ON \
+            -DFSO_INSTALL_DEBUG_FILES="ON" -A "$ARCHITECTURE" \
+            -G "Visual Studio 16 2019" -T "v142" ..
+          )
+          if (NOT result EQUAL 0)
+            message(FATAL_ERROR "Bad exit status")
+          endif()
+      - name: Build/scan doxygen
+        run: cov-build --dir cov-int nmake
+
+      # don't submit during test just create tar file
+      - name: Compress Results
+        run: tar zcf fso.tgz cov-int
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with: ${{ github.workspace }}/fso.tgz
+
+        ##       curl --form token=$TOKEN \
+        ##         --form email=$EMAIL \
+        ##         --form file=@doxygen.tgz \
+        ##         --form version="$(git rev-parse HEAD)" \
+        ##         --form description="Automatic GHA scan" \
+        ##         'https://scan.coverity.com/builds?project=doxygen'
+        env:
+          TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
+          EMAIL: ${{ secrets.COVERITY_SCAN_EMAIL }}
