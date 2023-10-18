@@ -37,10 +37,11 @@ jobs:
               build_gen: "NMake Makefiles",
             }
     steps:
-      - if: ${{ env.super_secret != '' }}
-        run: echo 'This step will only run if the secret has a value set.'
-      - if: ${{ env.super_secret == '' }}
-        run: echo 'This step will only run if the secret does not have a value 
+      - run: echo 'This step will only run if the secret has a value set.'
+        if: ${{ env.super_secret != '' }}
+
+      - run: echo 'This step will only run if the secret does not have a value'
+        if: ${{ env.super_secret == '' }}
 
       - name: Checkout
         uses: actions/checkout@v4
