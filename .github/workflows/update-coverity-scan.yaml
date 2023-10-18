@@ -42,7 +42,9 @@ jobs:
       - name: Download Coverity
         env:
           TOKEN: ${{ secrets.COVERITY_TOKEN }}
-        run: | 
+        run: |
+          echo "token=$TOKEN&project=JohnAFernandez/fs2open"
+
           wget https://scan.coverity.com/download/cxx/win64 --post-data "token=$TOKEN&project=JohnAFernandez/fs2open" -O cov-analysis-win64-2020.09.zip
           unzip cov-analysis-win64-2020.09.zip
 
