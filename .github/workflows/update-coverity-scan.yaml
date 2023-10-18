@@ -16,10 +16,6 @@ env:
   super_secret: ${{ secrets.COVERITY_TOKEN }}
 
 jobs:
-  test:
-    name: Test Secrets
-    runs-on: windows-latest,
-
   build:
     name: Build FSO With Coverity Wrapper
     runs-on: ${{ matrix.config.os }}
@@ -44,13 +40,13 @@ jobs:
       - name: install wget
         run: choco install wget --no-progress
 
-      #- name: testA
-      #  run: echo 'This step will only run if the secret has a value set.'
-      #  if: ${{ env.super_secret == '' }}
+      - name: testA
+        run: echo 'This step will only run if the secret has a value set.'
+        if: ${{ env.super_secret == '' }}
 
-      #- name: testB
-      #  run: echo 'This step will only run if the secret does not have a value set.'
-      #  if: ${{ env.super_secret != '' }}
+      - name: testB
+        run: echo 'This step will only run if the secret does not have a value set.'
+        if: ${{ env.super_secret != '' }}
 
       - name: Download Coverity
         env:
