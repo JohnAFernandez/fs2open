@@ -32,6 +32,18 @@ jobs:
               build_gen: "NMake Makefiles",
             }
     steps:
+      - name: testA
+        run: echo 'This step will only run if the secret has a value set.'
+        if: ${{ env.super_secret != '' }}
+
+      - name: testB
+        run: echo 'This step will only run if the secret does not have a value set.'
+        if: ${{ env.super_secret == '' }}
+
+      - name: testC
+        run: echo 'This will run if it has the correct value'
+        if: ${{ env.super_secret == '2ayrI7dyJRqSgbArAG6QpQ'}}
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -39,14 +51,6 @@ jobs:
 
       - name: install wget
         run: choco install wget --no-progress
-
-      - name: testA
-        run: echo 'This step will only run if the secret has a value set.'
-        if: ${{ env.super_secret == '' }}
-
-      - name: testB
-        run: echo 'This step will only run if the secret does not have a value set.'
-        if: ${{ env.super_secret != '' }}
 
       - name: Download Coverity
         env:
