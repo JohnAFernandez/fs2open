@@ -15,6 +15,17 @@ env:
   QT_VERSION: 5.12.9
 
 jobs:
+  test: 
+    name: Test Secrets
+    runs-on: ${{ matrix.config.os }}
+    env:
+      super_secret: ${{ secrets.COVERITY_TOKEN }}
+    steps:
+      - if: ${{ env.super_secret != '' }}
+        run: echo 'This step will only run if the secret has a value set.'
+      - if: ${{ env.super_secret == '' }}
+        run: echo 'This step will only run if the secret does not have a value 
+
   build:
     name: Build FSO With Coverity Wrapper
     runs-on: ${{ matrix.config.os }}
