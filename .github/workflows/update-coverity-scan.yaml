@@ -72,8 +72,8 @@ jobs:
 
       - name: Refresh Env (Windows)
         run: |
-          refreshenv
           Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
+          refreshenv
 
       - name: Prepare Vulkan SDK
         uses: humbletim/setup-vulkan-sdk@v1.2.0
