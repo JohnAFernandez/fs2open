@@ -71,7 +71,9 @@ jobs:
         uses: seanmiddleditch/gha-setup-vsdevenv@master
 
       - name: Refresh Env (Windows)
-        run: refreshenv
+        run: |
+          refreshenv
+          Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
 
       - name: Prepare Vulkan SDK
         uses: humbletim/setup-vulkan-sdk@v1.2.0
