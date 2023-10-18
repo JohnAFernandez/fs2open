@@ -42,7 +42,7 @@ jobs:
 
       - name: testC
         run: echo 'This will run if it has the correct value'
-        if: ${{ env.super_secret == '2ayrI7dyJRqSgbArAG6QpQ'}}
+        if: ${{ env.super_secret == 'mzABRicq_kyR-h3N2os-_Q'}}
 
       - name: Checkout
         uses: actions/checkout@v4
