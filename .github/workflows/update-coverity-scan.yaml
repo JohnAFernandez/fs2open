@@ -53,12 +53,10 @@ jobs:
         run: choco install wget --no-progress
 
       - name: Download Coverity
-        env:
-          TOKEN: ${{ secrets.COVERITY_TOKEN }}
         run: |
-          echo "token=$TOKEN&project=JohnAFernandez/fs2open"
+          echo "token=${{ env.super_secret }}&project=JohnAFernandez/fs2open"
 
-          wget https://scan.coverity.com/download/cxx/win64 --post-data "token=$TOKEN&project=JohnAFernandez/fs2open" -O cov-analysis-win64-2020.09.zip
+          wget https://scan.coverity.com/download/cxx/win64 --post-data "token=${{ env.super_secret }}&project=JohnAFernandez/fs2open" -O cov-analysis-win64-2020.09.zip
           unzip cov-analysis-win64-2020.09.zip
 
       - name: Set up coverity environment variable
