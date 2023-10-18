@@ -17,7 +17,7 @@ env:
 jobs:
   test: 
     name: Test Secrets
-    runs-on: ${{ matrix.config.os }}
+    runs-on: windows-latest,
     env:
       super_secret: ${{ secrets.COVERITY_TOKEN }}
     steps:
