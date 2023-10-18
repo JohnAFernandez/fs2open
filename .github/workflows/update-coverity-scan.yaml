@@ -40,12 +40,12 @@ jobs:
       - name: install wget
         run: choco install wget --no-progress
 
-      - name: Download Coverity
-        run: |
-          echo "token=${{ env.super_secret }}&project=JohnAFernandez/fs2open"
-
-          wget https://scan.coverity.com/download/cxx/win64 --post-data "token=${{ env.super_secret }}&project=JohnAFernandez/fs2open" -O cov-analysis-win64-2020.09.zip
-          unzip cov-analysis-win64-2020.09.zip
+      #- name: Download Coverity
+      #  run: |
+      #    echo "token=${{ env.super_secret }}&project=JohnAFernandez/fs2open"
+      #
+      #    wget https://scan.coverity.com/download/cxx/win64 --post-data "token=${{ env.super_secret }}&project=JohnAFernandez/fs2open" -O cov-analysis-win64-2020.09.zip
+      #    unzip cov-analysis-win64-2020.09.zip
 
       - name: Set up coverity environment variable
         run: echo "$(pwd)/cov-analysis-win64-2020.09/bin" >> $GITHUB_PATH
@@ -76,11 +76,11 @@ jobs:
           shell: bash
         run: |
           mkdir build
-          cd build
-          
+
           cmake -DCMAKE_INSTALL_PREFIX="$(pwd)/install" -DFSO_USE_SPEECH="ON" -DFSO_USE_VOICEREC="ON" -DMSVC_SIMD_INSTRUCTIONS="AVX" -DFSO_BUILD_QTFRED=OFF -DFSO_BUILD_TESTS=ON -DFSO_INSTALL_DEBUG_FILES="ON" -A "x64" -DFSO_BUILD_WITH_VULKAN="OFF" -G "Visual Studio 16 2019" -T "v142" 
       - name: Build/scan doxygen
-        run: cov-build --dir cov-int nmake
+        working-directory: ./build
+        run: cov-build --dir cov-int cmake --build . --config "$CONFIGURATION" --target INSTALL -- /verbosity:minimal
 
       # don't submit during test just create tar file
       - name: Compress Results
