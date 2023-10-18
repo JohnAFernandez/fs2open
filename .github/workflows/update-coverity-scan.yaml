@@ -32,18 +32,6 @@ jobs:
               build_gen: "NMake Makefiles",
             }
     steps:
-      - name: testA
-        run: echo 'This step will only run if the secret has a value set.'
-        if: ${{ env.super_secret != '' }}
-
-      - name: testB
-        run: echo 'This step will only run if the secret does not have a value set.'
-        if: ${{ env.super_secret == '' }}
-
-      - name: testC
-        run: echo 'This will run if it has the correct value'
-        if: ${{ env.super_secret == 'mzABRicq_kyR-h3N2os-_Q'}}
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -75,12 +63,12 @@ jobs:
           Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
           refreshenv
 
-      - name: Prepare Vulkan SDK
-        uses: humbletim/setup-vulkan-sdk@v1.2.0
-        with:
-          vulkan-query-version: 1.3.204.0
-          vulkan-components: Vulkan-Headers, Vulkan-Loader
-          vulkan-use-cache: true
+      #- name: Prepare Vulkan SDK
+      #  uses: humbletim/setup-vulkan-sdk@v1.2.0
+      #  with:
+      #    vulkan-query-version: 1.3.204.0
+      #    vulkan-components: Vulkan-Headers, Vulkan-Loader
+      #    vulkan-use-cache: true
 
       - name: Configure CMake
         env:
@@ -96,6 +84,7 @@ jobs:
             -DFSO_USE_VOICEREC="ON" -DMSVC_SIMD_INSTRUCTIONS="$SIMD" \
             -DFSO_BUILD_QTFRED=OFF -DFSO_BUILD_TESTS=ON \
             -DFSO_INSTALL_DEBUG_FILES="ON" -A "$ARCHITECTURE" \
+            -DFSO_BUILD_WITH_VULKAN="OFF" \
             -G "Visual Studio 16 2019" -T "v142" ..
           )
           if (NOT result EQUAL 0)
