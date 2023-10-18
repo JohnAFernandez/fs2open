@@ -63,6 +63,7 @@ jobs:
           Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
           refreshenv
 
+      # despite having the same evironment as the 
       #- name: Prepare Vulkan SDK
       #  uses: humbletim/setup-vulkan-sdk@v1.2.0
       #  with:
