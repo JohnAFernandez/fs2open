@@ -12,19 +12,14 @@ on: [push, pull_request]
 #  workflow_dispatch:
 
 env:
-  QT_VERSION: 5.12.9
+  QT_VERSION: 5.12.9     
+  super_secret: ${{ secrets.COVERITY_TOKEN }}  
+
 
 jobs:
   test: 
     name: Test Secrets
     runs-on: windows-latest,
-    env:
-      super_secret: ${{ secrets.COVERITY_TOKEN }}
-    steps:
-      - if: ${{ env.super_secret != '' }}
-        run: echo 'This step will only run if the secret has a value set.'
-      - if: ${{ env.super_secret == '' }}
-        run: echo 'This step will only run if the secret does not have a value 
 
   build:
     name: Build FSO With Coverity Wrapper
@@ -42,6 +37,11 @@ jobs:
               build_gen: "NMake Makefiles",
             }
     steps:
+      - if: ${{ env.super_secret != '' }}
+        run: echo 'This step will only run if the secret has a value set.'
+      - if: ${{ env.super_secret == '' }}
+        run: echo 'This step will only run if the secret does not have a value 
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
