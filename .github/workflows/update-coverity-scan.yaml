@@ -41,7 +41,7 @@ jobs:
 
       - name: Download Coverity
         env:
-          TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
+          TOKEN: ${{ secrets.COVERITY_TOKEN }}
         run: | 
           wget https://scan.coverity.com/download/cxx/win64 --post-data "token=$TOKEN&project=JohnAFernandez/fs2open" -O cov-analysis-win64-2020.09.zip
           unzip cov-analysis-win64-2020.09.zip
@@ -103,5 +103,5 @@ jobs:
         ##         --form description="Automatic GHA scan" \
         ##         'https://scan.coverity.com/builds?project=doxygen'
         env:
-          TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
+          TOKEN: ${{ secrets.COVERITY_TOKEN }}
           EMAIL: ${{ secrets.COVERITY_SCAN_EMAIL }}
