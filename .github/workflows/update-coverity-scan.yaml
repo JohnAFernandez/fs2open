@@ -32,11 +32,6 @@ jobs:
               build_gen: "NMake Makefiles",
             }
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: true # `true` to checkout submodules, `recursive` to recursively checkout submodules
-
       - name: install wget
         run: choco install wget --no-progress
 
@@ -50,12 +45,12 @@ jobs:
           echo "Before ..."
           dir /a
           mkdir cov-scan
-          tar -fx coverity_tool.tgz --strip-components=1 -C cov-scan
+          tar -xf coverity_tool.tgz --strip-components=1 cov-scan
           echo "After ..."
           dir /a
 
       - name: Set up coverity environment variable
-        run: echo "$(pwd)/cov-analysis-win64-2022.12.2/bin" >> $GITHUB_PATH
+        run: echo "$(pwd)/cov-scan/bin" >> $GITHUB_PATH
       - name: Install libiconv
         uses: suisei-cn/actions-download-file@v1
         with:
@@ -65,12 +60,7 @@ jobs:
       - name: Setup VS Environment
         uses: seanmiddleditch/gha-setup-vsdevenv@master
 
-      - name: Refresh Env
-        run: |
-          Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
-          refreshenv
-
-      # despite having the same evironment as the
+      # despite having the same evironment as the main respository, this is not working....
       #- name: Prepare Vulkan SDK
       #  uses: humbletim/setup-vulkan-sdk@v1.2.0
       #  with:
@@ -83,6 +73,16 @@ jobs:
         run: |
           $env:PATH = $env:PATH -replace "C:\\Strawberry\\c\\bin;", ""
           "PATH=$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true # `true` to checkout submodules, `recursive` to recursively checkout submodules
+
+      - name: Refresh Env
+        run: |
+          Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
+          refreshenv
 
       - name: Configure CMake
         env:
@@ -100,7 +100,7 @@ jobs:
 
       # don't submit during test just create tar file
       - name: Compress Results
-        run: tar zcf fso-coverity.tgz cov-int
+        run: tar -czf fso-coverity.tgz cov-int
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with: ${{ github.workspace }}/fso-coverity.tgz
