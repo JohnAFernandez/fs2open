@@ -37,17 +37,21 @@ jobs:
 
       - name: Download Coverity
         run: |
+          echo "Before ..."
+          mkdir cov-scan
+          dir /a
+          dir /a/fs2open
+          dir /a/fs2open/fs2open
           echo "token=${{ env.coverity_token }}&project=JohnAFernandez/fs2open"
           wget https://scan.coverity.com/download/cxx/win64 --post-data "token=${{ env.coverity_token }}&project=JohnAFernandez/fs2open" -O cov-analysis-win64-2022.12.zip
 
       - name: Decompress Coverity
         run: |
-          echo "Before ..."
-          dir /a
-          mkdir cov-scan
           tar -xf cov-analysis-win64-2022.12.zip cov-scan
           echo "After ..."
           dir /a
+          dir /a/fs2open
+          dir /a/fs2open/fs2open
 
       - name: Set up coverity environment variable
         run: echo "$(pwd)/cov-scan/bin" >> $GITHUB_PATH
