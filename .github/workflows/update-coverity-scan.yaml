@@ -45,7 +45,7 @@ jobs:
           echo "Before ..."
           dir /a
           mkdir cov-scan
-          tar -xf coverity_tool.tgz --strip-components=1 cov-scan
+          tar -xzf coverity_tool.tgz --strip-components=1 cov-scan
           echo "After ..."
           dir /a
 
