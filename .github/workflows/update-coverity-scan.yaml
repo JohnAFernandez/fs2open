@@ -48,7 +48,7 @@ jobs:
           unzip cov-analysis-win64-2020.09.zip
 
       - name: Set up coverity environment variable
-        run: echo "$(pwd)/cov-analysis-win64-2020.09/bin" >> $GITHUB_PATH
+        run: echo "$(pwd)/cov-analysis-win64-2022.12.2/bin" >> $GITHUB_PATH
       - name: Install libiconv
         uses: suisei-cn/actions-download-file@v1
         with:
@@ -82,7 +82,7 @@ jobs:
           shell: bash
         run: |
           mkdir build
-          cmake -B ./build -S . CMAKE_BUILD_TYPE="Release" -DCMAKE_INSTALL_PREFIX="$(pwd)/install" -DFSO_USE_SPEECH="ON" -DFSO_USE_VOICEREC="ON" -DMSVC_SIMD_INSTRUCTIONS="AVX" -DFSO_BUILD_QTFRED=OFF -DFSO_BUILD_TESTS=ON -DFSO_INSTALL_DEBUG_FILES="ON" -A "x64" -DFSO_BUILD_WITH_VULKAN="OFF" -G "Visual Studio 16 2019" -T "v142" 
+          cmake -B ./build -S . CMAKE_BUILD_TYPE="Release" -DCMAKE_INSTALL_PREFIX="$(pwd)/install" -DFSO_USE_SPEECH="ON" -DFSO_USE_VOICEREC="ON" -DMSVC_SIMD_INSTRUCTIONS="AVX" -DFSO_BUILD_QTFRED=OFF -DFSO_BUILD_TESTS=ON -DFSO_INSTALL_DEBUG_FILES="ON" -A "x64" -DFSO_BUILD_WITH_VULKAN="OFF" -G "Visual Studio 16 2019" -T "v142"
 
       - name: Build/scan doxygen
         working-directory: ./build
