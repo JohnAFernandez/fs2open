@@ -43,9 +43,18 @@ jobs:
       - name: Download Coverity
         run: |
           echo "token=${{ env.coverity_token }}&project=JohnAFernandez/fs2open"
-
           wget https://scan.coverity.com/download/cxx/win64 --post-data "token=${{ env.coverity_token }}&project=JohnAFernandez/fs2open" -O cov-analysis-win64-2022.12.zip
-          unzip cov-analysis-win64-2022.12.zip
+
+      - name: Decompress Coverity
+        run : |
+          echo "Before ..."
+          dir /a
+          mkdir cov-scan
+          tar ax -f coverity_tool.tgz --strip-components=1 -C cov-scan
+          echo "After ..."
+          dir /a
+
+
 
       - name: Set up coverity environment variable
         run: echo "$(pwd)/cov-analysis-win64-2022.12.2/bin" >> $GITHUB_PATH
@@ -62,7 +71,6 @@ jobs:
         run: |
           Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
           refreshenv
-          dir /a
 
       # despite having the same evironment as the
       #- name: Prepare Vulkan SDK
