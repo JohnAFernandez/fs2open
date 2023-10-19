@@ -47,7 +47,7 @@ jobs:
 
       - name: Decompress Coverity
         run: |
-          tar -xf cov-analysis-win64-2022.12.zip cov-scan
+          tar -xf cov-analysis-win64-2022.12.zip
           echo "After ..."
           dir /a
           dir /a/fs2open
