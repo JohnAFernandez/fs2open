@@ -110,7 +110,7 @@ jobs:
         working-directory: ./build
         shell: bash
         run: |
-          cov-build --dir cov-int cmake --build . --config "$CONFIGURATION" --target INSTALL -- /verbosity:minimal
+          cov-build.exe --dir cov-int cmake --build . --config "$CONFIGURATION" --target INSTALL -- /verbosity:minimal
           ls -alR "$(pwd)/install"
 
       # don't submit during test just create tar file
