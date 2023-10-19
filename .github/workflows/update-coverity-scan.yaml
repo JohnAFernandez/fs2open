@@ -13,7 +13,7 @@ on: [push, pull_request]
 
 env:
   QT_VERSION: 5.12.9
-  super_secret: ${{ secrets.COVERITY_TOKEN }}
+  coverity_token: ${{ secrets.COVERITY_TOKEN }}
 
 jobs:
   build:
@@ -42,10 +42,10 @@ jobs:
 
       - name: Download Coverity
         run: |
-          echo "token=${{ env.super_secret }}&project=JohnAFernandez/fs2open"
-      
-          wget https://scan.coverity.com/download/cxx/win64 --post-data "token=${{ env.super_secret }}&project=JohnAFernandez/fs2open" -O cov-analysis-win64-2020.09.zip
-          unzip cov-analysis-win64-2020.09.zip
+          echo "token=${{ env.coverity_token }}&project=JohnAFernandez/fs2open"
+
+          wget https://scan.coverity.com/download/cxx/win64 --post-data "token=${{ env.coverity_token }}&project=JohnAFernandez/fs2open" -O cov-analysis-win64-2022.12.zip
+          unzip cov-analysis-win64-2022.12.zip
 
       - name: Set up coverity environment variable
         run: echo "$(pwd)/cov-analysis-win64-2022.12.2/bin" >> $GITHUB_PATH
@@ -63,7 +63,7 @@ jobs:
           Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
           refreshenv
 
-      # despite having the same evironment as the 
+      # despite having the same evironment as the
       #- name: Prepare Vulkan SDK
       #  uses: humbletim/setup-vulkan-sdk@v1.2.0
       #  with:
