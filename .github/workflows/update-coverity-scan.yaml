@@ -82,19 +82,21 @@ jobs:
           shell: bash
         run: |
           mkdir build
-
           cmake -B ./build -S . CMAKE_BUILD_TYPE="Release" -DCMAKE_INSTALL_PREFIX="$(pwd)/install" -DFSO_USE_SPEECH="ON" -DFSO_USE_VOICEREC="ON" -DMSVC_SIMD_INSTRUCTIONS="AVX" -DFSO_BUILD_QTFRED=OFF -DFSO_BUILD_TESTS=ON -DFSO_INSTALL_DEBUG_FILES="ON" -A "x64" -DFSO_BUILD_WITH_VULKAN="OFF" -G "Visual Studio 16 2019" -T "v142" 
 
       - name: Build/scan doxygen
         working-directory: ./build
-        run: cov-build --dir cov-int cmake --build . --config "$CONFIGURATION" --target INSTALL -- /verbosity:minimal
+        shell: bash
+        run: |
+          cov-build --dir cov-int cmake --build . --config "$CONFIGURATION" --target INSTALL -- /verbosity:minimal
+          ls -alR "$(pwd)/install"
 
       # don't submit during test just create tar file
       - name: Compress Results
-        run: tar zcf fso.tgz cov-int
+        run: tar zcf fso-coverity.tgz cov-int
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
-        with: ${{ github.workspace }}/fso.tgz
+        with: ${{ github.workspace }}/fso-coverity.tgz
 
         ##       curl --form token=$TOKEN \
         ##         --form email=$EMAIL \
