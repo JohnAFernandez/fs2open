@@ -62,7 +62,7 @@ jobs:
           dir /a/fs2open/fs2open/cov-scan
 
       - name: Set up coverity environment variable
-        run: echo "$(pwd)/cov-scan/bin" >> $GITHUB_PATH
+        run: echo "$(pwd)/cov-scan/cov-analysis-win64-2022.12.2/bin" >> $GITHUB_PATH
       - name: Install libiconv
         uses: suisei-cn/actions-download-file@v1
         with:
