@@ -60,6 +60,7 @@ jobs:
           dir /a/fs2open
           dir /a/fs2open/fs2open
           dir /a/fs2open/fs2open/cov-scan
+          dir /a/fs2open/fs2open/cov-scan/cov-analysis-win64-2022.12.2
 
       - name: Set up coverity environment variable
         run: echo "$(pwd)/cov-scan/cov-analysis-win64-2022.12.2/bin" >> $GITHUB_PATH
