@@ -62,7 +62,7 @@ jobs:
         run: |
           Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
           refreshenv
-          ls -a
+          dir /a
 
       # despite having the same evironment as the
       #- name: Prepare Vulkan SDK
