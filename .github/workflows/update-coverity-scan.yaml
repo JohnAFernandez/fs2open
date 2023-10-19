@@ -65,7 +65,10 @@ jobs:
 
 
       - name: Set up coverity environment variable
-        run: echo "a/fs2open/fs2open/cov-scan/cov-analysis-win64-2022.12.2/bin" >> $GITHUB_PATH
+        run: |
+          echo "$(pwd)/cov-analysis-win64-2022.12.2/bin" >> $GITHUB_PATH
+          export PATH="$(pwd)/cov-analysis-win64-2022.12.2/bin/:$PATH"
+
       - name: Install libiconv
         uses: suisei-cn/actions-download-file@v1
         with:
@@ -88,6 +91,7 @@ jobs:
         run: |
           $env:PATH = $env:PATH -replace "C:\\Strawberry\\c\\bin;", ""
           "PATH=$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Append
+        shell: bash
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -110,7 +114,7 @@ jobs:
         working-directory: ./build
         shell: bash
         run: |
-          D:/a/fs2open/fs2open/cov-scan/cov-analysis-win64-2022.12.2/bin/cov-build.exe --dir cov-int cmake --build . --config "$CONFIGURATION" --target INSTALL -- /verbosity:minimal
+          cov-build --dir cov-int cmake --build . --config "$CONFIGURATION" --target INSTALL -- /verbosity:minimal
           ls -alR "$(pwd)/install"
 
       # don't submit during test just create tar file
