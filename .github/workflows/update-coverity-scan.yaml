@@ -31,7 +31,7 @@ jobs:
             }
     steps:
       - name: Install Open AL
-        run: apt-get install libopenal-dev
+        run: sudo apt-get install libopenal-dev
       - name: Checkout
         uses: actions/checkout@v4
         with:
