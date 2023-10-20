@@ -25,10 +25,11 @@ jobs:
       matrix:
         config:
           - {
-              name: "GCC on ubuntu-20.04",
-              os: ubuntu-20.04,
+              name: "GCC on ubuntu",
+              os: ubuntu-latest,
               build_type: "Release",
             }
+    container: ghcr.io/scp-fs2open/linux_build:sha-3d30dc5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
