@@ -31,6 +31,8 @@ jobs:
           sudo apt-get install libopenal-dev
           sudo apt-get install -y libudev-dev
           sudo apt-get install doxygen
+          sudo apt install graphviz
+          
       - name: Checkout
         uses: actions/checkout@v4
         with:
