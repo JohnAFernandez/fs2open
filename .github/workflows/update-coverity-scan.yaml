@@ -29,7 +29,6 @@ jobs:
               build_type: "Release",
               cc: "cl",
               cxx: "cl",
-              build_gen: "NMake Makefiles",
             }
     steps:
       - name: Remove Strawberry Perl from PATH
@@ -43,7 +42,6 @@ jobs:
       - name: Download Coverity
         run: |
           echo "Before ..."
-          mkdir cov-scan
           dir /a
           dir /a/fs2open
           dir /a/fs2open/fs2open
@@ -63,9 +61,8 @@ jobs:
           dir /a
           dir /a/fs2open
           dir /a/fs2open/fs2open
-          dir /a/fs2open/fs2open/cov-scan
-          dir /a/fs2open/fs2open/cov-scan/cov-analysis-win64-2022.12.2
-          dir /a/fs2open/fs2open/cov-scan/cov-analysis-win64-2022.12.2/bin
+          dir /a/fs2open/fs2open/cov-analysis-win64-2022.12.2
+          dir /a/fs2open/fs2open/cov-analysis-win64-2022.12.2/bin
 
       - name: Set up coverity environment variable
         run: |
