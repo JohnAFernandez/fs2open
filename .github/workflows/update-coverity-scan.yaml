@@ -42,8 +42,6 @@ jobs:
       - name: Download Coverity
         run: |
           echo "Before ..."
-          dir /a
-          dir /a/fs2open
           dir /a/fs2open/fs2open
           wget https://scan.coverity.com/download/cxx/win64 --post-data "token=${{ env.coverity_token }}&project=JohnAFernandez/fs2open" -O cov-analysis-win64-2022.12.zip
 
@@ -51,16 +49,12 @@ jobs:
         run: |
           echo "Our work directory... $(pwd)"
           echo "Middle ..."
-          dir /a
-          dir /a/fs2open
           dir /a/fs2open/fs2open
 
       - name: Decompress Coverity
         run: |
           tar -xf cov-analysis-win64-2022.12.zip
           echo "After ..."
-          dir /a
-          dir /a/fs2open
           dir /a/fs2open/fs2open
           dir /a/fs2open/fs2open/cov-analysis-win64-2022.12.2
           dir /a/fs2open/fs2open/cov-analysis-win64-2022.12.2/bin
@@ -111,9 +105,9 @@ jobs:
       - name: Build/scan doxygen
         working-directory: ./build
         run: |
-          $(pwd)\cov-analysis-win64-2022.12.2\bin\cov-build.exe --dir cov-int cmake --build . --config "$CONFIGURATION" --target INSTALL --
+          ./cov-analysis-win64-2022.12.2/bin/cov-build.exe --dir cov-int cmake --build . --config "$CONFIGURATION" --target INSTALL --
           ls -alR "$(pwd)\install"
-
+        shell: bash
 
       # don't submit during test just create tar file
       - name: Compress Results
