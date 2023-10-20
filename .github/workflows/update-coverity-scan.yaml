@@ -104,7 +104,7 @@ jobs:
       - name: Build/scan doxygen
         working-directory: ./build
         run: |
-          $env:PATH = ($env:PATH + "$(pwd)/cov-analysis-win64-2022.12.2/bin/;")
+          $env:PATH = $env:PATH + "$(pwd)/cov-analysis-win64-2022.12.2/bin/;"
           cov-build --dir cov-int cmake --build . --config "$CONFIGURATION" --target INSTALL -- /verbosity:minimal
           ls -alR "$(pwd)/install"
         shell: bash
