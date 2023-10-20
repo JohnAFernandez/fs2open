@@ -104,8 +104,8 @@ jobs:
       - name: Build/scan doxygen
         working-directory: ./build
         run: |
-          set PATH=%PATH%;$(pwd)\cov-analysis-win64-2022.12.2\bin\;
-          echo %PATH%
+          setx /M path "%path%;$(pwd)\cov-analysis-win64-2022.12.2\bin\;"
+          echo %path%
           cov-build --dir cov-int cmake --build . --config "$CONFIGURATION" --target INSTALL --
           ls -alR "$(pwd)\install"
 
