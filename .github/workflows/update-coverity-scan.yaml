@@ -24,16 +24,13 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {
-              name: "GCC on ubuntu",
-              os: ubuntu-latest,
-              build_type: "Release",
-            }
+          - { name: "GCC on ubuntu", os: ubuntu-latest, build_type: "Release" }
     steps:
-      - name: Install Open AL and Libudev
+      - name: Install Dependencies
         run: |
           sudo apt-get install libopenal-dev
           sudo apt-get install -y libudev-dev
+          sudo apt-get install doxygen
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -41,7 +38,6 @@ jobs:
 
       - name: Download Coverity
         run: |
-          echo "Before ..."
           wget -q https://scan.coverity.com/download/cxx/linux64 --post-data "token=${{ env.coverity_token }}&project=JohnAFernandez/fs2open" -O coverity_tool.tgz
           mkdir cov-scan
 
@@ -63,10 +59,10 @@ jobs:
 
       - name: Configure CMake for FSO
         env:
-          CONFIGURATION: Release          
+          CONFIGURATION: Release
           compiler: gcc-5
         run: $GITHUB_WORKSPACE/ci/linux/configure_cmake.sh
-      
+
       - name: Build/scan doxygen
         working-directory: ./build
         env:
