@@ -105,9 +105,11 @@ jobs:
       - name: Build/scan doxygen
         working-directory: ./build
         run: |
-          ./cov-analysis-win64-2022.12.2/bin/cov-build.exe --dir cov-int cmake --build . --config "$CONFIGURATION" --target INSTALL --
+          ../cov-analysis-win64-2022.12.2/bin/cov-build.exe --dir cov-int cmake --build . --config "$CONFIGURATION" --target INSTALL --
           ls -alR "$(pwd)\install"
         shell: bash
+        #env:
+        #  PATH_TO_COV: /cov-analysis-win64-2022.12.2/bin/cov-build.exe
 
       # don't submit during test just create tar file
       - name: Compress Results
