@@ -32,12 +32,12 @@ jobs:
               build_gen: "NMake Makefiles",
             }
     steps:
-      - name: Remove Strawberry Perl from PATH
-        run: |
-          $env:PATH = $env:PATH -replace "C:\\Strawberry\\c\\bin;", ""
-          "PATH=$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Append
-        shell: bash
-        
+      #- name: Remove Strawberry Perl from PATH
+      #  run: |
+      #    $env:PATH = $env:PATH -replace "C:\\Strawberry\\c\\bin;", ""
+      #    "PATH=$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Append
+      #  shell: bash
+
       - name: install wget
         run: choco install wget --no-progress
 
@@ -68,7 +68,6 @@ jobs:
           dir /a/fs2open/fs2open/cov-scan
           dir /a/fs2open/fs2open/cov-scan/cov-analysis-win64-2022.12.2
           dir /a/fs2open/fs2open/cov-scan/cov-analysis-win64-2022.12.2/bin
-
 
       - name: Set up coverity environment variable
         run: |
