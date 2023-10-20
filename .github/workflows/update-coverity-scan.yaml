@@ -32,11 +32,10 @@ jobs:
               build_gen: "NMake Makefiles",
             }
     steps:
-      #- name: Remove Strawberry Perl from PATH
-      #  run: |
-      #    $env:PATH = $env:PATH -replace "C:\\Strawberry\\c\\bin;", ""
-      #    "PATH=$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Append
-      #  shell: bash
+      - name: Remove Strawberry Perl from PATH
+        run: |
+          $env:PATH = $env:PATH -replace "C:\\Strawberry\\c\\bin;", ""
+          "PATH=$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: install wget
         run: choco install wget --no-progress
