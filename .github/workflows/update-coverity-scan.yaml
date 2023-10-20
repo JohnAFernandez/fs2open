@@ -29,7 +29,6 @@ jobs:
               os: ubuntu-latest,
               build_type: "Release",
             }
-    container: ghcr.io/scp-fs2open/linux_build:sha-3d30dc5
     steps:
       - name: Install Open AL
         run: apt-get install libopenal-dev
