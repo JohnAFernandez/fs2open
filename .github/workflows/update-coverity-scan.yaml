@@ -36,6 +36,12 @@ jobs:
           $env:PATH = $env:PATH -replace "C:\\Strawberry\\c\\bin;", ""
           "PATH=$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Append
 
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true # `true` to checkout submodules, `recursive` to recursively checkout submodules
+
+
       - name: install wget
         run: choco install wget --no-progress
 
@@ -83,11 +89,6 @@ jobs:
       #    vulkan-use-cache: true
       # workaround for failing download of prebuilt libs in 20231016.1.0 runner
       # https://github.com/actions/runner-images/issues/8598
-
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: true # `true` to checkout submodules, `recursive` to recursively checkout submodules
 
       - name: Refresh Env
         run: |
