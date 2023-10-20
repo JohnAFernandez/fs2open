@@ -111,7 +111,7 @@ jobs:
         run: |
           cov-build --dir cov-int cmake --build . --config "$CONFIGURATION" --target INSTALL -- /verbosity:minimal
           ls -alR "$(pwd)/install"
-          shell: bash
+        shell: bash
 
 
       # don't submit during test just create tar file
