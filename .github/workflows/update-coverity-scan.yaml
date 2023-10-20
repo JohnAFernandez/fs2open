@@ -107,6 +107,7 @@ jobs:
         run: |
           dir cov-analysis-win64-2022.12.2\bin\
           cd cov-analysis-win64-2022.12.2\bin\
+          dir
           cov-build.exe --dir cov-int cmake --build D:\a\fs2open\fs2open\ --config "$CONFIGURATION" --target INSTALL
           ls -alR "$(pwd)\install"
         #env:
