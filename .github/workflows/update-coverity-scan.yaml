@@ -49,6 +49,7 @@ jobs:
 
       - name: temp for info
         run: |
+          echo "Our work directory... $(pwd)"
           echo "Middle ..."
           dir /a
           dir /a/fs2open
