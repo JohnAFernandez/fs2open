@@ -78,7 +78,7 @@ jobs:
           tar zcf cov-scan.tgz cov-int
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
-        with: ${{ github.workspace }}/fso-coverity.tgz
+        with: ${{ github.workspace }}/cov-scan.tgz
 
         # Comment this out when testing to keep from running into liits
         ##       curl --form token=$TOKEN \
