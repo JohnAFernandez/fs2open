@@ -99,6 +99,7 @@ jobs:
         run: |
           Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
           refreshenv
+          echo %path%
 
       - name: Configure CMake
         env:
@@ -110,7 +111,7 @@ jobs:
       - name: Build/scan doxygen
         working-directory: ./build
         run: |
-          cov-build --dir cov-int cmake --build . --config "$CONFIGURATION" --target INSTALL --
+          $(pwd)\cov-analysis-win64-2022.12.2\bin\cov-build.exe --dir cov-int cmake --build . --config "$CONFIGURATION" --target INSTALL --
           ls -alR "$(pwd)\install"
 
 
