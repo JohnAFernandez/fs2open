@@ -70,7 +70,7 @@ jobs:
         working-directory: ./build
         env:
           CONFIGURATION: Release
-        run: cov-build --dir cov-int LD_LIBRARY_PATH=$Qt5_DIR/lib:$LD_LIBRARY_PATH ninja -k 20 all
+        run: cov-build --dir cov-int ninja -k 20 all
 
       - name: Build/scan doxygen
         run: |
