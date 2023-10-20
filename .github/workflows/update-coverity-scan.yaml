@@ -71,16 +71,22 @@ jobs:
           url: "https://github.com/pffang/libiconv-for-Windows/releases/download/v1.16/libiconv-for-Windows_1.16.7z"
           target: .
 
+      - name: Add coverity to Path
+        run: |
+          setx /M path "%path%;$(pwd)\cov-analysis-win64-2022.12.2\bin\;"
+          echo %path%
+
+
       - name: Setup VS Environment
         uses: seanmiddleditch/gha-setup-vsdevenv@master
 
       # despite having the same evironment as the main respository, this is not working....
-      #- name: Prepare Vulkan SDK
-      #  uses: humbletim/setup-vulkan-sdk@v1.2.0
-      #  with:
-      #    vulkan-query-version: 1.3.204.0
-      #    vulkan-components: Vulkan-Headers, Vulkan-Loader
-      #    vulkan-use-cache: true
+      - name: Prepare Vulkan SDK
+        uses: humbletim/setup-vulkan-sdk@v1.2.0
+        with:
+          vulkan-query-version: 1.3.204.0
+          vulkan-components: Vulkan-Headers, Vulkan-Loader
+          vulkan-use-cache: true
       # workaround for failing download of prebuilt libs in 20231016.1.0 runner
       # https://github.com/actions/runner-images/issues/8598
 
@@ -104,8 +110,6 @@ jobs:
       - name: Build/scan doxygen
         working-directory: ./build
         run: |
-          setx /M path "%path%;$(pwd)\cov-analysis-win64-2022.12.2\bin\;"
-          echo %path%
           cov-build --dir cov-int cmake --build . --config "$CONFIGURATION" --target INSTALL --
           ls -alR "$(pwd)\install"
 
