@@ -67,9 +67,7 @@ jobs:
 
       - name: Set up coverity environment variable
         run: |
-          echo "$(pwd)/cov-analysis-win64-2022.12.2/bin" >> $GITHUB_PATH
-          export PATH="$(pwd)/cov-analysis-win64-2022.12.2/bin/:$PATH"
-        shell: bash
+          $env:PATH = ($env:PATH + "$(pwd)/cov-analysis-win64-2022.12.2/bin/;")
 
       - name: Install libiconv
         uses: suisei-cn/actions-download-file@v1
