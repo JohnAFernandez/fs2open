@@ -31,8 +31,8 @@ jobs:
             }
     container: ghcr.io/scp-fs2open/linux_build:sha-3d30dc5
     steps:
-      - name: Install NVM for release 4
-        run: nvm install 16.15.1
+      - name: Install Open AL
+        run: apt-get install libopenal-dev
       - name: Checkout
         uses: actions/checkout@v4
         with:
