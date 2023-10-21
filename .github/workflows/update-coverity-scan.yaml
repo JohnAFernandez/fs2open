@@ -91,5 +91,5 @@ jobs:
         run: |
           cd build
           ls
-          curl --form token=$TOKEN --form email=jafernandez.tampabay@gmail.com --form file=@cov-scan.tgz --form version="$(git rev-parse HEAD)" --form description="Automatic GHA scan" 'https://scan.coverity.com/builds?project=JohnAFernandez/fs2open'
+          curl --form token=${{ env.coverity_token }} --form email=jafernandez.tampabay@gmail.com --form file=@cov-scan.tgz --form version="$(git rev-parse HEAD)" --form description="Automatic GHA scan" 'https://scan.coverity.com/builds?project=JohnAFernandez/fs2open'
           ls
