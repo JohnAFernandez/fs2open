@@ -42,11 +42,14 @@ jobs:
       - name: Download Coverity
         run: |
           wget -q https://scan.coverity.com/download/cxx/linux64 --post-data "token=${{ env.coverity_token }}&project=JohnAFernandez/fs2open" -O coverity_tool.tgz
+          ls
           mkdir cov-scan
+          ls
 
       - name: Decompress Coverity
         run: |
           tar ax -f coverity_tool.tgz --strip-components=1 -C cov-scan
+          ls
 
       - name: Setup Environment
         run: |
@@ -70,13 +73,21 @@ jobs:
         working-directory: ./build
         env:
           CONFIGURATION: Release
-        run: cov-build --dir cov-int ninja -k 20 all
+        run: |
+          ls
+          cov-build --dir cov-int ninja -k 20 all
+          ls
 
       - name: Compress Results
         run: |
+          ls
           cd build
+          ls
           tar zcf cov-scan.tgz cov-int
 
       #Comment this out when testing to keep from running into limits
       - name: Upload to Coverity
-        run: curl --form token=$TOKEN --form email=jafernandez.tampabay@gmail.com --form file=@cov-scan.tgz --form version="$(git rev-parse HEAD)" --form description="Automatic GHA scan" 'https://scan.coverity.com/builds?project=doxygen%2Fdoxygen'
+        run: |
+          ls
+          curl --form token=$TOKEN --form email=jafernandez.tampabay@gmail.com --form file=@cov-scan.tgz --form version="$(git rev-parse HEAD)" --form description="Automatic GHA scan" 'https://scan.coverity.com/builds?project=doxygen%2Fdoxygen'
+          ls
