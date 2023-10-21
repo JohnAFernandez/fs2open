@@ -66,7 +66,7 @@ jobs:
           compiler: gcc-5
         run: $GITHUB_WORKSPACE/ci/linux/configure_cmake.sh
 
-      - name: Build/scan doxygen
+      - name: Build FSO with Coverity Wrapper
         working-directory: ./build
         env:
           CONFIGURATION: Release
@@ -76,17 +76,7 @@ jobs:
         run: |
           cd build
           tar zcf cov-scan.tgz cov-int
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v2
-        with: ${{ github.workspace }}/cov-scan.tgz
 
-        # Comment this out when testing to keep from running into liits
-        ##       curl --form token=$TOKEN \
-        ##         --form email=$EMAIL \
-        ##         --form file=@doxygen.tgz \
-        ##         --form version="$(git rev-parse HEAD)" \
-        ##         --form description="Automatic GHA scan" \
-        ##         'https://scan.coverity.com/builds?project=doxygen'
-        #env:
-        #  TOKEN: ${{ secrets.COVERITY_TOKEN }}
-        #  EMAIL: ${{ secrets.COVERITY_SCAN_EMAIL }}
+      #Comment this out when testing to keep from running into limits
+      - name: Upload to Coverity
+        run: curl --form token=$TOKEN --form email=jafernandez.tampabay@gmail.com --form file=@cov-scan.tgz --form version="$(git rev-parse HEAD)" --form description="Automatic GHA scan" 'https://scan.coverity.com/builds?project=doxygen%2Fdoxygen'
