@@ -84,10 +84,12 @@ jobs:
           cd build
           ls
           tar zcf cov-scan.tgz cov-int
+          ls
 
       #Comment this out when testing to keep from running into limits
       - name: Upload to Coverity
         run: |
+          cd build
           ls
-          curl --form token=$TOKEN --form email=jafernandez.tampabay@gmail.com --form file=@cov-scan.tgz --form version="$(git rev-parse HEAD)" --form description="Automatic GHA scan" 'https://scan.coverity.com/builds?project=doxygen%2Fdoxygen'
+          curl --form token=$TOKEN --form email=jafernandez.tampabay@gmail.com --form file=@cov-scan.tgz --form version="$(git rev-parse HEAD)" --form description="Automatic GHA scan" 'https://scan.coverity.com/builds?project=JohnAFernandez/fs2open'
           ls
