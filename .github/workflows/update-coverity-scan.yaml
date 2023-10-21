@@ -2,18 +2,18 @@ name: Coverity for Freespace Open
 # adapted from code by "albert-github" on the doxygen repository
 # many thanks!
 
-# Since we're just testing for now
+# This mode is for testing
 on: [push, pull_request]
 
-# The right schedule
+# In production, push on a specific schedule
 #on:
 #  schedule:
-#    we don't need more frequent than once a week.
-#    - cron: '30 2 * * 1'  # Run once per a week on Monday morning, to avoid Coverity's submission limits
-#  workflow_dispatch:
+    #    we don't need more frequent than once a week.
+    #- cron: "1 0 * * 5" # Run once per a week on Friday morning (midnight UTC, 4 AM EST), to avoid Coverity's submission limits
 
 env:
   QT_VERSION: 5.12.9
+  coverity_email: ${{ secrets.COVERITY_EMAIL }}
   coverity_token: ${{ secrets.COVERITY_TOKEN }}
 
 jobs:
@@ -40,17 +40,11 @@ jobs:
         with:
           submodules: recursive # `true` to checkout submodules, `recursive` to recursively checkout submodules
 
-      - name: Download Coverity
+      - name: Install Coverity
         run: |
-          wget -q https://scan.coverity.com/download/cxx/linux64 --post-data "token=${{ env.coverity_token }}&project=JohnAFernandez/fs2open" -O coverity_tool.tgz
-          ls
+          wget -o wgetlog.txt -q https://scan.coverity.com/download/cxx/linux64 --post-data "token=${{ env.coverity_token }}&project=scp-fs2open/fs2open.github.com" -O coverity_tool.tgz
           mkdir cov-scan
-          ls
-
-      - name: Decompress Coverity
-        run: |
           tar ax -f coverity_tool.tgz --strip-components=1 -C cov-scan
-          ls
 
       - name: Setup Environment
         run: |
@@ -74,23 +68,14 @@ jobs:
         working-directory: ./build
         env:
           CONFIGURATION: Release
-        run: |
-          ls
-          cov-build --dir cov-int ninja -k 20 all
-          ls
+        run: cov-build --dir cov-int ninja -k 20 all
 
       - name: Compress Results
-        run: |
-          ls
-          cd build
-          ls
-          tar zcf cov-scan.tgz cov-int
-          ls
+        working-directory: ./build
+        run: tar zcf cov-scan.tgz cov-int
 
       #Comment this out when testing to keep from running into limits
-      - name: Upload to Coverity
-        run: |
-          cd build
-          ls
-          curl --form token=${{ env.coverity_token }} --form email=jafernandez.tampabay@gmail.com --form file=@cov-scan.tgz --form version="$(git rev-parse HEAD)" --form description="Automatic GHA scan" 'https://scan.coverity.com/builds?project=JohnAFernandez/fs2open'
-          ls
+      #- name: Upload to Coverity
+      #  run: |
+      #    cd build
+      #    curl --form token=${{ env.coverity_token }} --form email=${{ env.coverity_email }} --form file=@cov-scan.tgz --form version="$(git rev-parse HEAD)" --form description="Automatic GHA scan" 'https://scan.coverity.com/builds?project=scp-fs2open/fs2open.github.com'
