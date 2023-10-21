@@ -42,6 +42,7 @@ jobs:
 
       - name: Install Coverity
         run: |
+          touch wgetlog.txt
           wget -o wgetlog.txt -q https://scan.coverity.com/download/cxx/linux64 --post-data "token=${{ env.coverity_token }}&project=scp-fs2open/fs2open.github.com" -O coverity_tool.tgz
           mkdir cov-scan
           tar ax -f coverity_tool.tgz --strip-components=1 -C cov-scan
