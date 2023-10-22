@@ -2246,7 +2246,7 @@ void HudGaugeDamage::render(float  /*frametime*/)
 		}
 
 		char buf[128];
-		sprintf(buf, XSTR( "%d%%", 219), best_str);
+		snprintf(buf, 128, XSTR( "%d%%", 219), best_str);
 		hud_num_make_mono(buf, font_num);
 
 		int w, h;
@@ -2287,7 +2287,7 @@ void HudGaugeDamage::render(float  /*frametime*/)
 		info.strength = screen_integrity;
 
 		char buf[128];
-		sprintf(buf, XSTR( "%d%%", 219), screen_integrity);
+		snprintf(buf, 128, XSTR( "%d%%", 219), screen_integrity);
 		hud_num_make_mono(buf, font_num);
 
 		int w, h;
@@ -2329,7 +2329,7 @@ void HudGaugeDamage::render(float  /*frametime*/)
 		}
 
 		char buf[128];
-		sprintf(buf, XSTR( "%d%%", 219), line.strength);
+		snprintf(buf, 128, XSTR( "%d%%", 219), line.strength);
 		hud_num_make_mono(buf, font_num);
 
 		if (line.color_override != nullptr) {
@@ -2612,7 +2612,7 @@ void HudGaugeKills::render(float  /*frametime*/)
 		return;
 	}
 
-	sprintf(num_kills_string, "%d", Player->stats.m_kill_count_ok);
+	snprintf(num_kills_string, 32, "%d", Player->stats.m_kill_count_ok);
 
 	gr_get_string_size(&w, &h, num_kills_string);
 	renderString(position[0]+text_value_offsets[0]-w, position[1]+text_value_offsets[1], num_kills_string);
@@ -3039,7 +3039,7 @@ void HudGaugeSupport::render(float  /*frametime*/)
 				sec = (int)Player_rearm_eta % 60;
 				hund = (int)(Player_rearm_eta * 100) % 100;
 
-				sprintf(outstr, "%02d:%02d.%02d", min, sec, hund);
+				snprintf(outstr, 64, "%02d:%02d.%02d", min, sec, hund);
 			}
 			else
 			{
