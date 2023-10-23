@@ -3,7 +3,7 @@ name: Coverity for Freespace Open
 # many thanks!
 
 # This mode is for testing
-on: [push, pull_request]
+#on: [push, pull_request]
 
 # In production, push on a specific schedule
 #on:
@@ -13,7 +13,7 @@ on: [push, pull_request]
 
 env:
   QT_VERSION: 5.12.9
-  coverity_email: ${{ secrets.COVERITY_EMAIL }}
+  coverity_email: SirKnightlySCP@gmail.com
   coverity_token: ${{ secrets.COVERITY_TOKEN }}
 
 jobs:
@@ -43,7 +43,7 @@ jobs:
       # pipe results of wget to a log file because it's very verbose and rarely fails
       - name: Install Coverity
         run: |
-          wget -o wgetlog.txt -q https://scan.coverity.com/download/cxx/linux64 --post-data "token=${{ env.coverity_token }}&project=JohnAFernandez/fs2open" -O coverity_tool.tgz
+          wget -o wgetlog.txt -q https://scan.coverity.com/download/cxx/linux64 --post-data "token=${{ env.coverity_token }}&project=scp-fs2open/fs2open.github.com" -O coverity_tool.tgz
           mkdir cov-scan
           tar ax -f coverity_tool.tgz --strip-components=1 -C cov-scan
 
@@ -75,8 +75,8 @@ jobs:
         working-directory: ./build
         run: tar zcf cov-scan.tgz cov-int
 
-      #Comment this out when testing to keep from running into limits
-      #- name: Upload to Coverity
-      #  run: |
-      #    cd build
-      #    curl --form token=${{ env.coverity_token }} --form email=${{ env.coverity_email }} --form file=@cov-scan.tgz --form version="$(git rev-parse HEAD)" --form description="Automatic GHA scan" 'https://scan.coverity.com/builds?project=scp-fs2open/fs2open.github.com'
+      #Comment this out when testing to keep from running into upload limits
+      - name: Upload to Coverity
+        run: |
+          cd build
+          curl --form token=${{ env.coverity_token }} --form email=${{ env.coverity_email }} --form file=@cov-scan.tgz --form version="$(git rev-parse HEAD)" --form description="Automatic GHA scan" 'https://scan.coverity.com/builds?project=scp-fs2open/fs2open.github.com'

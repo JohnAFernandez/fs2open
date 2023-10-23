@@ -1,0 +1,31 @@
+{
+    "version": 2,
+    "configurePresets": [
+        {
+            "name": "gcc",
+            "displayName": "GCC 13.2.0 x86_64-apple-darwin21",
+            "description": "Using compilers: C = /usr/local/bin/gcc-13, CXX = /usr/local/bin/g++-13",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "CMAKE_C_COMPILER": "/usr/local/bin/gcc-13",
+                "CMAKE_CXX_COMPILER": "/usr/local/bin/g++-13",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "clang",
+            "displayName": "Clang 17.0.2 x86_64-apple-darwin21.6.0",
+            "description": "Using compilers: C = /usr/local/opt/llvm/bin/clang, CXX = /usr/local/opt/llvm/bin/clang++",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "CMAKE_C_COMPILER": "/usr/local/opt/llvm/bin/clang",
+                "CMAKE_CXX_COMPILER": "/usr/local/opt/llvm/bin/clang++",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        }
+    ]
+}
