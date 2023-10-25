@@ -93,9 +93,9 @@ jobs:
         with:
           submodules: true  # `true` to checkout submodules, `recursive` to recursively checkout submodules
       - name: checkout_new_branch
-        run: "|
+        run: |
           git checkout ${{ github.ref }}
-          git reflog" 
+          git reflog
       - name: Prepare Vulkan SDK
         uses: humbletim/setup-vulkan-sdk@v1.2.0
         with:
@@ -150,9 +150,9 @@ jobs:
           submodules: true
           fetch-depth: '0'  # value 0 to fetch all history and tags for all branches
       - name: checkout_new_branch
-        run: "|
+        run: |
           git checkout ${{ github.ref }}
-          git reflog" 
+          git reflog
       - name: Download Release builds
         # Grab the release builds
         uses: actions/download-artifact@v2
@@ -206,9 +206,9 @@ jobs:
         with:
           submodules: true
       - name: Checkout Correct Branch
-        run: "|
+        run: |
           git checkout ${{ github.ref }}
-          git reflog"   
+          git reflog
       # - name: Cache Qt
         # # Cache Qt
         # id: cache-qt-win
@@ -304,9 +304,9 @@ jobs:
           submodules: true
           fetch-depth: '0'
       - name: checkout_new_branch
-        run: "|
+        run: |
           git checkout ${{ github.ref }}
-          git reflog"   
+          git reflog   
       - name: Download Release builds
         uses: actions/download-artifact@v2
         with:
@@ -379,9 +379,9 @@ jobs:
           submodules: true
           fetch-depth: 0
       - name: checkout_new_branch
-        run: "|
+        run: |
           git checkout ${{ github.ref }}
-          git reflog" 
+          git reflog 
       - name: Prepare Vulkan SDK
         uses: humbletim/setup-vulkan-sdk@v1.2.0
         with:
