@@ -105,7 +105,7 @@ void multi_obs_create_observer(net_player *pl)
 	
 	// create the basic observer object
 	objnum = observer_create( &vmd_identity_matrix, &vmd_zero_vector);	
-	Assert(objnum != -1);
+	Verification(objnum != -1, "Could not create observer object! This is a major multiplayer error, please report to an SCP coder!");
 	Objects[objnum].flags.set(Object::Object_Flags::Player_ship);	
 	Objects[objnum].net_signature = 0;
 

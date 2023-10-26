@@ -1558,10 +1558,7 @@ void multi_create_standalone_object()
 	vm_vec_zero(&v);
 	objnum = observer_create(&m,&v);
 
-	if (objnum < 0) {
-		Error(LOCATION, "Failed to create standalone observer object! Please investigate!");
-		return;
-	}
+	Verification(objnum != -1, "Could not create an observer object for the standalone server! This is a major multiplayer error, please report to an SCP coder!");
 
 	Player_obj = &Objects[objnum];
     Player_obj->flags.remove(Object::Object_Flags::Player_ship);
