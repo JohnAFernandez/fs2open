@@ -4970,6 +4970,7 @@ void game_process_event( int current_state, int event )
 			break;
 
 		case GS_EVENT_INITIAL_PLAYER_SELECT:
+			Warning(LOCATION, "This is a point release test.");
 			gameseq_set_state(GS_STATE_INITIAL_PLAYER_SELECT);
 			break;
 
