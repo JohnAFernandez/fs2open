@@ -126,7 +126,7 @@ void convert_24_to_16(int bit_24, ushort *bit_16)
  */
 int unpack_pixel(anim_instance *ai, ubyte *data, ubyte pix, int aabitmap, int bpp)
 {
-	int bit_24;
+	int bit_24 = 0;
 	ushort bit_16 = 0;	
 	ubyte bit_8 = 0;
 	ubyte al = 0;
@@ -223,7 +223,7 @@ int unpack_pixel(anim_instance *ai, ubyte *data, ubyte pix, int aabitmap, int bp
  */
 int unpack_pixel_count(anim_instance *ai, ubyte *data, ubyte pix, int count = 0, int aabitmap = 0, int bpp = 8)
 {
-	int bit_24;
+	int bit_24 = 0;
 	int idx;
 	ubyte al = 0;
 	ushort bit_16 = 0;	
