@@ -998,6 +998,7 @@ void barracks_init_player_stuff(int mode)
 	                                  nullptr, CF_LOCATION_ROOT_USER | CF_LOCATION_ROOT_GAME | CF_LOCATION_TYPE_ROOT);
 
 	int ranks[MAX_PILOTS];
+	memset(ranks, -1, MAX_PILOTS);
 
 	for (i=0; i<Num_pilots; i++) {
 		for (j=0; j<Num_pilots; j++) {
