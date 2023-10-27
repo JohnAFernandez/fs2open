@@ -551,6 +551,7 @@ void AckValidServer(unsigned int sig)
 	ack_pack.sig = sig;
 	ack_pack.code = CMD_CLIENT_RECEIVED;
 	ack_pack.len = PACKED_HEADER_ONLY_SIZE;
+	ack_pack.security = 0; // This doesn't do anyone. Just a dummy value to placate linters...
 
 	packet_length = SerializeValidatePacket(&ack_pack, packet_data);
 	Assert(packet_length == PACKED_HEADER_ONLY_SIZE);
