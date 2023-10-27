@@ -2200,6 +2200,10 @@ void HudGaugeDamage::render(float  /*frametime*/)
 		Assert(best_index >= 0);
 		Assert(best_str >= 0);
 
+		// Coverity 1093534, make sure that we ignore this edge case
+		if(best_index < 0 || best_str < 0)
+			continue;
+
 		DamageInfo info;
 
 		info.draw_background = true;
