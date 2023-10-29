@@ -875,6 +875,7 @@ ADE_VIRTVAR(TargetSubsystem, l_Ship, "subsystem", "Target subsystem of ship.", "
 			aip->target_time = 0.0f;
 
 			set_targeted_subsys(aip, NULL, -1);
+			return ade_set_error(L, "o", l_Subsystem.Set(ship_subsys_h()));
 		}
 	}
 
