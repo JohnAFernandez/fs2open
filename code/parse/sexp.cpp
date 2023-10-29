@@ -2372,7 +2372,9 @@ int check_sexp_syntax(int node, int return_type, int recursive, int *bad_node, s
 			var_index = sexp_get_variable_index(node);
 			Assert(var_index != -1);
 	
-			if (!check_variable_data_type(type,
+			// Like most coverity issues, var_index being -1 is probably indicitive of something incredibly bad,
+			// But we'll *still* let assertions catch it on debug and basically just call it an invalid variable on release builds.
+			if (var_index == -1 || !check_variable_data_type(type,
 					Sexp_variables[var_index].type,
 					get_operator_const(op_node),
 					argnum,
