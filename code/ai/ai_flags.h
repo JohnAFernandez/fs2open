@@ -2,7 +2,7 @@
 #define AI_FLAGS_H
 
 #include "globalincs/flagset.h"
-
+//more stuff
 namespace AI {
 	FLAG_LIST(AI_Flags) {
 		Formation_wing,				//	Fly in formation as part of wing. Also used when flying waypoints.
