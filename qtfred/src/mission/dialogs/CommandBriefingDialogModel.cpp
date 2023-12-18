@@ -78,8 +78,6 @@ bool CommandBriefingDialogModel::apply()
 		Cur_cmd_brief->stage[i].wave = -1;
 	}
 
-	_wipCommandBrief.num_stages = 0;
-
 	return true;
 }
 
