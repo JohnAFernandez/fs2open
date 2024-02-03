@@ -464,8 +464,7 @@ void player_select_do()
 	gr_bitmap(0,0,GR_RESIZE_MENU);
 
 	//skip this if pilot is given through cmdline, assuming single-player
-	if (Cmdline_pilot) {
-		player_finish_select(Cmdline_pilot, false);
+	if (Cmdline_pilot && player_finish_select(Cmdline_pilot, false)){
 		return;
 	}
 
@@ -502,11 +501,8 @@ void player_select_do()
 	gr_flip();
 }
 
-void player_select_close()
+bool player_select_close()
 {
-	// destroy the player select window
-	Player_select_window.destroy();
-
 	// if we're in input mode - we should undo the pilot create reqeust
 	if(Player_select_input_mode) {
 		player_select_cancel_create();
@@ -515,13 +511,13 @@ void player_select_close()
 	// if we are just exiting then don't try to save any pilot files - taylor
 	if (Player_select_no_save_pilot) {
 		Player = NULL;
-		return;
+		return false;
 	}
 
 	// actually set up the Player struct here
 	if ( (Player_select_pilot == -1) || (Player_select_num_pilots == 0) ) {
 		nprintf(("General","WARNING! No pilot selected! We should be exiting the game now!\n"));
-		return;
+		return false;
 	}
 
 	// unload all bitmaps
@@ -551,12 +547,14 @@ void player_select_close()
 		Game_mode = GM_NORMAL;
 	}
 
-	// now read in a the pilot data
+	// now read in the pilot data
 	if ( !Pilot.load_player(Pilots[Player_select_pilot], Player) ) {
-		Error(LOCATION,"Couldn't load pilot file, bailing");
 		Player = NULL;
-		return;
+		return false;
 	}
+
+	// destroy the player select window (only after we're sure of success)
+	Player_select_window.destroy();
 
 	// set the local multi options from the player flags
 	multi_options_init_globals();
@@ -588,6 +586,8 @@ void player_select_close()
 	stop_parse();
 
 	Player_select_screen_active = 0;
+
+	return true;
 }
 
 void player_select_set_input_mode(int n)
@@ -889,10 +889,15 @@ int player_select_get_last_pilot_info()
 		Player_select_last_pilot[strlen(Player_select_last_pilot)-1]='\0';	// chop off last char, M|P
 	}
 
-	if ( !Pilot.load_player(Player_select_last_pilot, Player) ) {
-		Player_select_last_is_multi = 0;
-	} else {
-		Player_select_last_is_multi = Player->player_was_multi;
+	try {
+		if (!Pilot.load_player(Player_select_last_pilot, Player)) {
+			Player_select_last_is_multi = 0;
+		} else {
+			Player_select_last_is_multi = Player->player_was_multi;
+		}
+	} catch (...) {
+		popup(PF_USE_AFFIRMATIVE_ICON, 1, POPUP_OK, XSTR("Unable to open pilot file %s!", 1662), Player_select_last_pilot);
+		return 0;
 	}
 
 	return 1;
@@ -1298,11 +1303,16 @@ void player_select_commit()
 	// if we've gotten to this point, we should have ensured this was the case
 	Assert(Player_select_num_pilots > 0);
 
-	gameseq_post_event(GS_EVENT_MAIN_MENU);
-	gamesnd_play_iface(InterfaceSounds::COMMIT_PRESSED);
-
 	// evaluate if this is the _very_ first pilot
 	player_select_eval_very_first_pilot();
+
+	if (player_select_close()) {
+		gameseq_post_event(GS_EVENT_MAIN_MENU);
+		gamesnd_play_iface(InterfaceSounds::COMMIT_PRESSED);
+	} else {
+		gamesnd_play_iface(InterfaceSounds::GENERAL_FAIL);
+	}
+
 } 
 
 void player_select_cancel_create()
@@ -1514,7 +1524,7 @@ SCP_string player_get_last_player()
 	return SCP_string(last_player);
 }
 
-void player_finish_select(const char* callsign, bool is_multi) {
+bool player_finish_select(const char* callsign, bool is_multi) {
 	Player_num = 0;
 	Player = &Players[0];
 	Player->flags |= PLAYER_FLAGS_STRUCTURE_IN_USE;
@@ -1533,8 +1543,9 @@ void player_finish_select(const char* callsign, bool is_multi) {
 
 	// now read in a the pilot data
 	if ( !Pilot.load_player(callsign, Player) ) {
-		Error(LOCATION,"Couldn't load pilot file for pilot \"%s\", bailing", callsign);
-		Player = nullptr;
+		popup(PF_USE_AFFIRMATIVE_ICON, 1, POPUP_OK, XSTR("Unable to open pilot file %s!", 1662), callsign);
+		Cmdline_pilot = nullptr;
+		return false;
 	} else {
 		// NOTE: this may fail if there is no current campaign, it's not fatal
 		Pilot.load_savefile(Player, Player->current_campaign);
@@ -1552,6 +1563,7 @@ void player_finish_select(const char* callsign, bool is_multi) {
 	os_config_write_string(nullptr, "LastPlayer", Player->callsign);
 
 	gameseq_post_event(GS_EVENT_MAIN_MENU);
+	return true;
 }
 bool player_create_new_pilot(const char* callsign, bool is_multi, const char* copy_from_callsign) {
 	SCP_string buf = callsign;
@@ -1588,7 +1600,7 @@ bool player_create_new_pilot(const char* callsign, bool is_multi, const char* co
 	if (copy_from_callsign != nullptr) {
 		// attempt to read in the pilot file of the guy to be cloned
 		if (!Pilot.load_player(copy_from_callsign, Player)) {
-			Error(LOCATION, "Couldn't load pilot file, bailing");
+			Error(LOCATION, "Couldn't create pilot file, bailing");
 			return false;
 		}
 	}

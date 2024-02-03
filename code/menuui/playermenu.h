@@ -33,7 +33,7 @@ void player_select_do();
  * @details Called by game_leave_state when leaving GS_STATE_INITIAL_PLAYER_SELECT, finalizes player selection and
  * prepares to enter the mainhall.
  */
-void player_select_close();
+bool player_select_close();
 
 // function to check whether we found a "last pilot". loads this pilot in if possible and returns true, or false otherwise
 int player_select_get_last_pilot();
@@ -66,7 +66,7 @@ SCP_vector<SCP_string> player_select_enumerate_pilots();
 
 SCP_string player_get_last_player();
 
-void player_finish_select(const char* callsign, bool is_multi);
+bool player_finish_select(const char* callsign, bool is_multi);
 
 /**
  * Creates a new pilot

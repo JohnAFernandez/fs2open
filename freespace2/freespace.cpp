@@ -5620,8 +5620,7 @@ void game_leave_state( int old_state, int new_state )
 			multi_ingame_select_close();
 			break;
 
-		case GS_STATE_INITIAL_PLAYER_SELECT:			
-			player_select_close();			
+		case GS_STATE_INITIAL_PLAYER_SELECT:					
 			break;		
 
 		case GS_STATE_MULTI_START_GAME:

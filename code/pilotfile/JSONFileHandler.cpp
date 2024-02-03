@@ -198,7 +198,7 @@ json_int_t pilot::JSONFileHandler::readInteger(const char* name) {
 	auto el = json_object_get(_currentEl, name);
 
 	if (el == nullptr || json_typeof(el) != JSON_INTEGER) {
-		Error(LOCATION, "JSON element %s must be an integer but it is not valid!", name);
+		throw std::runtime_error("JSON element %s must be an integer but it is not valid!", name);
 		return 0;
 	}
 
@@ -206,10 +206,10 @@ json_int_t pilot::JSONFileHandler::readInteger(const char* name) {
 }
 void pilot::JSONFileHandler::ensureExists(const char* name) {
 	if (json_typeof(_currentEl) != JSON_OBJECT) {
-		Error(LOCATION, "JSON reading requires a value with name '%s' but the current element is not an object!", name);
+		throw std::runtime_error("JSON reading requires a value with name '%s' but the current element is not an object!", name);
 	}
 	if (json_object_get(_currentEl, name) == nullptr) {
-		Error(LOCATION, "JSON reading requires a value with name '%s' but there is no such value!", name);
+		throw std::runtime_error("JSON reading requires a value with name '%s' but there is no such value!", name);
 	}
 }
 std::int8_t pilot::JSONFileHandler::readByte(const char* name) {
@@ -231,7 +231,7 @@ float pilot::JSONFileHandler::readFloat(const char* name) {
 	auto el = json_object_get(_currentEl, name);
 
 	if (el == nullptr || json_typeof(el) != JSON_REAL) {
-		Error(LOCATION, "JSON element %s must be a float but it is not valid!", name);
+		throw std::runtime_error("JSON element %s must be a float but it is not valid!", name);
 		return 0.0f;
 	}
 
@@ -241,7 +241,7 @@ SCP_string pilot::JSONFileHandler::readString(const char* name) {
 	auto el = json_object_get(_currentEl, name);
 
 	if (el == nullptr || json_typeof(el) != JSON_STRING) {
-		Error(LOCATION, "JSON element %s must be a string but it is not valid!", name);
+		throw std::runtime_error("JSON element %s must be a string but it is not valid!", name);
 		return SCP_string();
 	}
 	auto json_str = json_string_value(el);
@@ -255,7 +255,7 @@ void pilot::JSONFileHandler::beginSectionRead() {
 
 	auto sections = json_object_get(_currentEl, "sections");
 	if (json_typeof(sections) != JSON_OBJECT) {
-		Error(LOCATION, "Sections must be a JSON object!");
+		throw std::runtime_error("Sections must be a JSON object!");
 	}
 
 	pushElement(sections);
@@ -287,7 +287,7 @@ Section pilot::JSONFileHandler::nextSection() {
 
 	auto el = json_object_iter_value(_sectionIterator);
 	if (json_typeof(el) != JSON_OBJECT) {
-		Error(LOCATION, "The section element of '%s' must be an object but it's a different type!", key);
+		throw std::runtime_error("The section element of '%s' must be an object but it's a different type!", key);
 		return Section::Invalid;
 	}
 
@@ -317,7 +317,7 @@ size_t pilot::JSONFileHandler::startArrayRead(const char* name, bool /*short_ind
 
 	auto array = json_object_get(_currentEl, name);
 	if (json_typeof(array) != JSON_ARRAY) {
-		Error(LOCATION, "Expected an array for '%s' but it was a different type!", name);
+		throw std::runtime_error("Expected an array for '%s' but it was a different type!", name);
 		return 0;
 	}
 
