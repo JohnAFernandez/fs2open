@@ -1142,6 +1142,10 @@ bool pilotfile::load_player(const char* callsign, player* _p, bool force_binary)
 			mprintf(("PLR => ERROR: %s\n", err));
 			plr_close();
 			return false;
+		} catch (SCP_string &err) {
+			mprintf(("PLR => ERROR: %s\n", err));
+			plr_close();
+			return false;
 		}
 	}
 	handler->endSectionRead();
