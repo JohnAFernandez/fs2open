@@ -292,6 +292,9 @@
          <property name="gridStyle">
           <enum>Qt::NoPen</enum>
          </property>
+         <attribute name="verticalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
         </widget>
        </item>
       </layout>
@@ -343,6 +346,9 @@
          <property name="gridStyle">
           <enum>Qt::NoPen</enum>
          </property>
+         <attribute name="verticalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
         </widget>
        </item>
       </layout>
