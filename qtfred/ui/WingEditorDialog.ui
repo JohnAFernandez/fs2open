@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Wings Editor</string>
   </property>
-  <widget class="QComboBox" name="comboBox">
+  <widget class="QComboBox" name="selectWingCombobox">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -28,7 +28,7 @@
     </property>
    </item>
   </widget>
-  <widget class="QGroupBox" name="groupBox">
+  <widget class="QGroupBox" name="generalGroupBox">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -53,7 +53,7 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QLabel" name="label_3">
+        <widget class="QLabel" name="wingNameLabel">
          <property name="maximumSize">
           <size>
            <width>65</width>
@@ -66,14 +66,14 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineEdit"/>
+        <widget class="QLineEdit" name="wingNameLineEdit"/>
        </item>
       </layout>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
-        <widget class="QLabel" name="label_2">
+        <widget class="QLabel" name="totalWavesLabel">
          <property name="maximumSize">
           <size>
            <width>65</width>
@@ -86,14 +86,14 @@
         </widget>
        </item>
        <item>
-        <widget class="QSpinBox" name="spinBox"/>
+        <widget class="QSpinBox" name="totalWavesSpinBox"/>
        </item>
       </layout>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
-        <widget class="QLabel" name="label">
+        <widget class="QLabel" name="hotkeyLabel">
          <property name="maximumSize">
           <size>
            <width>65</width>
@@ -106,7 +106,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="comboBox_3"/>
+        <widget class="QComboBox" name="hotkeyComboBox"/>
        </item>
       </layout>
      </item>
@@ -125,7 +125,7 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_4">
        <item>
-        <widget class="QLabel" name="label_4">
+        <widget class="QLabel" name="wingLeaderLabel">
          <property name="maximumSize">
           <size>
            <width>65</width>
@@ -133,43 +133,43 @@
           </size>
          </property>
          <property name="text">
-          <string>Leader</string>
+          <string>Wing Leader</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="comboBox_2"/>
+        <widget class="QComboBox" name="wingLeaderComboBox"/>
        </item>
       </layout>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_5">
        <item>
-        <widget class="QLabel" name="label_6">
+        <widget class="QLabel" name="waveThresholdLabel">
          <property name="text">
           <string>Wave Threshold</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QSpinBox" name="spinBox_2"/>
+        <widget class="QSpinBox" name="waveThresholdSpinBox"/>
        </item>
       </layout>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_6">
        <item>
-        <widget class="QLabel" name="label_5">
+        <widget class="QLabel" name="squadLogoLabel">
          <property name="text">
           <string>Squad Logo</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineEdit_2"/>
+        <widget class="QLineEdit" name="squadLogoLineEdit"/>
        </item>
        <item>
-        <widget class="QToolButton" name="toolButton_2">
+        <widget class="QToolButton" name="browseSquadLogosButton">
          <property name="text">
           <string>...</string>
          </property>
@@ -179,7 +179,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QToolButton" name="toolButton">
+   <widget class="QToolButton" name="toggleGeneralOptionsButton">
     <property name="geometry">
      <rect>
       <x>70</x>
@@ -193,7 +193,7 @@
     </property>
    </widget>
   </widget>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="previousWingButton">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -206,7 +206,7 @@
     <string>Prev Wing</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_2">
+  <widget class="QPushButton" name="nextWingButton">
    <property name="geometry">
     <rect>
      <x>110</x>
@@ -219,7 +219,7 @@
     <string>Next Wing</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_3">
+  <widget class="QPushButton" name="disbandWingButton">
    <property name="geometry">
     <rect>
      <x>340</x>
@@ -232,7 +232,7 @@
     <string>Disband</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_4">
+  <widget class="QPushButton" name="deleteWingButton">
    <property name="geometry">
     <rect>
      <x>340</x>
@@ -245,7 +245,7 @@
     <string>Delete</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_5">
+  <widget class="QPushButton" name="initialOrdersButton">
    <property name="geometry">
     <rect>
      <x>200</x>
@@ -258,7 +258,7 @@
     <string>Initial Orders</string>
    </property>
   </widget>
-  <widget class="QGroupBox" name="groupBox_2">
+  <widget class="QGroupBox" name="wingFlagsGroubBox">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -270,7 +270,7 @@
    <property name="title">
     <string>Wing Flags</string>
    </property>
-   <widget class="QToolButton" name="toolButton_3">
+   <widget class="QToolButton" name="toggleWingFlagsButton">
     <property name="geometry">
      <rect>
       <x>80</x>
@@ -294,21 +294,21 @@
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_3">
      <item>
-      <widget class="QCheckBox" name="checkBox_2">
+      <widget class="QCheckBox" name="reinforcementUnitFlagCheckbox">
        <property name="text">
         <string>Reinforcement Unit</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="checkBox_3">
+      <widget class="QCheckBox" name="ingoreCountingGoalsFlagCheckbox">
        <property name="text">
         <string>Ignore for Counting Goals</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="checkBox">
+      <widget class="QCheckBox" name="noArrivalMusicFlagCheckbox">
        <property name="text">
         <string>No Arrival Music</string>
        </property>
@@ -327,21 +327,21 @@
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_4">
      <item>
-      <widget class="QCheckBox" name="checkBox_5">
+      <widget class="QCheckBox" name="noArrivalMessageFlagCheckbox">
        <property name="text">
         <string>No Arrival Message</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="checkBox_6">
+      <widget class="QCheckBox" name="noFirstWaveMessageCheckbox">
        <property name="text">
         <string>No First Wave Message</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="checkBox_4">
+      <widget class="QCheckBox" name="noDynamicGoalsCheckbox">
        <property name="text">
         <string>No Dynamic Goals</string>
        </property>
@@ -350,7 +350,7 @@
     </layout>
    </widget>
   </widget>
-  <widget class="QTabWidget" name="tabWidget">
+  <widget class="QTabWidget" name="arrivalDeparturesTabs">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -362,11 +362,11 @@
    <property name="currentIndex">
     <number>0</number>
    </property>
-   <widget class="QWidget" name="Delay">
+   <widget class="QWidget" name="arrivalLocationTab">
     <attribute name="title">
      <string>Locations and Delays</string>
     </attribute>
-    <widget class="QLabel" name="label_7">
+    <widget class="QLabel" name="arrivalTypeLabel">
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -379,7 +379,7 @@
       <string>Arrival Type</string>
      </property>
     </widget>
-    <widget class="QComboBox" name="comboBox_4">
+    <widget class="QComboBox" name="arrivalTypeComboBox">
      <property name="geometry">
       <rect>
        <x>80</x>
@@ -390,7 +390,12 @@
      </property>
      <item>
       <property name="text">
-       <string>Warp In</string>
+       <string>Warp In at Current Location</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Start in Docking Bay</string>
       </property>
      </item>
      <item>
@@ -405,11 +410,31 @@
      </item>
      <item>
       <property name="text">
-       <string>Docking Bay</string>
+       <string>Warp In Back of Ship</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Warp In Left of Ship</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Warp In Right of Ship</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Warp In Above Ship</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Warp In Below Ship</string>
       </property>
      </item>
     </widget>
-    <widget class="QLabel" name="label_8">
+    <widget class="QLabel" name="departureTypeLabel">
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -422,7 +447,7 @@
       <string>Departure Type</string>
      </property>
     </widget>
-    <widget class="QComboBox" name="comboBox_5">
+    <widget class="QComboBox" name="departureTypeComboBox">
      <property name="geometry">
       <rect>
        <x>90</x>
@@ -442,7 +467,7 @@
       </property>
      </item>
     </widget>
-    <widget class="QComboBox" name="comboBox_6">
+    <widget class="QComboBox" name="departureTargetComboBox">
      <property name="geometry">
       <rect>
        <x>80</x>
@@ -452,7 +477,7 @@
       </rect>
      </property>
     </widget>
-    <widget class="QLabel" name="label_10">
+    <widget class="QLabel" name="initialArrivalDelayLabel">
      <property name="geometry">
       <rect>
        <x>220</x>
@@ -465,7 +490,7 @@
       <string>Initial Arrival Delay</string>
      </property>
     </widget>
-    <widget class="QSpinBox" name="spinBox_3">
+    <widget class="QSpinBox" name="initialArrivalDelaySpinBox">
      <property name="geometry">
       <rect>
        <x>340</x>
@@ -501,7 +526,7 @@
       <string>Distance</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_11">
+    <widget class="QLabel" name="preDepartureDelayLabel">
      <property name="geometry">
       <rect>
        <x>220</x>
@@ -514,7 +539,7 @@
       <string>Pre-Departure Delay</string>
      </property>
     </widget>
-    <widget class="QSpinBox" name="spinBox_4">
+    <widget class="QSpinBox" name="preDepartureDelaySpinBox">
      <property name="geometry">
       <rect>
        <x>340</x>
@@ -534,7 +559,7 @@
       </rect>
      </property>
     </widget>
-    <widget class="QGroupBox" name="groupBox_3">
+    <widget class="QGroupBox" name="delayBetweenWavesGroupBox">
      <property name="geometry">
       <rect>
        <x>220</x>
@@ -557,24 +582,24 @@
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_7">
        <item>
-        <widget class="QLabel" name="label_13">
+        <widget class="QLabel" name="minWaveDelayLabel">
          <property name="text">
           <string>Min</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineEdit_4"/>
+        <widget class="QLineEdit" name="minWaveDelayLineEdit"/>
        </item>
        <item>
-        <widget class="QLabel" name="label_14">
+        <widget class="QLabel" name="maxWaveDelayLabel">
          <property name="text">
           <string>Max</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineEdit_5"/>
+        <widget class="QLineEdit" name="maxWaveDelayLineEdit"/>
        </item>
       </layout>
      </widget>
@@ -589,7 +614,7 @@
       </rect>
      </property>
     </widget>
-    <widget class="QLabel" name="label_12">
+    <widget class="QLabel" name="departureTargetLabel">
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -603,18 +628,18 @@
      </property>
     </widget>
    </widget>
-   <widget class="QWidget" name="tab">
+   <widget class="QWidget" name="conditionalsTab">
     <attribute name="title">
      <string>Conditionals</string>
     </attribute>
    </widget>
-   <widget class="QWidget" name="tab_2">
+   <widget class="QWidget" name="pararmetersTab">
     <attribute name="title">
      <string>Parameters</string>
     </attribute>
    </widget>
   </widget>
-  <widget class="QLabel" name="label_9">
+  <widget class="QLabel" name="arrivalDepartureLabel">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -627,7 +652,7 @@
     <string>Arrival and Departure</string>
    </property>
   </widget>
-  <widget class="QToolButton" name="toolButton_4">
+  <widget class="QToolButton" name="toggleArrivalDepartureButton">
    <property name="geometry">
     <rect>
      <x>140</x>
