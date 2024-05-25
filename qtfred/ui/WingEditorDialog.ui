@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>443</width>
-    <height>596</height>
+    <height>551</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -353,14 +353,14 @@
   <widget class="QTabWidget" name="arrivalDeparturesTabs">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>10</x>
      <y>340</y>
-     <width>401</width>
-     <height>251</height>
+     <width>421</width>
+     <height>201</height>
     </rect>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>2</number>
    </property>
    <widget class="QWidget" name="arrivalLocationTab">
     <attribute name="title">
@@ -384,7 +384,7 @@
       <rect>
        <x>80</x>
        <y>10</y>
-       <width>111</width>
+       <width>121</width>
        <height>22</height>
       </rect>
      </property>
@@ -452,7 +452,7 @@
       <rect>
        <x>90</x>
        <y>110</y>
-       <width>101</width>
+       <width>111</width>
        <height>22</height>
       </rect>
      </property>
@@ -467,12 +467,12 @@
       </property>
      </item>
     </widget>
-    <widget class="QComboBox" name="departureTargetComboBox">
+    <widget class="QComboBox" name="arrivalTargetComboBox">
      <property name="geometry">
       <rect>
        <x>80</x>
        <y>40</y>
-       <width>111</width>
+       <width>121</width>
        <height>22</height>
       </rect>
      </property>
@@ -500,7 +500,7 @@
       </rect>
      </property>
     </widget>
-    <widget class="QLabel" name="arrivalTargetHelperLabel">
+    <widget class="QLabel" name="arrivalTargetLabel">
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -513,7 +513,7 @@
       <string>Target</string>
      </property>
     </widget>
-    <widget class="QLabel" name="arrivalDistanceHelperLabel">
+    <widget class="QLabel" name="arrivalDistanceLabel">
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -549,12 +549,12 @@
       </rect>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_3">
+    <widget class="QLineEdit" name="arrivalDistanceLineEdit">
      <property name="geometry">
       <rect>
        <x>80</x>
        <y>70</y>
-       <width>111</width>
+       <width>121</width>
        <height>22</height>
       </rect>
      </property>
@@ -564,7 +564,7 @@
       <rect>
        <x>220</x>
        <y>40</y>
-       <width>171</width>
+       <width>181</width>
        <height>61</height>
       </rect>
      </property>
@@ -574,9 +574,9 @@
      <widget class="QWidget" name="horizontalLayoutWidget_7">
       <property name="geometry">
        <rect>
-        <x>20</x>
+        <x>10</x>
         <y>20</y>
-        <width>188</width>
+        <width>161</width>
         <height>31</height>
        </rect>
       </property>
@@ -604,12 +604,12 @@
       </layout>
      </widget>
     </widget>
-    <widget class="QComboBox" name="comboBox_7">
+    <widget class="QComboBox" name="departureTargetComboBox">
      <property name="geometry">
       <rect>
        <x>90</x>
        <y>140</y>
-       <width>101</width>
+       <width>111</width>
        <height>22</height>
       </rect>
      </property>
