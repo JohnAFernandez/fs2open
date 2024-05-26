@@ -12,6 +12,7 @@
 #include <qevent.h>
 #include <FredApplication.h>
 #include <ui/dialogs/ShipEditorDialog.h>
+#include <ui/dialogs/WingEditorDialog.h>
 #include <ui/dialogs/EventEditorDialog.h>
 #include <ui/dialogs/AsteroidEditorDialog.h>
 #include <ui/dialogs/BriefingEditorDialog.h>
@@ -754,6 +755,10 @@ void FredView::on_actionLoadout_triggered(bool) {
 }
 void FredView::on_actionVariables_triggered(bool) {
 	auto editorDialog = new dialogs::VariableDialog(this, _viewport);
+	editorDialog->show();
+}
+void FredView::on_actionWings_triggered(bool) {
+	auto editorDialog = new dialogs::WingDialog(this, _viewport);
 	editorDialog->show();
 }
 
