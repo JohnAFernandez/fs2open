@@ -758,7 +758,7 @@ void FredView::on_actionVariables_triggered(bool) {
 	editorDialog->show();
 }
 void FredView::on_actionWings_triggered(bool) {
-	auto editorDialog = new dialogs::WingDialog(this, _viewport);
+	auto editorDialog = new dialogs::WingEditorDialog(this, _viewport);
 	editorDialog->show();
 }
 

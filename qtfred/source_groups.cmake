@@ -210,6 +210,7 @@ add_file_folder("UI"
 	ui/ShipTextureReplacementDialog.ui
 	ui/ShipTBLViewer.ui
 	ui/VariableDialog.ui
+	ui/WingEditorDialog.ui
 )
 
 add_file_folder("Resources"
