@@ -4,6 +4,7 @@
 #include <mission/dialogs/WingEditorDialogModel.h>
 #include <ui/FredView.h>
 #include <ui/widgets/sexp_tree.h>
+#include <ui_WingEditorDialog.h>
 
 
 namespace fso {
