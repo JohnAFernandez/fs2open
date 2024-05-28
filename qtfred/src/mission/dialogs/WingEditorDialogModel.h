@@ -1,5 +1,6 @@
 #include "AbstractDialogModel.h"
 #include "globalincs/pstypes.h"
+#include <utility>
 
 namespace fso {
 namespace fred {
@@ -13,15 +14,13 @@ public:
 	bool apply() { return true; }
 	void reject() {}
 
-	SCP_string getCurrentWingName();
+	SCP_string getCurrentWingName() { return _currentWingName; }
 	SCP_vector<SCP_string> getCurrentSelectableWings();
-	
-	SCP_string getLeader();
-	SCP_vector<SCP_string> getLeaderList();
+
+	std::pair<int, SCP_vector<SCP_string>> getLeaderList();
 	int getWaveCount();
 	int getWaveThreshhold();
-	SCP_string getHotkey();
-	SCP_string getHotkeyList();
+	std::pair<int, SCP_vector<SCP_string>> getHotkeyList();
 	bool getReinforcementFlag();
 	bool getCountingGoalsFlag();
 	bool getArrivalMusicFlag();
@@ -29,15 +28,13 @@ public:
 	bool getFirstWaveMessageFlag();
 	bool getDynamicGoalsFlag();
 	int getArrivalType();
-	SCP_string getArrivalTarget();
-	SCP_vector<SCP_string> getArrivalTargetList();
+	std::pair<int, SCP_vector<SCP_string>> getArrivalTargetList();
 	int getArrivalDistance();
 	int getInitialDelay();
 	int getMinWaveDelay();
 	int getMaxWaveDelay();
 	int getDepartureType();
-	SCP_string getDepartureTarget();
-	SCP_vector<SCP_string> getDepartureTargetList();
+	std::pair<int, SCP_vector<SCP_string>> getDepartureTargetList();
 	int getPredepartureDelay();
 
 	SCP_string switchCurrentWing(SCP_string name);
@@ -72,6 +69,8 @@ public:
 private:
 	int _currentWingIndex;
 	SCP_string _currentWingName;
+
+	void populateCurrentSelection();
 };
 
 
