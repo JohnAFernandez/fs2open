@@ -7,7 +7,8 @@ namespace fred {
 namespace dialogs {
 
 
-WingEditorDialog::WingEditorDialog(FredView* parent, EditorViewport* viewport) : QDialog(parent), ui(Ui::WingEditorDialog()), _model(new WingEditorDialogModel(this, viewport)), _viewport(viewport)
+WingEditorDialog::WingEditorDialog(FredView* parent, EditorViewport* viewport) 
+	: QDialog(parent), ui(new Ui::WingEditorDialog()), _model(new WingEditorDialogModel(this, viewport)), _viewport(viewport)
 {
 	this->setFocus();
 	ui->setupUi(this);

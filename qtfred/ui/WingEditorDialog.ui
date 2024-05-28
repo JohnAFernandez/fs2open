@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>WingEditorDialog</class>
- <widget class="QDialog" name="WingEditorDialog">
+ <class>fso::fred::dialogs::WingEditorDialog</class>
+ <widget class="QDialog" name="fso::fred::dialogs::WingEditorDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -9,6 +9,18 @@
     <width>443</width>
     <height>551</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>443</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>443</width>
+    <height>551</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Wings Editor</string>
@@ -576,7 +588,7 @@
        <rect>
         <x>10</x>
         <y>20</y>
-        <width>161</width>
+        <width>188</width>
         <height>31</height>
        </rect>
       </property>
