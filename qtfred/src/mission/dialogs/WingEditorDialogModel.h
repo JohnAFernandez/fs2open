@@ -18,7 +18,7 @@ public:
 	SCP_vector<SCP_string> getCurrentSelectableWings();
 
 	std::pair<int, SCP_vector<SCP_string>> getLeaderList();
-	int getWaveCount();
+	int getNumberOfWaves();
 	int getWaveThreshhold();
 	int getHotkey();
 	bool getReinforcementFlag();

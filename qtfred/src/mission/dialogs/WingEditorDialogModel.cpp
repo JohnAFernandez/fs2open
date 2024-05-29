@@ -77,7 +77,7 @@ std::pair<int, SCP_vector<SCP_string>> WingEditorDialogModel::getLeaderList()
 
 	out.first = Wings[_currentWingIndex].special_ship;
 
-	for (int x = 0; Wings[_currentWingIndex].current_count; ++x){
+	for (int x = 0; Wings[i].wave_count > MAX_SHIPS_PER_WING; ++x){
 		if (Wings[_currentWingIndex].ship_index[x] > -1 && Wings[_currentWingIndex].ship_index[x] < MAX_SHIPS){
 			out.second.emplace_back(Ships[Wings[_currentWingIndex].ship_index[x]].ship_name);
 		}
@@ -86,12 +86,12 @@ std::pair<int, SCP_vector<SCP_string>> WingEditorDialogModel::getLeaderList()
 	return out;
 }
 
-int WingEditorDialogModel::getWaveCount() 
+int WingEditorDialogModel::getNumberOfWaves() 
 { 
 	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
 		return -1; 
 	
-	return Wings[_currentWingIndex].wave_count;
+	return Wings[_currentWingIndex].num_waves;
 }
 
 int WingEditorDialogModel::getWaveThreshhold()
@@ -352,8 +352,29 @@ int WingEditorDialogModel::setLeader(int newLeaderIndex)
 	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
 		return -1; 
 	
-	return Wings[_currentWingIndex].departure_location;
+
+
+	Wings[_currentWingIndex].special_ship = newLeaderIndex;
+	return Wings[_currentWingIndex].special_ship;
 }
+
+// Invalid threshhold :)
+//Wings[i].threshold + Wings[i].wave_count > MAX_SHIPS_PER_WING
+
+int WingEditorDialogModel::setTotalWaves(int newTotalWaves) 
+{
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS || newTotalWaves < 1) 
+		return -1; 
+
+}
+
+int WingEditorDialogModel::setWaveThreshhold(int newThreshhold)
+{
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS || newLeaderIndex < 0 || newLeaderIndex >= Wings[_currentWingIndex].currentCount) 
+		return -1; 
+
+}
+
 
 } // dialogs
 } // fred
