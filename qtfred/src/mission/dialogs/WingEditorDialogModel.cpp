@@ -56,7 +56,6 @@ void WingEditorDialogModel::populateCurrentSelection()
 	}
 }
 
-
 SCP_vector<SCP_string> WingEditorDialogModel::getCurrentSelectableWings()
 {
 	// going to make an exception for this function.  Going to just send the list as a secondary thing that gets added to the rest of the combobox
@@ -72,7 +71,21 @@ SCP_vector<SCP_string> WingEditorDialogModel::getCurrentSelectableWings()
 	return wingNames;
 }
 
-std::pair<int, SCP_vector<SCP_string>> WingEditorDialogModel::getLeaderList(){}
+std::pair<int, SCP_vector<SCP_string>> WingEditorDialogModel::getLeaderList()
+{
+	std::pair<int, SCP_vector<SCP_string>> out;
+
+	out.first = Wings[_currentWingIndex].special_ship;
+
+	for (int x = 0; Wings[_currentWingIndex].current_count; ++x){
+		if (Wings[_currentWingIndex].ship_index[x] > -1 && Wings[_currentWingIndex].ship_index[x] < MAX_SHIPS){
+			out.second.emplace_back(Ships[Wings[_currentWingIndex].ship_index[x]].ship_name);
+		}
+	}
+
+	return out;
+}
+
 int WingEditorDialogModel::getWaveCount() 
 { 
 	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
@@ -89,16 +102,101 @@ int WingEditorDialogModel::getWaveThreshhold()
 	return Wings[_currentWingIndex].threshold;
 }
 
-std::pair<int, SCP_vector<SCP_string>> WingEditorDialogModel::getHotkeyList(){}
-bool WingEditorDialogModel::getReinforcementFlag(){}
-bool WingEditorDialogModel::getCountingGoalsFlag(){}
-bool WingEditorDialogModel::getArrivalMusicFlag(){}
-bool WingEditorDialogModel::getArrivalMessageFlag(){}
-bool WingEditorDialogModel::getFirstWaveMessageFlag(){}
-bool WingEditorDialogModel::getDynamicGoalsFlag(){}
-int WingEditorDialogModel::getArrivalType(){}
-std::pair<int,SCP_vector<SCP_string>> WingEditorDialogModel::getArrivalTargetList(){}
-int WingEditorDialogModel::getArrivalDistance(){}
+/*
+		m_no_arrival_music = Wings[cur_wing].flags[Ship::Wing_Flags::No_arrival_music] ? TRUE : FALSE;
+		m_no_arrival_message = Wings[cur_wing].flags[Ship::Wing_Flags::No_arrival_message] ? TRUE : FALSE;
+		m_no_first_wave_message = Wings[cur_wing].flags[Ship::Wing_Flags::No_first_wave_message] ? TRUE : FALSE;
+		Wings[cur_wing].flags[Ship::Wing_Flags::Ignore_count])
+
+
+//		these are going to go in the arrival/departure parameters tab
+		m_no_arrival_warp = Wings[cur_wing].flags[Ship::Wing_Flags::No_arrival_warp] ? TRUE : FALSE;
+		m_no_departure_warp = Wings[cur_wing].flags[Ship::Wing_Flags::No_departure_warp] ? TRUE : FALSE;
+		Reinforcement
+		m_same_arrival_warp_when_docked = Wings[cur_wing].flags[Ship::Wing_Flags::Same_arrival_warp_when_docked] ? TRUE : FALSE;
+		m_same_departure_warp_when_docked = Wings[cur_wing].flags[Ship::Wing_Flags::Same_departure_warp_when_docked] ? TRUE : FALSE;
+
+*/
+
+int WingEditorDialogModel::getHotkey()
+{
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+		return -1; 
+	
+	return Wings[_currentWingIndex].hotkey;
+}
+
+bool WingEditorDialogModel::getReinforcementFlag()
+{
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+		return false; 
+
+	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::Reinforcement];
+}
+
+bool WingEditorDialogModel::getCountingGoalsFlag()
+{
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+		return false; 
+
+	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::Ignore_count];
+}
+
+bool WingEditorDialogModel::getArrivalMusicFlag()
+{
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+		return false; 
+
+	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::No_arrival_music];
+}
+
+bool WingEditorDialogModel::getArrivalMessageFlag()
+{
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+		return false; 
+
+	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::No_arrival_message];
+}
+
+bool WingEditorDialogModel::getFirstWaveMessageFlag()
+{
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+		return false; 
+
+	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::No_first_wave_message];
+}
+
+
+bool WingEditorDialogModel::getDynamicGoalsFlag()
+{
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+		return false; 
+
+	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::Ignore_count];
+}
+
+int WingEditorDialogModel::getArrivalType()
+{
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+		return false; 
+
+	return Wings[_currentWingIndex].arrival_location;
+}
+
+// TODO, This one is going to be complicated because we need to have different target lists
+// depending on the mode.
+std::pair<int,SCP_vector<SCP_string>> WingEditorDialogModel::getArrivalTargetList()
+{
+
+}
+
+int WingEditorDialogModel::getArrivalDistance()
+{
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+		return -1; 
+
+	return Wings[_currentWingIndex].arrival_distance;
+}
 
 int WingEditorDialogModel::getInitialDelay()
 {
@@ -131,7 +229,11 @@ int WingEditorDialogModel::getDepartureType()
 	
 	return Wings[_currentWingIndex].departure_location;
 }
-std::pair<int, SCP_vector<SCP_string>> WingEditorDialogModel::getDepartureTargetList(){}
+
+std::pair<int, SCP_vector<SCP_string>> WingEditorDialogModel::getDepartureTargetList()
+{
+	
+}
 
 int WingEditorDialogModel::getPredepartureDelay()
 {
@@ -141,6 +243,117 @@ int WingEditorDialogModel::getPredepartureDelay()
 	return Wings[_currentWingIndex].departure_delay;
 }
 
+SCP_string WingEditorDialogModel::switchCurrentWing(SCP_string name)
+{
+	for (int x = 0; x < MAX_WINGS; ++x){
+		SCP_string temp = Wings[x].name;
+
+		if (temp == name){
+			_currentWingIndex = x;
+			_currentWingName = temp;
+			return temp;
+		}
+	}
+
+	_currentWingIndex = -1;
+	_currentWingName = "";
+	return _currentWingName;
+}
+
+SCP_string WingEditorDialogModel::switchToNextWing()
+{
+	int startIndex = _currentWingIndex;
+
+	if (startIndex < 0 || startIndex >= MAX_WINGS){
+		startIndex = 0;
+	}
+
+	for (int x = startIndex + 1; x < MAX_WINGS; ++x){
+		SCP_string temp = Wings[x].name;
+
+		// Any deleted wing will have an empty name.
+		if (!temp.empty()){
+			_currentWingIndex = x;
+			_currentWingName = temp;
+			return temp;
+		}
+	}
+
+	// if we started at -1 or an invalid value and didn't find anything, return
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS){
+		return "";
+	}
+
+	// if we need to handle wrap, continue.  Not a typo! If we didn't find another wing,
+	// just reselect the same wing.
+	for (int x = 0; x <= _currentWingIndex; ++x){
+		SCP_string temp = Wings[x].name;
+
+		// Any deleted wing will have an empty name.
+		if (!temp.empty()){
+			_currentWingIndex = x;
+			_currentWingName = temp;
+			return temp;
+		}
+	}
+
+	// No wings somehow
+	_currentWingIndex = x;
+	_currentWingName = temp;
+	return _currentWingName;
+}
+
+SCP_string WingEditorDialogModel::switchToPreviousWing()
+{
+	int startIndex = _currentWingIndex - 1;
+
+	if (startIndex < 0 || startIndex >= MAX_WINGS){
+		startIndex = MAX_WINGS - 1;
+	}
+
+	for (int x = startIndex; x > -1; --x){
+		SCP_string temp = Wings[x].name;
+
+		// Any deleted wing will have an empty name.
+		if (!temp.empty()){
+			_currentWingIndex = x;
+			_currentWingName = temp;
+			return temp;
+		}
+	}
+
+	// if we started at -1 or an invalid value and didn't find anything, return
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS){
+		return "";
+	}
+
+	// if we need to handle wrap, continue.  Not a typo! If we didn't find another wing,
+	// just reselect the same wing.
+	for (int x = MAX_WINGS - 1; x >= _currentWingIndex; --x){
+		SCP_string temp = Wings[x].name;
+
+		// Any deleted wing will have an empty name.
+		if (!temp.empty()){
+			_currentWingIndex = x;
+			_currentWingName = temp;
+			return temp;
+		}
+	}
+
+	// No wings somehow
+	_currentWingIndex = -1;
+	_currentWingName = "";
+	return _currentWingName;
+}
+
+
+int WingEditorDialogModel::setLeader(int newLeaderIndex)
+{
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+		return -1; 
+	
+	return Wings[_currentWingIndex].departure_location;
+}
 
 } // dialogs
 } // fred

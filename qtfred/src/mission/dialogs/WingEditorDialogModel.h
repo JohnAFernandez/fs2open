@@ -20,7 +20,7 @@ public:
 	std::pair<int, SCP_vector<SCP_string>> getLeaderList();
 	int getWaveCount();
 	int getWaveThreshhold();
-	std::pair<int, SCP_vector<SCP_string>> getHotkeyList();
+	int getHotkey();
 	bool getReinforcementFlag();
 	bool getCountingGoalsFlag();
 	bool getArrivalMusicFlag();
@@ -38,8 +38,8 @@ public:
 	int getPredepartureDelay();
 
 	SCP_string switchCurrentWing(SCP_string name);
-	void switchToNextWing();
-	void switchToPreviousWing();
+	SCP_string switchToNextWing();
+	SCP_string switchToPreviousWing();
 
 	SCP_string renameWing(SCP_string newName);
 
