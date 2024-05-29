@@ -349,10 +349,13 @@ SCP_string WingEditorDialogModel::switchToPreviousWing()
 
 int WingEditorDialogModel::setLeader(int newLeaderIndex)
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS){
 		return -1; 
+	}
 	
-
+	if (newLeaderIndex < 0 || newLeaderIndex >= Wings[_currentWingIndex].wave_count){
+		return Wings[_currentWingIndex].special_ship;
+	}
 
 	Wings[_currentWingIndex].special_ship = newLeaderIndex;
 	return Wings[_currentWingIndex].special_ship;
@@ -363,18 +366,42 @@ int WingEditorDialogModel::setLeader(int newLeaderIndex)
 
 int WingEditorDialogModel::setTotalWaves(int newTotalWaves) 
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS || newTotalWaves < 1) 
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
 		return -1; 
 
+	// you read that right, I don't see a limit for the number of waves.
+	// Original Fred had a UI limit of 99, but lol
+	if (newTotalWaves < 1){
+		return Wings[currentWingIndex].num_waves;
+	}
+
+	Wings[currentWingIndex].num_waves = newTotalWaves;
+	return Wings[currentWingIndex].num_waves;
 }
 
-int WingEditorDialogModel::setWaveThreshhold(int newThreshhold)
+int WingEditorDialogModel::setWaveThreshhold(int newThreshold)
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS || newLeaderIndex < 0 || newLeaderIndex >= Wings[_currentWingIndex].currentCount) 
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+		return -1; 
+
+	if (newThreshold < 0 || newThreshold + Wings[_currentWingIndex].wave_count > MAX_SHIPS_PER_WING)
+		return Wings[_currentWingIndex].threshold;
+
+	Wings[_currentWingIndex].threshold = newThreshold;
+
+}
+
+int WingEditorDialogModel::setMinWingDelay(int newMin)
+{
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
 		return -1; 
 
 }
 
+int WingEditorDialogModel::setMaxWingDelay(int newMax)
+{
+
+}
 
 } // dialogs
 } // fred
