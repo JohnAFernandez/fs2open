@@ -2,6 +2,7 @@
 #include <QMessageBox>
 #include "FredApplication.h"
 #include <unordered_set>
+#include "mission/missionparse.h"
 
 namespace fso {
 namespace fred {
@@ -528,6 +529,47 @@ int WingEditorDialogModel::setArrivalDistance(int newDistance)
 
 */
 
+
+int WingEditorDialogModel::setArrivalType(int arrivalType)
+{
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+		return -1; 
+
+	// if we have an invalid option 
+	if (arrivalType < ARRIVE_AT_LOCATION || arrivalType > ARRIVE_FROM_DOCK_BAY){
+		Wings[currentWingIndex].arrival_location = ARRIVE_AT_LOCATION;
+		return Wings[currentWingIndex].arrival_location;
+	}
+
+	Wings[currentWingIndex].arrival_location = arrivalType;
+	return Wings[currentWingIndex].arrival_location;
+}
+
+int WingEditorDialogModel::setInitialArrivalDelay(int delayIn)
+{
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+		return -1; 
+
+	if (delayIn < 0){
+		Wings[currentWingIndex].arrival_delay = 0;
+		return Wings[currentWingIndex].arrival_delay;
+	}
+
+	Wings[currentWingIndex].arrival_delay = delayIn;
+	return Wings[currentWingIndex].arrival_delay;
+}
+
+/*#define	ARRIVE_AT_LOCATION			0
+#define	ARRIVE_NEAR_SHIP				1
+#define	ARRIVE_IN_FRONT_OF_SHIP		2
+#define	ARRIVE_FROM_DOCK_BAY			3
+
+// defines for departure locations.  These defines should match their counterparts in the departure location
+// array
+#define MAX_DEPARTURE_NAMES			2
+#define DEPART_AT_LOCATION				0
+#define DEPART_AT_DOCK_BAY				1
+*/
 
 } // dialogs
 } // fred
