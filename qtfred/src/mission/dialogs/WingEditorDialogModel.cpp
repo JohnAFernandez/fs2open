@@ -330,7 +330,6 @@ SCP_string WingEditorDialogModel::switchToPreviousWing()
 	return _currentWingName;
 }
 
-
 int WingEditorDialogModel::setLeader(int newLeaderIndex)
 {
 	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS){
@@ -344,9 +343,6 @@ int WingEditorDialogModel::setLeader(int newLeaderIndex)
 	Wings[_currentWingIndex].special_ship = newLeaderIndex;
 	return Wings[_currentWingIndex].special_ship;
 }
-
-// Invalid threshhold :)
-//Wings[i].threshold + Wings[i].wave_count > MAX_SHIPS_PER_WING
 
 int WingEditorDialogModel::setTotalWaves(int newTotalWaves) 
 {
@@ -363,6 +359,8 @@ int WingEditorDialogModel::setTotalWaves(int newTotalWaves)
 	return Wings[currentWingIndex].num_waves;
 }
 
+// TODO - Is there any other explicit or implicit limit for the wave threshold.  For instance, Fred only allows
+// the threshold to be less than the wing size.
 int WingEditorDialogModel::setWaveThreshhold(int newThreshold)
 {
 	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
@@ -508,7 +506,16 @@ bool WingEditorDialogModel::setDynamicGoalsFlag(bool flagIn)
 
 int WingEditorDialogModel::setArrivalDistance(int newDistance)
 {
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+		return -1; 
 
+	if (newDistance < 0){
+		Wings[currentWingIndex].arrival_distance = 0;
+		return Wings[currentWingIndex].arrival_distance;
+	}
+
+	Wings[currentWingIndex].arrival_distance = newDistance;
+	return Wings[currentWingIndex].arrival_distance;
 }
 
 /*
