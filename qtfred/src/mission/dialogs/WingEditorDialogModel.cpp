@@ -102,22 +102,6 @@ int WingEditorDialogModel::getWaveThreshhold()
 	return Wings[_currentWingIndex].threshold;
 }
 
-/*
-		m_no_arrival_music = Wings[cur_wing].flags[Ship::Wing_Flags::No_arrival_music] ? TRUE : FALSE;
-		m_no_arrival_message = Wings[cur_wing].flags[Ship::Wing_Flags::No_arrival_message] ? TRUE : FALSE;
-		m_no_first_wave_message = Wings[cur_wing].flags[Ship::Wing_Flags::No_first_wave_message] ? TRUE : FALSE;
-		Wings[cur_wing].flags[Ship::Wing_Flags::Ignore_count])
-
-
-//		these are going to go in the arrival/departure parameters tab
-		m_no_arrival_warp = Wings[cur_wing].flags[Ship::Wing_Flags::No_arrival_warp] ? TRUE : FALSE;
-		m_no_departure_warp = Wings[cur_wing].flags[Ship::Wing_Flags::No_departure_warp] ? TRUE : FALSE;
-		Reinforcement
-		m_same_arrival_warp_when_docked = Wings[cur_wing].flags[Ship::Wing_Flags::Same_arrival_warp_when_docked] ? TRUE : FALSE;
-		m_same_departure_warp_when_docked = Wings[cur_wing].flags[Ship::Wing_Flags::Same_departure_warp_when_docked] ? TRUE : FALSE;
-
-*/
-
 int WingEditorDialogModel::getHotkey()
 {
 	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
@@ -172,7 +156,7 @@ bool WingEditorDialogModel::getDynamicGoalsFlag()
 	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
 		return false; 
 
-	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::Ignore_count];
+	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::No_dynamic];
 }
 
 int WingEditorDialogModel::getArrivalType()
@@ -433,6 +417,103 @@ int WingEditorDialogModel::setMinWingDelay(int newMin)
 	}
 
 	Wings[_currentWingIndex].wave_delay_min = newMin;
+}
+
+
+/*
+
+//		these are going to go in the arrival/departure parameters tab
+		m_no_arrival_warp = Wings[cur_wing].flags[Ship::Wing_Flags::No_arrival_warp] ? TRUE : FALSE;
+		m_no_departure_warp = Wings[cur_wing].flags[Ship::Wing_Flags::No_departure_warp] ? TRUE : FALSE;
+		m_same_arrival_warp_when_docked = Wings[cur_wing].flags[Ship::Wing_Flags::Same_arrival_warp_when_docked] ? TRUE : FALSE;
+		m_same_departure_warp_when_docked = Wings[cur_wing].flags[Ship::Wing_Flags::Same_departure_warp_when_docked] ? TRUE : FALSE;
+
+*/
+
+bool WingEditorDialogModel::setReinforcementFlag(bool flagIn)
+{
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+		return false; 
+
+	// TODO: This may need to add/remove the reinforcement flags for the inidividual ships.
+	if (flagIn){
+		Wings[currentWingIndex].flags.set(Ship::Wing_Flags::Reinforcement);
+	} else {
+		Wings[currentWingIndex].flags.remove(Ship::Wing_Flags::Reinforcement);
+	}
+
+	return Wings[currentWingIndex].flags[Ship::Wing_Flags::Reinforcement];
+}
+
+bool WingEditorDialogModel::setCountingGoalsFlag(bool flagIn)
+{
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+		return false; 
+
+	if (flagIn){
+		Wings[currentWingIndex].flags.set(Ship::Wing_Flags::Ignore_count);
+	} else {
+		Wings[currentWingIndex].flags.remove(Ship::Wing_Flags::Ignore_count);
+	}
+
+
+	return Wings[currentWingIndex].flags[Ship::Wing_Flags::Ignore_count];
+}
+
+bool WingEditorDialogModel::setArrivalMusicFlag(bool flagIn)
+{
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+		return false; 
+
+	if (flagIn){
+		Wings[currentWingIndex].flags.set(Ship::Wing_Flags::No_arrival_music);
+	} else {
+		Wings[currentWingIndex].flags.remove(Ship::Wing_Flags::No_arrival_music);
+	}
+
+	return Wings[currentWingIndex].flags[Ship::Wing_Flags::No_arrival_music];
+}
+
+bool WingEditorDialogModel::setArrivalMessageFlag(bool flagIn)
+{
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+		return false; 
+
+	if (flagIn){
+		Wings[currentWingIndex].flags.set(Ship::Wing_Flags::No_arrival_message);
+	} else {
+		Wings[currentWingIndex].flags.remove(Ship::Wing_Flags::No_arrival_message);
+	}
+
+	return Wings[currentWingIndex].flags[Ship::Wing_Flags::No_arrival_message];
+}
+
+bool WingEditorDialogModel::setFirstWaveMessageFlag(bool flagIn)
+{
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+		return false; 
+
+	if (flagIn){
+		Wings[currentWingIndex].flags.set(Ship::Wing_Flags::No_first_wave_message);
+	} else {
+		Wings[currentWingIndex].flags.remove(Ship::Wing_Flags::No_first_wave_message);
+	}
+
+	return Wings[currentWingIndex].flags[Ship::Wing_Flags::No_first_wave_message];
+}
+
+bool WingEditorDialogModel::setDynamicGoalsFlag(bool flagIn)
+{
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+		return false; 
+
+	if (flagIn){
+		Wings[currentWingIndex].flags.set(Ship::Wing_Flags::No_dynamic);
+	} else {
+		Wings[currentWingIndex].flags.remove(Ship::Wing_Flags::No_dynamic);
+	}
+
+	return Wings[currentWingIndex].flags[Ship::Wing_Flags::No_dynamic];
 }
 
 
