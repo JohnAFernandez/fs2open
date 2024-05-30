@@ -400,8 +400,42 @@ int WingEditorDialogModel::setMinWingDelay(int newMin)
 
 int WingEditorDialogModel::setMaxWingDelay(int newMax)
 {
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+		return -1; 
 
+	if (newMax < Wings[_currentWingIndex].wave_delay_min){
+		Wings[_currentWingIndex].wave_delay_max = Wings[_currentWingIndex].wave_delay_min;
+		return 	Wings[_currentWingIndex].wave_delay_max;
+	}
+
+	// Angels in the Outfield kid: "It could happen."
+	if (newMax < 0) {
+		return 	Wings[_currentWingIndex].wave_delay_max;
+	}
+
+	Wings[_currentWingIndex].wave_delay_max = newMax;
+	return newMax;	
 }
+
+int WingEditorDialogModel::setMinWingDelay(int newMin)
+{
+	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+		return -1; 
+
+	if (newMin > Wings[_currentWingIndex].wave_delay_max) {
+		Wings[_currentWingIndex].wave_delay_min = Wings[_currentWingIndex].wave_delay_max;
+		return Wings[_currentWingIndex].wave_delay_min;
+	}
+
+	if (newMin < 0){
+		Wings[_currentWingIndex].wave_delay_min = 0;
+		return Wings[_currentWingIndex].wave_delay_min;
+	}
+
+	Wings[_currentWingIndex].wave_delay_min = newMin;
+}
+
+
 
 } // dialogs
 } // fred
