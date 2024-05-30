@@ -368,18 +368,19 @@ int WingEditorDialogModel::setWaveThreshhold(int newThreshold)
 	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
 		return -1; 
 
-	if (newThreshold < 0 || newThreshold + Wings[_currentWingIndex].wave_count > MAX_SHIPS_PER_WING)
+	if (newThreshold < 0){
+		Wings[_currentWingIndex].threshold = 0;
 		return Wings[_currentWingIndex].threshold;
+	}
+	
+	// Can this be higher than the number of ships in a wing?
+	if (newThreshold + Wings[_currentWingIndex].wave_count > MAX_SHIPS_PER_WING){
+		Wings[_currentWingIndex].threshold = MAX_SHIPS_PER_WING - Wings[_currentWingIndex].wave_count;
+		return Wings[_currentWingIndex].threshold;
+	}
 
 	Wings[_currentWingIndex].threshold = newThreshold;
-
-}
-
-int WingEditorDialogModel::setMinWingDelay(int newMin)
-{
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
-		return -1; 
-
+	return Wings[_currentWingIndex].threshold;
 }
 
 int WingEditorDialogModel::setMaxWingDelay(int newMax)
@@ -418,17 +419,6 @@ int WingEditorDialogModel::setMinWingDelay(int newMin)
 
 	Wings[_currentWingIndex].wave_delay_min = newMin;
 }
-
-
-/*
-
-//		these are going to go in the arrival/departure parameters tab
-		m_no_arrival_warp = Wings[cur_wing].flags[Ship::Wing_Flags::No_arrival_warp] ? TRUE : FALSE;
-		m_no_departure_warp = Wings[cur_wing].flags[Ship::Wing_Flags::No_departure_warp] ? TRUE : FALSE;
-		m_same_arrival_warp_when_docked = Wings[cur_wing].flags[Ship::Wing_Flags::Same_arrival_warp_when_docked] ? TRUE : FALSE;
-		m_same_departure_warp_when_docked = Wings[cur_wing].flags[Ship::Wing_Flags::Same_departure_warp_when_docked] ? TRUE : FALSE;
-
-*/
 
 bool WingEditorDialogModel::setReinforcementFlag(bool flagIn)
 {
@@ -516,6 +506,20 @@ bool WingEditorDialogModel::setDynamicGoalsFlag(bool flagIn)
 	return Wings[currentWingIndex].flags[Ship::Wing_Flags::No_dynamic];
 }
 
+int WingEditorDialogModel::setArrivalDistance(int newDistance)
+{
+
+}
+
+/*
+
+//		these are going to go in the arrival/departure parameters tab
+		m_no_arrival_warp = Wings[cur_wing].flags[Ship::Wing_Flags::No_arrival_warp] ? TRUE : FALSE;
+		m_no_departure_warp = Wings[cur_wing].flags[Ship::Wing_Flags::No_departure_warp] ? TRUE : FALSE;
+		m_same_arrival_warp_when_docked = Wings[cur_wing].flags[Ship::Wing_Flags::Same_arrival_warp_when_docked] ? TRUE : FALSE;
+		m_same_departure_warp_when_docked = Wings[cur_wing].flags[Ship::Wing_Flags::Same_departure_warp_when_docked] ? TRUE : FALSE;
+
+*/
 
 
 } // dialogs
