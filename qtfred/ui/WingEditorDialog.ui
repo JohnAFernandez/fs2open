@@ -270,7 +270,7 @@
     <string>Initial Orders</string>
    </property>
   </widget>
-  <widget class="QGroupBox" name="wingFlagsGroubBox">
+  <widget class="QGroupBox" name="wingFlagsGroupBox">
    <property name="geometry">
     <rect>
      <x>10</x>
