@@ -7,6 +7,8 @@ namespace fred {
 namespace dialogs {
 
 constexpr NUM_HOTKEYS = 8;
+constexpr NUM_ARRIVAL_TYPES = 8
+constexpr NUM_DEPARTURE_TYPES = 2;
 
 class WingEditorDialogModel : public AbstractDialogModel {
 public:
@@ -67,10 +69,10 @@ public:
 	bool setFirstWaveMessageFlag(bool flagIn);
 	bool setDynamicGoalsFlag(bool flagIn);
 	// NO UI for these yet
-	bool setNoArrivalWarpFlag();
-	bool setNoDepartureWarpFlag();
-	bool setSameArrivalWarpWhenDockedFlag();
-	bool setSameDepartureWarpWhenDockedFlag();
+	bool setNoArrivalWarpFlag(bool flagIn);
+	bool setNoDepartureWarpFlag(bool flagIn);
+	bool setSameArrivalWarpWhenDockedFlag(bool flagIn);
+	bool setSameDepartureWarpWhenDockedFlag(bool flagIn);
 
 	int setArrivalType(int arrivalType);
 	int setInitialArrivalDelay(int delayIn);
