@@ -3,6 +3,7 @@
 #include "FredApplication.h"
 #include <unordered_set>
 #include "mission/missionparse.h"
+#include <QMessageBox>
 
 namespace fso {
 namespace fred {
@@ -151,13 +152,44 @@ bool WingEditorDialogModel::getFirstWaveMessageFlag()
 	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::No_first_wave_message];
 }
 
-
 bool WingEditorDialogModel::getDynamicGoalsFlag()
 {
 	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return false; 
 
 	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::No_dynamic];
+}
+
+bool WingEditorDialogModel::getNoArrivalWarpFlag()
+{
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
+		return false; 
+
+	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::No_arrival_warp];
+}
+
+bool WingEditorDialogModel::getNoDepartureWarpFlag()
+{
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
+		return false; 
+
+	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::No_departure_warp];
+}
+
+bool WingEditorDialogModel::getSameArrivalWarpWhenDockedFlag()
+{
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
+		return false; 
+
+	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::Same_arrival_warp_when_docked];
+}
+
+bool WingEditorDialogModel::getSameDepartureWarpWhenDockedFlag()
+{
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
+		return false; 
+
+	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::Same_departure_warp_when_docked];
 }
 
 int WingEditorDialogModel::getArrivalType()
@@ -233,8 +265,7 @@ SCP_string WingEditorDialogModel::getSquadronLogo()
 	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS || strlen(Wings[_currentWingIndex].wing_squad_filename) == 0) 
 		return ""; 
 
-	
-	
+	return Wings[_currentWingIndex].wing_squad_filename;
 }
 
 SCP_string WingEditorDialogModel::switchCurrentWing(SCP_string name)
@@ -245,7 +276,7 @@ SCP_string WingEditorDialogModel::switchCurrentWing(SCP_string name)
 		if (temp == name){
 			_currentWingIndex = x;
 			_currentWingName = temp;
-			return temp;
+			return _currentWingName;
 		}
 	}
 
@@ -360,7 +391,7 @@ int WingEditorDialogModel::setTotalWaves(int newTotalWaves)
 		return -1; 
 
 	// you read that right, I don't see a limit for the number of waves.
-	// Original Fred had a UI limit of 99, but lol
+	// Original Fred had a UI limit of 99, but yolo
 	if (newTotalWaves < 1){
 		return Wings[currentWingIndex].num_waves;
 	}
@@ -426,6 +457,7 @@ int WingEditorDialogModel::setMinWingDelay(int newMin)
 	}
 
 	Wings[_currentWingIndex].wave_delay_min = newMin;
+	return Wings[_currentWingIndex].wave_delay_min;
 }
 
 bool WingEditorDialogModel::setReinforcementFlag(bool flagIn)
@@ -528,16 +560,61 @@ int WingEditorDialogModel::setArrivalDistance(int newDistance)
 	return Wings[currentWingIndex].arrival_distance;
 }
 
-/*
+bool WingEditorDialogModel::setNoArrivalWarpFlag(bool flagIn)
+{
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
+		return false; 
 
-//		these are going to go in the arrival/departure parameters tab
-		m_no_arrival_warp = Wings[cur_wing].flags[Ship::Wing_Flags::No_arrival_warp] ? TRUE : FALSE;
-		m_no_departure_warp = Wings[cur_wing].flags[Ship::Wing_Flags::No_departure_warp] ? TRUE : FALSE;
-		m_same_arrival_warp_when_docked = Wings[cur_wing].flags[Ship::Wing_Flags::Same_arrival_warp_when_docked] ? TRUE : FALSE;
-		m_same_departure_warp_when_docked = Wings[cur_wing].flags[Ship::Wing_Flags::Same_departure_warp_when_docked] ? TRUE : FALSE;
+	if (flagIn){
+		Wings[currentWingIndex].flags.set(Ship::Wing_Flags::No_arrival_warp);
+	} else {
+		Wings[currentWingIndex].flags.remove(Ship::Wing_Flags::No_arrival_warp);
+	}
 
-*/
+	return Wings[currentWingIndex].flags[Ship::Wing_Flags::No_arrival_warp];
+}
 
+bool WingEditorDialogModel::setNoDepartureWarpFlag(bool flagIn)
+{
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
+		return false; 
+
+	if (flagIn){
+		Wings[currentWingIndex].flags.set(Ship::Wing_Flags::No_departure_warp);
+	} else {
+		Wings[currentWingIndex].flags.remove(Ship::Wing_Flags::No_departure_warp);
+	}
+
+	return Wings[currentWingIndex].flags[Ship::Wing_Flags::No_departure_warp];
+}
+
+bool WingEditorDialogModel::setSameArrivalWarpWhenDockedFlag(bool flagIn)
+{
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
+		return false; 
+
+	if (flagIn){
+		Wings[currentWingIndex].flags.set(Ship::Wing_Flags::Same_arrival_warp_when_docked);
+	} else {
+		Wings[currentWingIndex].flags.remove(Ship::Wing_Flags::Same_arrival_warp_when_docked);
+	}
+
+	return Wings[currentWingIndex].flags[Ship::Wing_Flags::Same_arrival_warp_when_docked];
+}
+
+bool WingEditorDialogModel::setSameDepartureWarpWhenDockedFlag(bool flagin)
+{
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
+		return false; 
+
+	if (flagIn){
+		Wings[currentWingIndex].flags.set(Ship::Wing_Flags::Same_departure_warp_when_docked);
+	} else {
+		Wings[currentWingIndex].flags.remove(Ship::Wing_Flags::Same_departure_warp_when_docked);
+	}
+
+	return Wings[currentWingIndex].flags[Ship::Wing_Flags::Same_departure_warp_when_docked];
+}
 
 int WingEditorDialogModel::setArrivalType(int arrivalType)
 {
@@ -567,6 +644,40 @@ int WingEditorDialogModel::setInitialArrivalDelay(int delayIn)
 	Wings[currentWingIndex].arrival_delay = delayIn;
 	return Wings[currentWingIndex].arrival_delay;
 }
+
+int WingEditorDialogModel::setHotKey(int newHotkeyIndex)
+{
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
+		return -1; 
+
+	if (newHotKeyIndex < -1 || newHotKeyIndex >= NUM_HOTKEYS){
+		Wings[_currentWingIndex].hotkey = -1;
+		return Wings[_currentWingIndex].hotkey;
+	}
+
+	Wings[_currentWingIndex].hotkey = newHotkeyIndex;
+}
+
+SCP_string WingEditorDialogModel::setSquadLogo(SCP_string filename)
+{
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
+		return ""; 
+
+	if (filename.len() >= TOKEN_LENGTH){
+	    SCP_string messageOut = "This file name is too long, the maximum is 31 characters.";
+
+	    QMessageBox msgBox;
+        msgBox.setText(messageOut.c_str());
+        msgBox.setStandardButtons(QMessageBox::Ok);
+        msgBox.exec();
+	
+		return "";
+	}
+
+	strcpy_s(Wings[_currentWingIndex].wing_squad_filename, filename.c_str());
+	return Wings[_currentWingIndex].wing_squad_filename;
+}
+
 
 /*#define	ARRIVE_AT_LOCATION			0
 #define	ARRIVE_NEAR_SHIP				1

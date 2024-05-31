@@ -29,6 +29,13 @@ public:
 	bool getArrivalMessageFlag();
 	bool getFirstWaveMessageFlag();
 	bool getDynamicGoalsFlag();
+	// No UI for these yet
+	bool getNoArrivalWarpFlag();
+	bool getNoDepartureWarpFlag();
+	bool getSameArrivalWarpWhenDockedFlag();
+	bool getSameDepartureWarpWhenDockedFlag();
+
+
 	int getArrivalType();
 	std::pair<int, SCP_vector<SCP_string>> getArrivalTargetList();
 	int getArrivalDistance();
@@ -52,13 +59,19 @@ public:
 	int setTotalWaves(int newTotalWaves);
 	int setWaveThreshhold(int newThreshhold);
 	int setHotKey(int newHotkeyIndex);
-	SCP_string setSquadLogo(SCP_string filname);
+	SCP_string setSquadLogo(SCP_string filename);
 	bool setReinforcementFlag(bool flagIn);
 	bool setCountingGoalsFlag(bool flagIn);
 	bool setArrivalMusicFlag(bool flagIn);
 	bool setArrivalMessageFlag(bool flagIn);
 	bool setFirstWaveMessageFlag(bool flagIn);
 	bool setDynamicGoalsFlag(bool flagIn);
+	// NO UI for these yet
+	bool setNoArrivalWarpFlag();
+	bool setNoDepartureWarpFlag();
+	bool setSameArrivalWarpWhenDockedFlag();
+	bool setSameDepartureWarpWhenDockedFlag();
+
 	int setArrivalType(int arrivalType);
 	int setInitialArrivalDelay(int delayIn);
 	int setArrivalTarget(int targetIndex);
