@@ -89,7 +89,7 @@ std::pair<int, SCP_vector<SCP_string>> WingEditorDialogModel::getLeaderList()
 
 int WingEditorDialogModel::getNumberOfWaves() 
 { 
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return -1; 
 	
 	return Wings[_currentWingIndex].num_waves;
@@ -97,7 +97,7 @@ int WingEditorDialogModel::getNumberOfWaves()
 
 int WingEditorDialogModel::getWaveThreshhold()
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return -1; 
 	
 	return Wings[_currentWingIndex].threshold;
@@ -105,7 +105,7 @@ int WingEditorDialogModel::getWaveThreshhold()
 
 int WingEditorDialogModel::getHotkey()
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return -1; 
 	
 	return Wings[_currentWingIndex].hotkey;
@@ -113,7 +113,7 @@ int WingEditorDialogModel::getHotkey()
 
 bool WingEditorDialogModel::getReinforcementFlag()
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return false; 
 
 	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::Reinforcement];
@@ -121,7 +121,7 @@ bool WingEditorDialogModel::getReinforcementFlag()
 
 bool WingEditorDialogModel::getCountingGoalsFlag()
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return false; 
 
 	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::Ignore_count];
@@ -129,7 +129,7 @@ bool WingEditorDialogModel::getCountingGoalsFlag()
 
 bool WingEditorDialogModel::getArrivalMusicFlag()
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return false; 
 
 	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::No_arrival_music];
@@ -137,7 +137,7 @@ bool WingEditorDialogModel::getArrivalMusicFlag()
 
 bool WingEditorDialogModel::getArrivalMessageFlag()
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return false; 
 
 	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::No_arrival_message];
@@ -145,7 +145,7 @@ bool WingEditorDialogModel::getArrivalMessageFlag()
 
 bool WingEditorDialogModel::getFirstWaveMessageFlag()
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return false; 
 
 	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::No_first_wave_message];
@@ -154,7 +154,7 @@ bool WingEditorDialogModel::getFirstWaveMessageFlag()
 
 bool WingEditorDialogModel::getDynamicGoalsFlag()
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return false; 
 
 	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::No_dynamic];
@@ -162,7 +162,7 @@ bool WingEditorDialogModel::getDynamicGoalsFlag()
 
 int WingEditorDialogModel::getArrivalType()
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return false; 
 
 	return Wings[_currentWingIndex].arrival_location;
@@ -177,7 +177,7 @@ std::pair<int,SCP_vector<SCP_string>> WingEditorDialogModel::getArrivalTargetLis
 
 int WingEditorDialogModel::getArrivalDistance()
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return -1; 
 
 	return Wings[_currentWingIndex].arrival_distance;
@@ -185,7 +185,7 @@ int WingEditorDialogModel::getArrivalDistance()
 
 int WingEditorDialogModel::getInitialDelay()
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return -1; 
 	
 	return Wings[_currentWingIndex].arrival_delay;
@@ -193,7 +193,7 @@ int WingEditorDialogModel::getInitialDelay()
 
 int WingEditorDialogModel::getMinWaveDelay()
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return -1; 
 	
 	return Wings[_currentWingIndex].wave_delay_min;
@@ -201,7 +201,7 @@ int WingEditorDialogModel::getMinWaveDelay()
 
 int WingEditorDialogModel::getMaxWaveDelay()
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return -1; 
 	
 	return Wings[_currentWingIndex].wave_delay_max;
@@ -209,7 +209,7 @@ int WingEditorDialogModel::getMaxWaveDelay()
 
 int WingEditorDialogModel::getDepartureType()
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return -1; 
 	
 	return Wings[_currentWingIndex].departure_location;
@@ -222,10 +222,19 @@ std::pair<int, SCP_vector<SCP_string>> WingEditorDialogModel::getDepartureTarget
 
 int WingEditorDialogModel::getPredepartureDelay()
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return -1; 
 	
 	return Wings[_currentWingIndex].departure_delay;
+}
+
+SCP_string WingEditorDialogModel::getSquadronLogo()
+{
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS || strlen(Wings[_currentWingIndex].wing_squad_filename) == 0) 
+		return ""; 
+
+	
+	
 }
 
 SCP_string WingEditorDialogModel::switchCurrentWing(SCP_string name)
@@ -333,7 +342,7 @@ SCP_string WingEditorDialogModel::switchToPreviousWing()
 
 int WingEditorDialogModel::setLeader(int newLeaderIndex)
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS){
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS){
 		return -1; 
 	}
 	
@@ -347,7 +356,7 @@ int WingEditorDialogModel::setLeader(int newLeaderIndex)
 
 int WingEditorDialogModel::setTotalWaves(int newTotalWaves) 
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return -1; 
 
 	// you read that right, I don't see a limit for the number of waves.
@@ -364,7 +373,7 @@ int WingEditorDialogModel::setTotalWaves(int newTotalWaves)
 // the threshold to be less than the wing size.
 int WingEditorDialogModel::setWaveThreshhold(int newThreshold)
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return -1; 
 
 	if (newThreshold < 0){
@@ -384,7 +393,7 @@ int WingEditorDialogModel::setWaveThreshhold(int newThreshold)
 
 int WingEditorDialogModel::setMaxWingDelay(int newMax)
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return -1; 
 
 	if (newMax < Wings[_currentWingIndex].wave_delay_min){
@@ -403,7 +412,7 @@ int WingEditorDialogModel::setMaxWingDelay(int newMax)
 
 int WingEditorDialogModel::setMinWingDelay(int newMin)
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return -1; 
 
 	if (newMin > Wings[_currentWingIndex].wave_delay_max) {
@@ -421,7 +430,7 @@ int WingEditorDialogModel::setMinWingDelay(int newMin)
 
 bool WingEditorDialogModel::setReinforcementFlag(bool flagIn)
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return false; 
 
 	// TODO: This may need to add/remove the reinforcement flags for the inidividual ships.
@@ -436,7 +445,7 @@ bool WingEditorDialogModel::setReinforcementFlag(bool flagIn)
 
 bool WingEditorDialogModel::setCountingGoalsFlag(bool flagIn)
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return false; 
 
 	if (flagIn){
@@ -451,7 +460,7 @@ bool WingEditorDialogModel::setCountingGoalsFlag(bool flagIn)
 
 bool WingEditorDialogModel::setArrivalMusicFlag(bool flagIn)
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return false; 
 
 	if (flagIn){
@@ -465,7 +474,7 @@ bool WingEditorDialogModel::setArrivalMusicFlag(bool flagIn)
 
 bool WingEditorDialogModel::setArrivalMessageFlag(bool flagIn)
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return false; 
 
 	if (flagIn){
@@ -479,7 +488,7 @@ bool WingEditorDialogModel::setArrivalMessageFlag(bool flagIn)
 
 bool WingEditorDialogModel::setFirstWaveMessageFlag(bool flagIn)
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return false; 
 
 	if (flagIn){
@@ -493,7 +502,7 @@ bool WingEditorDialogModel::setFirstWaveMessageFlag(bool flagIn)
 
 bool WingEditorDialogModel::setDynamicGoalsFlag(bool flagIn)
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return false; 
 
 	if (flagIn){
@@ -507,7 +516,7 @@ bool WingEditorDialogModel::setDynamicGoalsFlag(bool flagIn)
 
 int WingEditorDialogModel::setArrivalDistance(int newDistance)
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return -1; 
 
 	if (newDistance < 0){
@@ -532,7 +541,7 @@ int WingEditorDialogModel::setArrivalDistance(int newDistance)
 
 int WingEditorDialogModel::setArrivalType(int arrivalType)
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return -1; 
 
 	// if we have an invalid option 
@@ -547,7 +556,7 @@ int WingEditorDialogModel::setArrivalType(int arrivalType)
 
 int WingEditorDialogModel::setInitialArrivalDelay(int delayIn)
 {
-	if (_currentWingIndex < 0 || _currentWingIndex > MAX_WINGS) 
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return -1; 
 
 	if (delayIn < 0){

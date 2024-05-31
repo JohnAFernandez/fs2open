@@ -6,6 +6,8 @@ namespace fso {
 namespace fred {
 namespace dialogs {
 
+constexpr NUM_HOTKEYS = 8;
+
 class WingEditorDialogModel : public AbstractDialogModel {
 public:
 	WingEditorDialogModel(QObject* parent, EditorViewport* viewport);
@@ -36,6 +38,7 @@ public:
 	int getDepartureType();
 	std::pair<int, SCP_vector<SCP_string>> getDepartureTargetList();
 	int getPredepartureDelay();
+	SCP_string getSquadronLogo();
 
 	SCP_string switchCurrentWing(SCP_string name);
 	SCP_string switchToNextWing();
