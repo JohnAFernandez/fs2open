@@ -19,7 +19,7 @@ const std::array<SCP_string, NUM_HOTKEYS + 1> HOTKEY_UI_LIST{
 }
 
 const std::array<SCP_string, NUM_ARRIVAL_TYPES + 1> ARRIVAL_UI_LIST{
-	"None",
+	"", // this is just a placeholder for when the dialog is inactive.
 	"Temp 1",
 	"Temp 2",
 	"Temp 3",
@@ -29,7 +29,7 @@ const std::array<SCP_string, NUM_ARRIVAL_TYPES + 1> ARRIVAL_UI_LIST{
 }
 
 const std::array<SCP_string, NUM_DEPARTURE_TYPES + 1> DEPARTURE_UI_LIST{
-	"None",
+	"", // this is just a placeholder for when the dialog is inactive
 	"Temp 1",
 	"Temp 2"
 }
@@ -123,6 +123,15 @@ WingEditorDialog::loadWing()
 		ui->sameDepartureWarpWhenDockedCheckbox->setEnabled(true);
 		*/
 
+		/*
+		ui->arrivalTargetComboBox->clear();
+		ui->arrivalTargetComboBox->enable(true);		
+		*/
+
+		// TODO, this index should only be there when no wing is selected, for both arrival and departure
+		ui->arrivalTypeComboBox->setCurrentIndex(0);
+		ui->arrivalTypeComboBox->setEnabled(false);
+
 	// Display all info based on the wing selected in the model
 	} else {
 
@@ -184,64 +193,63 @@ WingEditorDialog::loadWing()
 		ui->sameDepartureWarpWhenDockedCheckbox->setChecked(_model->getSameDepartureWarpWhenDockedFlag());
 		*/
 
-		int ()
-		ui->arrivalTypeComboBox->setCurrentIndex(_model->getArrivalType())
+		auto arrivalTargetList = std::pair<int, SCP_vector<SCP_string>> getArrivalTargetList();
+
+		// this does not seem to exist yet either.
+		/*
+
+		ui->arrivalTargetComboBox->enable(true);		
+		ui->arrivalTargetComboBox->clear();
+
+		for (const auto& string : arrivalTargetList.second) {
+			ui->arrivalTargetComboBox.addItem(string.c_str());
+		}
+
+		ui->arrivalTargetcomboBox.setCurrentIndex(arrivalTargetList.first);
+
+		std::pair<int, SCP_vector<SCP_string>> getDepartureTargetList();
+		*/
+
+		ui->arrivalTypeComboBox->setEnabled(true);
+		ui->arrivalTypeComboBox->setCurrentIndex(_model->getArrivalType() + 1);
+
+		ui->departureTypeComboBox->setEnabled(true);
+		ui->departureTypeComboBox->setCurrentIndex(_model->getDepatureType() + 1);
+
+		/* // not yet in the dialog?  
+		auto departureList = _model->getDepartureTargetList();
+
+		ui->departureTargetComboBox->setEnabled(true);
+		ui->departureTargetComboBox->clear();
+
+		for (const auto& string : departureList.second) {
+			ui->arrivalTargetComboBox.addItem(string.c_str());
+		}
+
+		ui->departureTargetComboBox->setCurrentIndex(departureList.second);
+		*/
+
+		ui->initialArrivalDelaySpinBox->setEnabled(true);
+		ui->initialArrivalDelaySpinBox->setValue(_model->getArrivalDistance());
+
+		ui->preDepartureDelaySpinBox->setEnabled(true);
+		ui->preDepartureDelaySpinBox->setValue(_model->getPredepartureDelay());
+
+		ui->minWaveDelayLineEdit->setEnabled(true);
+		ui->minWaveDelayLineEdit->setText(_model->getMinWaveDelay());
+
+		ui->maxWaveDelayLineEdit->setEnabled(true);
+		ui->maxWaveDelayLineEdit->setText(_model->getMaxWaveDelay());
 		/*
 	SCP_vector<SCP_string> getCurrentSelectableWings();
 
-	std::pair<int, SCP_vector<SCP_string>> getLeaderList();
-	int getNumberOfWaves();
-	int getWaveThreshhold();
-	int getHotkey();
-	bool getReinforcementFlag();
-	bool getCountingGoalsFlag();
-	bool getArrivalMusicFlag();
-	bool getArrivalMessageFlag();
-	bool getFirstWaveMessageFlag();
-	bool getDynamicGoalsFlag();
-	// No UI for these yet
-	bool getNoArrivalWarpFlag();
-	bool getNoDepartureWarpFlag();
-	bool getSameArrivalWarpWhenDockedFlag();
-	bool getSameDepartureWarpWhenDockedFlag();
-
-
-	int getArrivalType();
-	std::pair<int, SCP_vector<SCP_string>> getArrivalTargetList();
-	int getArrivalDistance();
+	// don't remember using this....
 	int getInitialDelay();
-	int getMinWaveDelay();
-	int getMaxWaveDelay();
-	int getDepartureType();
-	std::pair<int, SCP_vector<SCP_string>> getDepartureTargetList();
-	int getPredepartureDelay();
 	SCP_string getSquadronLogo();*/
 
 	
 	}
-	/*
-	
 
-
-
-
-arrivalTypeComboBox
-departureTypeLabel
-departureTypeComboBox
-departureTargetLabel
-departureTargetComboBox
-initialArrivalDelayLabel
-initialArrivalDelaySpinBox
-arrivalTargetHelperLabel
-arrivalDistanceHelperLabel
-preDepartureDelayLabel
-preDepartureDelaySpinBox
-delayBetweenWavesGroupBox
-minWaveDelayLabel
-minWaveDelayLineEdit
-maxWaveDelayLabel
-maxWaveDelayLineEdit
-*/
 } 
 
 
