@@ -38,7 +38,6 @@ class WingEditorDialog : public QDialog, public SexpTreeEditorInterface {
 	int getCurrentWing() const;
 
   protected:
-	void closeEvent(QCloseEvent*) override;
 
   private slots:
 
@@ -47,7 +46,7 @@ class WingEditorDialog : public QDialog, public SexpTreeEditorInterface {
 	std::unique_ptr<WingEditorDialogModel> _model;
 	EditorViewport* _viewport;
 
-	void update();
+	void loadWing();
 
 };
 
