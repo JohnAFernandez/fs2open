@@ -79,7 +79,7 @@ std::pair<int, SCP_vector<SCP_string>> WingEditorDialogModel::getLeaderList()
 
 	out.first = Wings[_currentWingIndex].special_ship;
 
-	for (int x = 0; Wings[i].wave_count > MAX_SHIPS_PER_WING; ++x){
+	for (int x = 0; Wings[x].wave_count > MAX_SHIPS_PER_WING; ++x){
 		if (Wings[_currentWingIndex].ship_index[x] > -1 && Wings[_currentWingIndex].ship_index[x] < MAX_SHIPS){
 			out.second.emplace_back(Ships[Wings[_currentWingIndex].ship_index[x]].ship_name);
 		}
@@ -323,8 +323,8 @@ SCP_string WingEditorDialogModel::switchToNextWing()
 	}
 
 	// No wings somehow
-	_currentWingIndex = x;
-	_currentWingName = temp;
+	_currentWingIndex = -1;
+	_currentWingName = "";
 	return _currentWingName;
 }
 
@@ -393,11 +393,11 @@ int WingEditorDialogModel::setTotalWaves(int newTotalWaves)
 	// you read that right, I don't see a limit for the number of waves.
 	// Original Fred had a UI limit of 99, but yolo
 	if (newTotalWaves < 1){
-		return Wings[currentWingIndex].num_waves;
+		return Wings[_currentWingIndex].num_waves;
 	}
 
-	Wings[currentWingIndex].num_waves = newTotalWaves;
-	return Wings[currentWingIndex].num_waves;
+	Wings[_currentWingIndex].num_waves = newTotalWaves;
+	return Wings[_currentWingIndex].num_waves;
 }
 
 // TODO - Is there any other explicit or implicit limit for the wave threshold.  For instance, Fred only allows
@@ -467,12 +467,12 @@ bool WingEditorDialogModel::setReinforcementFlag(bool flagIn)
 
 	// TODO: This may need to add/remove the reinforcement flags for the inidividual ships.
 	if (flagIn){
-		Wings[currentWingIndex].flags.set(Ship::Wing_Flags::Reinforcement);
+		Wings[_currentWingIndex].flags.set(Ship::Wing_Flags::Reinforcement);
 	} else {
-		Wings[currentWingIndex].flags.remove(Ship::Wing_Flags::Reinforcement);
+		Wings[_currentWingIndex].flags.remove(Ship::Wing_Flags::Reinforcement);
 	}
 
-	return Wings[currentWingIndex].flags[Ship::Wing_Flags::Reinforcement];
+	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::Reinforcement];
 }
 
 bool WingEditorDialogModel::setCountingGoalsFlag(bool flagIn)
@@ -481,13 +481,13 @@ bool WingEditorDialogModel::setCountingGoalsFlag(bool flagIn)
 		return false; 
 
 	if (flagIn){
-		Wings[currentWingIndex].flags.set(Ship::Wing_Flags::Ignore_count);
+		Wings[_currentWingIndex].flags.set(Ship::Wing_Flags::Ignore_count);
 	} else {
-		Wings[currentWingIndex].flags.remove(Ship::Wing_Flags::Ignore_count);
+		Wings[_currentWingIndex].flags.remove(Ship::Wing_Flags::Ignore_count);
 	}
 
 
-	return Wings[currentWingIndex].flags[Ship::Wing_Flags::Ignore_count];
+	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::Ignore_count];
 }
 
 bool WingEditorDialogModel::setArrivalMusicFlag(bool flagIn)
@@ -496,12 +496,12 @@ bool WingEditorDialogModel::setArrivalMusicFlag(bool flagIn)
 		return false; 
 
 	if (flagIn){
-		Wings[currentWingIndex].flags.set(Ship::Wing_Flags::No_arrival_music);
+		Wings[_currentWingIndex].flags.set(Ship::Wing_Flags::No_arrival_music);
 	} else {
-		Wings[currentWingIndex].flags.remove(Ship::Wing_Flags::No_arrival_music);
+		Wings[_currentWingIndex].flags.remove(Ship::Wing_Flags::No_arrival_music);
 	}
 
-	return Wings[currentWingIndex].flags[Ship::Wing_Flags::No_arrival_music];
+	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::No_arrival_music];
 }
 
 bool WingEditorDialogModel::setArrivalMessageFlag(bool flagIn)
@@ -510,12 +510,12 @@ bool WingEditorDialogModel::setArrivalMessageFlag(bool flagIn)
 		return false; 
 
 	if (flagIn){
-		Wings[currentWingIndex].flags.set(Ship::Wing_Flags::No_arrival_message);
+		Wings[_currentWingIndex].flags.set(Ship::Wing_Flags::No_arrival_message);
 	} else {
-		Wings[currentWingIndex].flags.remove(Ship::Wing_Flags::No_arrival_message);
+		Wings[_currentWingIndex].flags.remove(Ship::Wing_Flags::No_arrival_message);
 	}
 
-	return Wings[currentWingIndex].flags[Ship::Wing_Flags::No_arrival_message];
+	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::No_arrival_message];
 }
 
 bool WingEditorDialogModel::setFirstWaveMessageFlag(bool flagIn)
@@ -524,12 +524,12 @@ bool WingEditorDialogModel::setFirstWaveMessageFlag(bool flagIn)
 		return false; 
 
 	if (flagIn){
-		Wings[currentWingIndex].flags.set(Ship::Wing_Flags::No_first_wave_message);
+		Wings[_currentWingIndex].flags.set(Ship::Wing_Flags::No_first_wave_message);
 	} else {
-		Wings[currentWingIndex].flags.remove(Ship::Wing_Flags::No_first_wave_message);
+		Wings[_currentWingIndex].flags.remove(Ship::Wing_Flags::No_first_wave_message);
 	}
 
-	return Wings[currentWingIndex].flags[Ship::Wing_Flags::No_first_wave_message];
+	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::No_first_wave_message];
 }
 
 bool WingEditorDialogModel::setDynamicGoalsFlag(bool flagIn)
@@ -538,12 +538,12 @@ bool WingEditorDialogModel::setDynamicGoalsFlag(bool flagIn)
 		return false; 
 
 	if (flagIn){
-		Wings[currentWingIndex].flags.set(Ship::Wing_Flags::No_dynamic);
+		Wings[_currentWingIndex].flags.set(Ship::Wing_Flags::No_dynamic);
 	} else {
-		Wings[currentWingIndex].flags.remove(Ship::Wing_Flags::No_dynamic);
+		Wings[_currentWingIndex].flags.remove(Ship::Wing_Flags::No_dynamic);
 	}
 
-	return Wings[currentWingIndex].flags[Ship::Wing_Flags::No_dynamic];
+	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::No_dynamic];
 }
 
 int WingEditorDialogModel::setArrivalDistance(int newDistance)
@@ -552,12 +552,12 @@ int WingEditorDialogModel::setArrivalDistance(int newDistance)
 		return -1; 
 
 	if (newDistance < 0){
-		Wings[currentWingIndex].arrival_distance = 0;
-		return Wings[currentWingIndex].arrival_distance;
+		Wings[_currentWingIndex].arrival_distance = 0;
+		return Wings[_currentWingIndex].arrival_distance;
 	}
 
-	Wings[currentWingIndex].arrival_distance = newDistance;
-	return Wings[currentWingIndex].arrival_distance;
+	Wings[_currentWingIndex].arrival_distance = newDistance;
+	return Wings[_currentWingIndex].arrival_distance;
 }
 
 bool WingEditorDialogModel::setNoArrivalWarpFlag(bool flagIn)
@@ -566,12 +566,12 @@ bool WingEditorDialogModel::setNoArrivalWarpFlag(bool flagIn)
 		return false; 
 
 	if (flagIn){
-		Wings[currentWingIndex].flags.set(Ship::Wing_Flags::No_arrival_warp);
+		Wings[_currentWingIndex].flags.set(Ship::Wing_Flags::No_arrival_warp);
 	} else {
-		Wings[currentWingIndex].flags.remove(Ship::Wing_Flags::No_arrival_warp);
+		Wings[_currentWingIndex].flags.remove(Ship::Wing_Flags::No_arrival_warp);
 	}
 
-	return Wings[currentWingIndex].flags[Ship::Wing_Flags::No_arrival_warp];
+	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::No_arrival_warp];
 }
 
 bool WingEditorDialogModel::setNoDepartureWarpFlag(bool flagIn)
@@ -580,12 +580,12 @@ bool WingEditorDialogModel::setNoDepartureWarpFlag(bool flagIn)
 		return false; 
 
 	if (flagIn){
-		Wings[currentWingIndex].flags.set(Ship::Wing_Flags::No_departure_warp);
+		Wings[_currentWingIndex].flags.set(Ship::Wing_Flags::No_departure_warp);
 	} else {
-		Wings[currentWingIndex].flags.remove(Ship::Wing_Flags::No_departure_warp);
+		Wings[_currentWingIndex].flags.remove(Ship::Wing_Flags::No_departure_warp);
 	}
 
-	return Wings[currentWingIndex].flags[Ship::Wing_Flags::No_departure_warp];
+	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::No_departure_warp];
 }
 
 bool WingEditorDialogModel::setSameArrivalWarpWhenDockedFlag(bool flagIn)
@@ -594,26 +594,26 @@ bool WingEditorDialogModel::setSameArrivalWarpWhenDockedFlag(bool flagIn)
 		return false; 
 
 	if (flagIn){
-		Wings[currentWingIndex].flags.set(Ship::Wing_Flags::Same_arrival_warp_when_docked);
+		Wings[_currentWingIndex].flags.set(Ship::Wing_Flags::Same_arrival_warp_when_docked);
 	} else {
-		Wings[currentWingIndex].flags.remove(Ship::Wing_Flags::Same_arrival_warp_when_docked);
+		Wings[_currentWingIndex].flags.remove(Ship::Wing_Flags::Same_arrival_warp_when_docked);
 	}
 
-	return Wings[currentWingIndex].flags[Ship::Wing_Flags::Same_arrival_warp_when_docked];
+	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::Same_arrival_warp_when_docked];
 }
 
-bool WingEditorDialogModel::setSameDepartureWarpWhenDockedFlag(bool flagin)
+bool WingEditorDialogModel::setSameDepartureWarpWhenDockedFlag(bool flagIn)
 {
 	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return false; 
 
 	if (flagIn){
-		Wings[currentWingIndex].flags.set(Ship::Wing_Flags::Same_departure_warp_when_docked);
+		Wings[_currentWingIndex].flags.set(Ship::Wing_Flags::Same_departure_warp_when_docked);
 	} else {
-		Wings[currentWingIndex].flags.remove(Ship::Wing_Flags::Same_departure_warp_when_docked);
+		Wings[_currentWingIndex].flags.remove(Ship::Wing_Flags::Same_departure_warp_when_docked);
 	}
 
-	return Wings[currentWingIndex].flags[Ship::Wing_Flags::Same_departure_warp_when_docked];
+	return Wings[_currentWingIndex].flags[Ship::Wing_Flags::Same_departure_warp_when_docked];
 }
 
 int WingEditorDialogModel::setArrivalType(int arrivalType)
@@ -623,12 +623,12 @@ int WingEditorDialogModel::setArrivalType(int arrivalType)
 
 	// if we have an invalid option 
 	if (arrivalType < ARRIVE_AT_LOCATION || arrivalType > ARRIVE_FROM_DOCK_BAY){
-		Wings[currentWingIndex].arrival_location = ARRIVE_AT_LOCATION;
-		return Wings[currentWingIndex].arrival_location;
+		Wings[_currentWingIndex].arrival_location = ARRIVE_AT_LOCATION;
+		return Wings[_currentWingIndex].arrival_location;
 	}
 
-	Wings[currentWingIndex].arrival_location = arrivalType;
-	return Wings[currentWingIndex].arrival_location;
+	Wings[_currentWingIndex].arrival_location = arrivalType;
+	return Wings[_currentWingIndex].arrival_location;
 }
 
 int WingEditorDialogModel::setInitialArrivalDelay(int delayIn)
@@ -637,12 +637,12 @@ int WingEditorDialogModel::setInitialArrivalDelay(int delayIn)
 		return -1; 
 
 	if (delayIn < 0){
-		Wings[currentWingIndex].arrival_delay = 0;
-		return Wings[currentWingIndex].arrival_delay;
+		Wings[_currentWingIndex].arrival_delay = 0;
+		return Wings[_currentWingIndex].arrival_delay;
 	}
 
-	Wings[currentWingIndex].arrival_delay = delayIn;
-	return Wings[currentWingIndex].arrival_delay;
+	Wings[_currentWingIndex].arrival_delay = delayIn;
+	return Wings[_currentWingIndex].arrival_delay;
 }
 
 int WingEditorDialogModel::setHotKey(int newHotkeyIndex)
@@ -650,7 +650,7 @@ int WingEditorDialogModel::setHotKey(int newHotkeyIndex)
 	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return -1; 
 
-	if (newHotKeyIndex < -1 || newHotKeyIndex >= NUM_HOTKEYS){
+	if (newHotkeyIndex < -1 || newHotkeyIndex >= NUM_HOTKEYS){
 		Wings[_currentWingIndex].hotkey = -1;
 		return Wings[_currentWingIndex].hotkey;
 	}
@@ -663,7 +663,7 @@ SCP_string WingEditorDialogModel::setSquadLogo(SCP_string filename)
 	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return ""; 
 
-	if (filename.len() >= TOKEN_LENGTH){
+	if (filename.size() >= TOKEN_LENGTH){
 	    SCP_string messageOut = "This file name is too long, the maximum is 31 characters.";
 
 	    QMessageBox msgBox;

@@ -6,9 +6,9 @@ namespace fso {
 namespace fred {
 namespace dialogs {
 
-constexpr NUM_HOTKEYS = 8;
-constexpr NUM_ARRIVAL_TYPES = 8
-constexpr NUM_DEPARTURE_TYPES = 2;
+constexpr int NUM_HOTKEYS = 8;
+constexpr int NUM_ARRIVAL_TYPES = 8;
+constexpr int NUM_DEPARTURE_TYPES = 2;
 
 class WingEditorDialogModel : public AbstractDialogModel {
 public:
