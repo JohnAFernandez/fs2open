@@ -87,109 +87,112 @@ WingEditorDialog::WingEditorDialog(FredView* parent, EditorViewport* viewport)
 		this, 
 		&WingEditorDialog::onDisbandWingButtonPressed);
 
+	connect(ui->warpArrivalStopSoundBrowseButton, 
+		&QPushButton::clicked, 
+		this, 
+		&WingEditorDialog::onWarpArrivalStopSoundBrowseButtonPressed);
 
-	// examples from other dialogs because it usually takes forever to go back and forth
-/*	
-	// Change item counts
-	connect(ui->extraItemSpinbox,
-		static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
-		this,
-		&WingEditorDialog::onExtraItemSpinboxUpdated);
+	connect(ui->warpArrivalStopSoundPlayButton, 
+		&QPushButton::clicked, 
+		this, 
+		&WingEditorDialog::onWarpArrivalStopSoundPlayButtonPressed);
 
-	connect(ui->extraItemsViaVariableCombo,
-		QOverload<int>::of(&QComboBox::currentIndexChanged),
-		this,
-		&WingEditorDialog::onExtraItemsViaVariableCombo);
+	connect(ui->warpArrivalStartSoundBrowseButton, 
+		&QPushButton::clicked, 
+		this, 
+		&WingEditorDialog::onWarpArrivalStartSoundBrowseButtonPressed);
 
-	// Miscellaneous controls
-	connect(ui->playerDelayDoubleSpinbox,
-		static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
-		this,
-		&WingEditorDialog::onPlayerDelayDoubleSpinBoxUpdated);
+	connect(ui->warpArrivalStartSoundPlayButton, 
+		&QPushButton::clicked, 
+		this, 
+		&WingEditorDialog::onWarpArrivalStartSoundPlayButtonPressed);
 
-	connect(ui->delayLineEdit,
+	connect(ui->warpArrivalAnimationBrowseButton, 
+		&QPushButton::clicked, 
+		this, 
+		&WingEditorDialog::onWarpArrivalAnimationBrowseButtonPressed);
+
+	connect(ui->warpDepartureStartSoundBrowseButton, 
+		&QPushButton::clicked, 
+		this, 
+		&WingEditorDialog::onWarpDepartureStartSoundBrowseButtonPressed);
+
+	connect(ui->warpDepartureStartSoundPlayButton, 
+		&QPushButton::clicked, 
+		this, 
+		&WingEditorDialog::onWarpDepartureStartSoundPlayButtonPressed);
+
+	connect(ui->warpDepartureStopSoundBrowseButton, 
+		&QPushButton::clicked, 
+		this, 
+		&WingEditorDialog::onWarpDepartureStopSoundBrowseButtonPressed);
+
+	connect(ui->warpDepartureStopSoundPlayButton, 
+		&QPushButton::clicked, 
+		this, 
+		&WingEditorDialog::onWarpDepartureStopSoundPlayButtonPressed);
+
+	connect(ui->warpDepartureAnimationBrowseButton, 
+		&QPushButton::clicked, 
+		this, 
+		&WingEditorDialog::onWarpDepartureAnimationBrowseButtonPressed);
+
+	connect(ui->browseSquadLogosButton, 
+		&QPushButton::clicked, 
+		this, 
+		&WingEditorDialog::onBrowseSquadLogosButtonPressed);
+
+
+	connect(ui->warpArrivalStopSoundLineEdit,
 		static_cast<void (QLineEdit::*)(const QString&)>(&QLineEdit::textChanged),
 		this,
-		&WingEditorDialog::onDelayChanged);
+		&WingEditorDialog::onWarpArrivalStopSoundLineEditChanged);
+
+	connect(ui->warpArrivalStartSoundLineEdit,
+		static_cast<void (QLineEdit::*)(const QString&)>(&QLineEdit::textChanged),
+		this,
+		&WingEditorDialog::onWarpArrivalStartSoundLineEditChanged);
+
+	connect(ui->warpArrivalAnimationLineEdit,
+		static_cast<void (QLineEdit::*)(const QString&)>(&QLineEdit::textChanged),
+		this,
+		&WingEditorDialog::onWarpArrivalAnimationLineEditChanged);
+
+	connect(ui->warpDepartureStartSoundLineEdit,
+		static_cast<void (QLineEdit::*)(const QString&)>(&QLineEdit::textChanged),
+		this,
+		&WingEditorDialog::onWarpDepartureStartSoundLineEditChanged);
+
+	connect(ui->warpDepartureStopSoundLineEdit,
+		static_cast<void (QLineEdit::*)(const QString&)>(&QLineEdit::textChanged),
+		this,
+		&WingEditorDialog::onWarpDepartureStopSoundLineEditChanged);
+
+	connect(ui->warpDepartureAnimationLineEdit,
+		static_cast<void (QLineEdit::*)(const QString&)>(&QLineEdit::textChanged),
+		this,
+		&WingEditorDialog::onWarpDepartureAnimationLineEdit);
+
+	connect(ui->wingNameLineEdit,
+		static_cast<void (QLineEdit::*)(const QString&)>(&QLineEdit::textChanged),
+		this,
+		&WingEditorDialog::onWingNameLineEditChanged);
+
+	connect(ui->squadLogoLineEdit,
+		static_cast<void (QLineEdit::*)(const QString&)>(&QLineEdit::textChanged),
+		this,
+		&WingEditorDialog::onSquadLogoLineEditChanged);
 
 
+	connect(ui->warpArrivalDecelerationExponenetDoubleSpinbox,
+		static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+		this,
+		&WingEditorDialog::onWarpArrivalDecelerationExponenetDoubleSpinboxUpdated);
 
-
-
-
-
-
-	arrivalDistanceSpinbox
-	maxWaveDelaySpinBox
-	minWaveDelaySpinBox
-	initialArrivalDelaySpinBox
-	preDepartureDelaySpinBox
-	warpArrivalEngageTimeSpinBox
-	warpArrivalShipSpeedSpinbox
-	shipArrivalWarpingTimeSpinbox
-	warpArrivalRadiusSpinbox
-	warpDepartureEngageTimeSpinBox
-	shipDepartureWarpingTimeSpinbox
-	warpDepartureRadiusSpinbox
-	totalWavesSpinBox
-	waveThresholdSpinBox
-
-	warpArrivalStopSoundBrowseButton
-	warpArrivalStopSoundPlayButton
-	warpArrivalStartSoundBrowseButton
-	warpArrivalStartSoundPlayButton
-	warpArrivalAnimationBrowseButton
-	warpDepartureStartSoundBrowseButton
-	warpDepartureStartSoundPlayButton
-	warpDepartureStopSoundBrowseButton
-	warpDepartureStopSoundPlayButton
-	warpDepartureAnimationBrowseButton
-	browseSquadLogosButton
-
-
-	toggleArrivalDepartureButton
-	toggleGeneralOptionsButton
-	toggleWingFlagsButton
-
-	arrivalTypeComboBox
-	arrivalTargetComboBox
-	departureTypeComboBox
-	formationComboBox
-	warpArrivalTypeCombobox
-	warpDepartureTypeCombobox
-	hotkeyComboBox
-	wingLeaderComboBox
-	selectWingCombobox
-
-	warpArrivalStopSoundLineEdit
-	warpArrivalStartSoundLineEdit
-	warpArrivalAnimationLineEdit
-	warpDepartureStartSoundLineEdit
-	warpDepartureStopSoundLineEdit
-	warpDepartureAnimationLineEdit
-	wingNameLineEdit
-	squadLogoLineEdit
-
-	noArrivalWarpCheckbox
-	noSpeedAdjustmentIfDockedArrivalCheckbox
-	supercapWarpPhysicsArrivalCheckbox
-	noDepartureWarpCheckbox
-	noSpeedAdjustmentIfDockedDepartureCheckbox
-	supercapWarpPhysicsDepartureCheckbox
-	ingoreCountingGoalsFlagCheckbox
-	noArrivalMusicFlagCheckbox
-	reinforcementUnitFlagCheckbox
-	noArrivalMessageFlagCheckbox
-	noDynamicGoalsCheckbox
-	noFirstWaveMessageCheckbox
-
-	warpArrivalDecelerationExponenetDoubleSpinbox
-	warpDepartureDecelerationExponenetDoubleSpinbox
-
-
-
-
-*/
+	connect(ui->warpDepartureDecelerationExponenetDoubleSpinbox,
+		static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+		this,
+		&WingEditorDialog::onWarpDepartureDecelerationExponenetDoubleSpinboxUpdated);
 
 	connect(ui->arrivalDistanceSpinbox,
 		static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
@@ -292,32 +295,78 @@ WingEditorDialog::WingEditorDialog(FredView* parent, EditorViewport* viewport)
 		&QCheckBox::clicked, 
 		this, 
 		&WingEditorDialog::onNoDynamicGoalsCheckboxClicked);
-	/*
-	connect(ui->NoArrivalWarpFlagCheckbox, 
+	
+	connect(ui->noArrivalWarpCheckbox, 
 		&QCheckBox::clicked, 
 		this, 
-		&WingEditorDialog::onNoArrivalWarpFlagCheckboxClicked);
+		&WingEditorDialog::onNoArrivalWarpCheckboxClicked);
 
-	connect(ui->noDepartureWarpFlagCheckbox, 
+	connect(ui->noSpeedAdjustmentIfDockedArrivalCheckbox, 
 		&QCheckBox::clicked, 
 		this, 
-		&WingEditorDialog::onNoDepartureWarpFlagClicked);
+		&WingEditorDialog::onNoSpeedAdjustmentIfDockedArrivalCheckboxClicked);
 
-	connect(ui->sameArrivalWarpWhenDockedFlagCheckbox, 
+	connect(ui->supercapWarpPhysicsArrivalCheckbox, 
 		&QCheckBox::clicked, 
 		this, 
-		&WingEditorDialog::onSameArrivalWarpWhenDockedFlagCheckboxClicked);
+		&WingEditorDialog::onSupercapWarpPhysicsArrivalCheckboxClicked);
 
-	connect(ui->sameArrivalWarpWhenDockedFlagCheckbox, 
+	connect(ui->noDepartureWarpCheckbox, 
 		&QCheckBox::clicked, 
 		this, 
-		&WingEditorDialog::onSameArrivalWarpWhenDockedFlagCheckboxClicked);
+		&WingEditorDialog::onNoDepartureWarpCheckboxClicked);
 
-	connect(ui->sameDepartureWarpWhenDockedFlagCheckbox, 
+	connect(ui->noSpeedAdjustmentIfDockedDepartureCheckbox, 
 		&QCheckBox::clicked, 
 		this, 
-		&WingEditorDialog::onSameDepartureWarpWhenDockedFlagCheckboxClicked);
-	*/
+		&WingEditorDialog::onNoSpeedAdjustmentIfDockedDepartureCheckboxClicked);
+	
+	connect(ui->supercapWarpPhysicsDepartureCheckbox, 
+		&QCheckBox::clicked, 
+		this, 
+		&WingEditorDialog::onSupercapWarpPhysicsDepartureCheckboxClicked);
+
+
+	connect(ui->arrivalTypeComboBox,
+		QOverload<int>::of(&QComboBox::currentIndexChanged),
+		this,
+		&WingEditorDialog::onArrivalTypeComboBoxChanged);
+
+	connect(ui->arrivalTargetComboBox,
+		QOverload<int>::of(&QComboBox::currentIndexChanged),
+		this,
+		&WingEditorDialog::onArrivalTargetComboBoxChanged);
+
+	connect(ui->departureTypeComboBox,
+		QOverload<int>::of(&QComboBox::currentIndexChanged),
+		this,
+		&WingEditorDialog::onDepartureTypeComboBoxChanged);
+		
+	connect(ui->formationComboBox,
+		QOverload<int>::of(&QComboBox::currentIndexChanged),
+		this,
+		&WingEditorDialog::onFormationComboBoxChanged);
+		
+	connect(ui->warpArrivalTypeCombobox,
+		QOverload<int>::of(&QComboBox::currentIndexChanged),
+		this,
+		&WingEditorDialog::onWarpArrivalTypeComboboxChanged);
+		
+	connect(ui->warpDepartureTypeCombobox,
+		QOverload<int>::of(&QComboBox::currentIndexChanged),
+		this,
+		&WingEditorDialog::onWarpDepartureTypeComboboxChanged);
+		
+	connect(ui->hotkeyComboBox,
+		QOverload<int>::of(&QComboBox::currentIndexChanged),
+		this,
+		&WingEditorDialog::onHotkeyComboBoxChanged);
+
+	connect(ui->selectWingCombobox,
+		QOverload<int>::of(&QComboBox::currentIndexChanged),
+		this,
+		&WingEditorDialog::onSelectWingComboboxChanged);
+
 
 	// Set up wing list
 	// TODO! This needs a signal to be updated whenever a wing is created or destroyed, 
