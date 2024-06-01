@@ -44,102 +44,24 @@ WingEditorDialog::WingEditorDialog(FredView* parent, EditorViewport* viewport)
 
 	// apply and reject do not ... uh ... apply here because changes are in real time.
 
-	// CONNECT STATEMENTS GO HERE
+	// Connect statements for Dialog Expansion and contraction
+	connect(ui->toggleGeneralOptionsButton, 
+		&QPushButton::clicked, 
+		this, 
+		&WingEditorDialog::onToggleGeneralOptionsButtonPressed);
 
-	// examples from other dialogs because it usually takes forever to go back and forth
-/*	
-	// Change item counts
-	connect(ui->extraItemSpinbox,
-		static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
-		this,
-		&LoadoutDialog::onExtraItemSpinboxUpdated);
+	connect(ui->toggleArrivalDepartureButton, 
+		&QPushButton::clicked, 
+		this, 
+		&WingEditorDialog::onToggleArrivalDepartureButtonPressed);
 
-	connect(ui->extraItemsViaVariableCombo,
-		QOverload<int>::of(&QComboBox::currentIndexChanged),
-		this,
-		&LoadoutDialog::onExtraItemsViaVariableCombo);
-
-	// Miscellaneous controls
-	connect(ui->playerDelayDoubleSpinbox,
-		static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
-		this,
-		&LoadoutDialog::onPlayerDelayDoubleSpinBoxUpdated);
-
-	connect(ui->delayLineEdit,
-	static_cast<void (QLineEdit::*)(const QString&)>(&QLineEdit::textChanged),
-	this,
-	&ReinforcementsDialog::onDelayChanged);
+	connect(ui->toggleWingFlagsButton, 
+		&QPushButton::clicked, 
+		this, 
+		&WingEditorDialog::onToggleWingFlagsButtonPressed);
 
 
-	arrivalDistanceSpinbox
-	arrivalTypeComboBox
-	arrivalTargetComboBox
-	departureTypeComboBox
-	maxWaveDelaySpinBox
-	minWaveDelaySpinBox
-	initialArrivalDelaySpinBox
-	preDepartureDelaySpinBox
-	formationComboBox
-	warpArrivalEngageTimeSpinBox
-	warpArrivalStopSoundBrowseButton
-	warpArrivalStopSoundLineEdit
-	warpArrivalStopSoundPlayButton
-	warpArrivalTypeCombobox
-	warpArrivalTypeCombobox
-	warpArrivalTypeCombobox
-	warpArrivalStartSoundBrowseButton
-	warpArrivalStartSoundLineEdit
-	warpArrivalStartSoundPlayButton
-	warpArrivalShipSpeedSpinbox
-	shipArrivalWarpingTimeSpinbox
-	shipArrivalWarpingTimeSpinbox
-	warpArrivalRadiusSpinbox
-	warpArrivalDecelerationExponenetDoubleSpinbox
-	warpArrivalAnimationBrowseButton
-	warpArrivalAnimationLineEdit
-	noArrivalWarpCheckbox
-	noSpeedAdjustmentIfDockedArrivalCheckbox
-	supercapWarpPhysicsArrivalCheckbox
-	warpDepartureTypeCombobox
-	warpDepartureStartSoundBrowseButton
-	warpDepartureStartSoundLineEdit
-	warpDepartureStartSoundPlayButton
-	warpDepartureStopSoundBrowseButton
-	warpDepartureStopSoundLineEdit
-	warpDepartureStopSoundPlayButton
-	warpDepartureEngageTimeSpinBox
-	shipDepartureWarpingTimeSpinbox
-	warpDepartureRadiusSpinbox
-	warpDepartureDecelerationExponenetDoubleSpinbox
-	warpDepartureAnimationBrowseButton
-	warpDepartureAnimationLineEdit
-	noDepartureWarpCheckbox
-	noSpeedAdjustmentIfDockedDepartureCheckbox
-	supercapWarpPhysicsDepartureCheckbox
-	deleteWingButton
-	disbandWingButton
-	wingNameLineEdit
-	totalWavesSpinBox
-	hotkeyComboBox
-	wingLeaderComboBox
-	waveThresholdSpinBox
-	browseSquadLogosButton
-	squadLogoLineEdit
-	initialOrdersButton
-	nextWingButton
-	previousWingButton
-	selectWingCombobox
-	ingoreCountingGoalsFlagCheckbox
-	noArrivalMusicFlagCheckbox
-	reinforcementUnitFlagCheckbox
-	noArrivalMessageFlagCheckbox
-	noDynamicGoalsCheckbox
-	noFirstWaveMessageCheckbox
-
-	toggleArrivalDepartureButton
-	toggleGeneralOptionsButton
-	toggleWingFlagsButton
-*/
+	// buttons
 	connect(ui->previousWingButton, 
 		&QPushButton::clicked, 
 		this, 
@@ -165,10 +87,181 @@ WingEditorDialog::WingEditorDialog(FredView* parent, EditorViewport* viewport)
 		this, 
 		&WingEditorDialog::onDisbandWingButtonPressed);
 
-	connect(ui->toggleGeneralOptionsButton, 
-		&QPushButton::clicked, 
-		this, 
-		&WingEditorDialog::onToggleGeneralOptionsButtonPressed);
+
+	// examples from other dialogs because it usually takes forever to go back and forth
+/*	
+	// Change item counts
+	connect(ui->extraItemSpinbox,
+		static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+		this,
+		&WingEditorDialog::onExtraItemSpinboxUpdated);
+
+	connect(ui->extraItemsViaVariableCombo,
+		QOverload<int>::of(&QComboBox::currentIndexChanged),
+		this,
+		&WingEditorDialog::onExtraItemsViaVariableCombo);
+
+	// Miscellaneous controls
+	connect(ui->playerDelayDoubleSpinbox,
+		static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+		this,
+		&WingEditorDialog::onPlayerDelayDoubleSpinBoxUpdated);
+
+	connect(ui->delayLineEdit,
+		static_cast<void (QLineEdit::*)(const QString&)>(&QLineEdit::textChanged),
+		this,
+		&WingEditorDialog::onDelayChanged);
+
+
+
+
+
+
+
+
+	arrivalDistanceSpinbox
+	maxWaveDelaySpinBox
+	minWaveDelaySpinBox
+	initialArrivalDelaySpinBox
+	preDepartureDelaySpinBox
+	warpArrivalEngageTimeSpinBox
+	warpArrivalShipSpeedSpinbox
+	shipArrivalWarpingTimeSpinbox
+	warpArrivalRadiusSpinbox
+	warpDepartureEngageTimeSpinBox
+	shipDepartureWarpingTimeSpinbox
+	warpDepartureRadiusSpinbox
+	totalWavesSpinBox
+	waveThresholdSpinBox
+
+	warpArrivalStopSoundBrowseButton
+	warpArrivalStopSoundPlayButton
+	warpArrivalStartSoundBrowseButton
+	warpArrivalStartSoundPlayButton
+	warpArrivalAnimationBrowseButton
+	warpDepartureStartSoundBrowseButton
+	warpDepartureStartSoundPlayButton
+	warpDepartureStopSoundBrowseButton
+	warpDepartureStopSoundPlayButton
+	warpDepartureAnimationBrowseButton
+	browseSquadLogosButton
+
+
+	toggleArrivalDepartureButton
+	toggleGeneralOptionsButton
+	toggleWingFlagsButton
+
+	arrivalTypeComboBox
+	arrivalTargetComboBox
+	departureTypeComboBox
+	formationComboBox
+	warpArrivalTypeCombobox
+	warpDepartureTypeCombobox
+	hotkeyComboBox
+	wingLeaderComboBox
+	selectWingCombobox
+
+	warpArrivalStopSoundLineEdit
+	warpArrivalStartSoundLineEdit
+	warpArrivalAnimationLineEdit
+	warpDepartureStartSoundLineEdit
+	warpDepartureStopSoundLineEdit
+	warpDepartureAnimationLineEdit
+	wingNameLineEdit
+	squadLogoLineEdit
+
+	noArrivalWarpCheckbox
+	noSpeedAdjustmentIfDockedArrivalCheckbox
+	supercapWarpPhysicsArrivalCheckbox
+	noDepartureWarpCheckbox
+	noSpeedAdjustmentIfDockedDepartureCheckbox
+	supercapWarpPhysicsDepartureCheckbox
+	ingoreCountingGoalsFlagCheckbox
+	noArrivalMusicFlagCheckbox
+	reinforcementUnitFlagCheckbox
+	noArrivalMessageFlagCheckbox
+	noDynamicGoalsCheckbox
+	noFirstWaveMessageCheckbox
+
+	warpArrivalDecelerationExponenetDoubleSpinbox
+	warpDepartureDecelerationExponenetDoubleSpinbox
+
+
+
+
+*/
+
+	connect(ui->arrivalDistanceSpinbox,
+		static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+		this,
+		&WingEditorDialog::onArrivalDistanceSpinboxUpdated);
+
+	connect(ui->maxWaveDelaySpinBox,
+		static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+		this,
+		&WingEditorDialog::onMaxWaveDelaySpinBoxUpdated);
+
+	connect(ui->minWaveDelaySpinBox,
+		static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+		this,
+		&WingEditorDialog::onMinWaveDelaySpinBoxUpdated);
+
+	connect(ui->initialArrivalDelaySpinBox,
+		static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+		this,
+		&WingEditorDialog::onInitialArrivalDelaySpinBoxUpdated);
+
+	connect(ui->preDepartureDelaySpinBox,
+		static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+		this,
+		&WingEditorDialog::onPreDepartureDelaySpinBoxUpdated);
+
+	connect(ui->warpArrivalEngageTimeSpinBox,
+		static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+		this,
+		&WingEditorDialog::onWarpArrivalEngageTimeSpinBoxUpdated);
+
+	connect(ui->warpArrivalShipSpeedSpinbox,
+		static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+		this,
+		&WingEditorDialog::onWarpArrivalShipSpeedSpinboxUpdated);
+
+	connect(ui->shipArrivalWarpingTimeSpinbox,
+		static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+		this,
+		&WingEditorDialog::onShipArrivalWarpingTimeSpinboxUpdated);
+
+	connect(ui->warpArrivalRadiusSpinbox,
+		static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+		this,
+		&WingEditorDialog::onWarpArrivalRadiusSpinboxUpdated);
+
+	connect(ui->warpDepartureEngageTimeSpinBox,
+		static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+		this,
+		&WingEditorDialog::onWarpDepartureEngageTimeSpinBoxUpdated);
+
+	connect(ui->shipDepartureWarpingTimeSpinbox,
+		static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+		this,
+		&WingEditorDialog::onShipDepartureWarpingTimeSpinboxUpdated);
+
+	connect(ui->warpDepartureRadiusSpinbox,
+		static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+		this,
+		&WingEditorDialog::onWarpDepartureRadiusSpinboxUpdated);
+
+	connect(ui->totalWavesSpinBox,
+		static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+		this,
+		&WingEditorDialog::onTotalWavesSpinBoxUpdated);
+
+	connect(ui->waveThresholdSpinBox,
+		static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+		this,
+		&WingEditorDialog::onWaveThresholdSpinBoxUpdated);
+
+
 
 	connect(ui->reinforcementUnitFlagCheckbox, 
 		&QCheckBox::clicked, 
@@ -227,7 +320,8 @@ WingEditorDialog::WingEditorDialog(FredView* parent, EditorViewport* viewport)
 	*/
 
 	// Set up wing list
-	// TODO! This needs a signal to be updated whenever a wing is created or destroyed.
+	// TODO! This needs a signal to be updated whenever a wing is created or destroyed, 
+	// AND ANOTHER SIGNAL to the current wing if there is a change in selection
 	auto wingList = _model->getCurrentSelectableWings();
 
 	for (const auto& wing : wingList){
@@ -288,24 +382,23 @@ void WingEditorDialog::loadWing()
 		ui->noDynamicGoalsCheckbox->setEnabled(false);
 
 		// warp parameters that don't have ui elements yet.
-		/*
-		ui->noArrivalWarpCheckbox->setChecked(_model->getNoArrivalWarpFlag());
-		ui->noArrivalWarpCheckbox->setEnabled(true);
+		
+		ui->noArrivalWarpCheckbox->setChecked(false);
+		ui->noArrivalWarpCheckbox->setEnabled(false);
 
-		ui->noDepartureWarpCheckbox->setChecked(_model->getNoDepartureWarpFlag());
-		ui->noDepartureWarpCheckbox->setEnabled(true);
+		ui->noDepartureWarpCheckbox->setChecked(false);
+		ui->noDepartureWarpCheckbox->setEnabled(false);
 
-		ui->sameArrivalWarpWhenDockedCheckbox->setChecked(_model->getSameArrivalWarpWhenDockedFlag());
-		ui->sameArrivalWarpWhenDockedCheckbox->setEnabled(true);
+		ui->sameArrivalWarpWhenDockedCheckbox->setChecked(false);
+		ui->sameArrivalWarpWhenDockedCheckbox->setEnabled(false);
 
-		ui->sameDepartureWarpWhenDockedCheckbox->setChecked(_model->getSameDepartureWarpWhenDockedFlag());
-		ui->sameDepartureWarpWhenDockedCheckbox->setEnabled(true);
-		*/
+		ui->sameDepartureWarpWhenDockedCheckbox->setChecked(false);
+		ui->sameDepartureWarpWhenDockedCheckbox->setEnabled(false);
+		
 
-		/*
+		
 		ui->arrivalTargetComboBox->clear();
-		ui->arrivalTargetComboBox->enable(true);		
-		*/
+		ui->arrivalTargetComboBox->enable(false);		
 
 		// TODO, this index should only be there when no wing is selected, for both arrival and departure
 		ui->arrivalTypeComboBox->setCurrentIndex(0);
@@ -370,24 +463,23 @@ void WingEditorDialog::loadWing()
 		ui->noDynamicGoalsCheckbox->setChecked(_model->getDynamicGoalsFlag());
 
 		// warp parameters that don't have ui elements yet.
-		/*
+		
 		ui->noArrivalWarpCheckbox->setEnabled(true);
 		ui->noArrivalWarpCheckbox->setChecked(_model->getNoArrivalWarpFlag());
 
 		ui->noDepartureWarpCheckbox->setEnabled(true);
 		ui->noDepartureWarpCheckbox->setChecked(_model->getNoDepartureWarpFlag());
 
-		ui->sameArrivalWarpWhenDockedCheckbox->setEnabled(true);
-		ui->sameArrivalWarpWhenDockedCheckbox->setChecked(_model->getSameArrivalWarpWhenDockedFlag());
+		ui->noSpeedAdjustmentIfDockedArrivalCheckbox->setEnabled(true);
+		ui->noSpeedAdjustmentIfDockedArrivalCheckbox->setChecked(_model->getSameArrivalWarpWhenDockedFlag());
 
-		ui->sameDepartureWarpWhenDockedCheckbox->setEnabled(true);
-		ui->sameDepartureWarpWhenDockedCheckbox->setChecked(_model->getSameDepartureWarpWhenDockedFlag());
-		*/
+		ui->noSpeedAdjustmentIfDockedDepartureCheckbox->setEnabled(true);
+		ui->noSpeedAdjustmentIfDockedDepartureCheckbox->setChecked(_model->getSameDepartureWarpWhenDockedFlag());
+		
 
 		auto arrivalTargetList = _model->getArrivalTargetList();
 
 		// this does not seem to exist yet either.
-		/*
 
 		ui->arrivalTargetComboBox->enable(true);		
 		ui->arrivalTargetComboBox->clear();
@@ -398,9 +490,8 @@ void WingEditorDialog::loadWing()
 
 		ui->arrivalTargetcomboBox.setCurrentIndex(arrivalTargetList.first);
 
-		std::pair<int, SCP_vector<SCP_string>> getDepartureTargetList();
-		*/
-
+		auto departureList = getDepartureTargetList();
+		/*
 		ui->arrivalTypeComboBox->setEnabled(true);
 		ui->arrivalTypeComboBox->setCurrentIndex(_model->getArrivalType() + 1);
 
@@ -408,7 +499,7 @@ void WingEditorDialog::loadWing()
 		// where's our getDepartureType function?
 		//ui->departureTypeComboBox->setCurrentIndex(_model->getDepatureType() + 1);
 
-		/* // not yet in the dialog?  
+		// not yet in the dialog?  
 		auto departureList = _model->getDepartureTargetList();
 
 		ui->departureTargetComboBox->setEnabled(true);
