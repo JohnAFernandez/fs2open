@@ -46,6 +46,107 @@ WingEditorDialog::WingEditorDialog(FredView* parent, EditorViewport* viewport)
 
 	// CONNECT STATEMENTS GO HERE
 
+	// Selection convenience buttons
+/*	connect(ui->selectAllUnusedShipsButton, 
+		&QPushButton::clicked, 
+		this, 
+		&LoadoutDialog::onSelectAllUnusedShipsPressed);
+
+	// Change item counts
+	connect(ui->extraItemSpinbox,
+		static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+		this,
+		&LoadoutDialog::onExtraItemSpinboxUpdated);
+
+	connect(ui->extraItemsViaVariableCombo,
+		QOverload<int>::of(&QComboBox::currentIndexChanged),
+		this,
+		&LoadoutDialog::onExtraItemsViaVariableCombo);
+
+	// Miscellaneous controls
+	connect(ui->playerDelayDoubleSpinbox,
+		static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+		this,
+		&LoadoutDialog::onPlayerDelayDoubleSpinBoxUpdated);
+
+	connect(ui->delayLineEdit,
+	static_cast<void (QLineEdit::*)(const QString&)>(&QLineEdit::textChanged),
+	this,
+	&ReinforcementsDialog::onDelayChanged);
+
+wingNameLineEdit
+totalWavesSpinBox
+hotkeyComboBox
+wingLeaderComboBox
+waveThresholdSpinBox
+squadLogoLineEdit
+
+// not yet used
+
+arrivalTargetComboBox
+// used again
+arrivalTypeComboBox
+initialArrivalDelaySpinBox
+preDepartureDelaySpinBox
+minWaveDelayLineEdit
+maxWaveDelayLineEdit
+
+*/
+	connect(ui->reinforcementUnitFlagCheckbox, 
+		&QCheckBox::clicked, 
+		this, 
+		&LoadoutDialog::onReinforcementUnitFlagCheckboxClicked);
+
+	connect(ui->ingoreCountingGoalsFlagCheckbox, 
+		&QCheckBox::clicked, 
+		this, 
+		&LoadoutDialog::onIngoreCountingGoalsFlagCheckboxClicked);
+
+	connect(ui->noArrivalMusicFlagCheckbox, 
+		&QCheckBox::clicked, 
+		this, 
+		&LoadoutDialog::onNoArrivalMusicFlagCheckboxClicked);
+
+	connect(ui->noArrivalMessageFlagCheckbox, 
+		&QCheckBox::clicked, 
+		this, 
+		&LoadoutDialog::onNoArrivalMessageFlagCheckboxClicked);
+
+	connect(ui->noFirstWaveMessageCheckbox, 
+		&QCheckBox::clicked, 
+		this, 
+		&LoadoutDialog::onNoFirstWaveMessageCheckboxClicked);
+
+	connect(ui->noDynamicGoalsCheckbox, 
+		&QCheckBox::clicked, 
+		this, 
+		&LoadoutDialog::onNoDynamicGoalsCheckboxClicked);
+
+	connect(ui->NoArrivalWarpFlagCheckbox, 
+		&QCheckBox::clicked, 
+		this, 
+		&LoadoutDialog::onNoArrivalWarpFlagCheckboxClicked);
+
+	connect(ui->noDepartureWarpFlag, 
+		&QCheckBox::clicked, 
+		this, 
+		&LoadoutDialog::onNoDepartureWarpFlagClicked);
+
+	connect(ui->sameArrivalWarpWhenDockedFlagCheckbox, 
+		&QCheckBox::clicked, 
+		this, 
+		&LoadoutDialog::onSameArrivalWarpWhenDockedFlagCheckboxClicked);
+
+	connect(ui->sameArrivalWarpWhenDockedFlagCheckbox, 
+		&QCheckBox::clicked, 
+		this, 
+		&LoadoutDialog::onSameArrivalWarpWhenDockedFlagCheckboxClicked);
+
+	connect(ui->sameDepartureWarpWhenDockedFlagCheckbox, 
+		&QCheckBox::clicked, 
+		this, 
+		&LoadoutDialog::onSameDepartureWarpWhenDockedFlagCheckboxClicked);
+
 
 	// Set up wing list
 	// TODO! This needs a signal to be updated whenever a wing is created or destroyed.
@@ -131,6 +232,18 @@ WingEditorDialog::loadWing()
 		// TODO, this index should only be there when no wing is selected, for both arrival and departure
 		ui->arrivalTypeComboBox->setCurrentIndex(0);
 		ui->arrivalTypeComboBox->setEnabled(false);
+
+		ui->initialArrivalDelaySpinBox->clear();
+		ui->initialArrivalDelaySpinBox->setEnabled(false);
+
+		ui->preDepartureDelaySpinBox->clear();
+		ui->preDepartureDelaySpinBox->setEnabled(false);
+
+		ui->minWaveDelayLineEdit->clear();
+		ui->minWaveDelayLineEdit->setEnabled(false);
+
+		ui->maxWaveDelayLineEdit->clear();
+		ui->maxWaveDelayLineEdit->setEnabled(false);
 
 	// Display all info based on the wing selected in the model
 	} else {
@@ -241,12 +354,11 @@ WingEditorDialog::loadWing()
 		ui->maxWaveDelayLineEdit->setEnabled(true);
 		ui->maxWaveDelayLineEdit->setText(_model->getMaxWaveDelay());
 		/*
-	SCP_vector<SCP_string> getCurrentSelectableWings();
+		SCP_vector<SCP_string> getCurrentSelectableWings();
 
-	// don't remember using this....
-	int getInitialDelay();
-	SCP_string getSquadronLogo();*/
-
+		// don't remember using this....
+		int getInitialDelay();
+		*/
 	
 	}
 
