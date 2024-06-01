@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>443</width>
-    <height>551</height>
+    <width>500</width>
+    <height>616</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>443</width>
-    <height>0</height>
+    <width>500</width>
+    <height>616</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>443</width>
-    <height>551</height>
+    <width>500</width>
+    <height>616</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -45,7 +45,7 @@
     <rect>
      <x>10</x>
      <y>70</y>
-     <width>421</width>
+     <width>481</width>
      <height>121</height>
     </rect>
    </property>
@@ -57,7 +57,7 @@
      <rect>
       <x>10</x>
       <y>20</y>
-      <width>201</width>
+      <width>221</width>
       <height>91</height>
      </rect>
     </property>
@@ -127,9 +127,9 @@
    <widget class="QWidget" name="verticalLayoutWidget_2">
     <property name="geometry">
      <rect>
-      <x>220</x>
+      <x>240</x>
       <y>20</y>
-      <width>191</width>
+      <width>231</width>
       <height>91</height>
      </rect>
     </property>
@@ -234,7 +234,7 @@
   <widget class="QPushButton" name="disbandWingButton">
    <property name="geometry">
     <rect>
-     <x>340</x>
+     <x>410</x>
      <y>40</y>
      <width>75</width>
      <height>24</height>
@@ -247,7 +247,7 @@
   <widget class="QPushButton" name="deleteWingButton">
    <property name="geometry">
     <rect>
-     <x>340</x>
+     <x>410</x>
      <y>10</y>
      <width>75</width>
      <height>24</height>
@@ -275,7 +275,7 @@
     <rect>
      <x>10</x>
      <y>200</y>
-     <width>421</width>
+     <width>481</width>
      <height>101</height>
     </rect>
    </property>
@@ -300,7 +300,7 @@
      <rect>
       <x>10</x>
       <y>20</y>
-      <width>201</width>
+      <width>221</width>
       <height>74</height>
      </rect>
     </property>
@@ -331,9 +331,9 @@
    <widget class="QWidget" name="verticalLayoutWidget_4">
     <property name="geometry">
      <rect>
-      <x>220</x>
+      <x>240</x>
       <y>20</y>
-      <width>191</width>
+      <width>231</width>
       <height>74</height>
      </rect>
     </property>
@@ -366,230 +366,280 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>340</y>
-     <width>421</width>
-     <height>201</height>
+     <y>330</y>
+     <width>481</width>
+     <height>281</height>
     </rect>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="arrivalLocationTab">
     <attribute name="title">
      <string>Locations and Delays</string>
     </attribute>
-    <widget class="QLabel" name="arrivalTypeLabel">
+    <widget class="QGroupBox" name="groupBox">
      <property name="geometry">
       <rect>
-       <x>0</x>
-       <y>10</y>
-       <width>101</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Arrival Type</string>
-     </property>
-    </widget>
-    <widget class="QComboBox" name="arrivalTypeComboBox">
-     <property name="geometry">
-      <rect>
-       <x>80</x>
-       <y>10</y>
-       <width>121</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <item>
-      <property name="text">
-       <string>Warp In at Current Location</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Start in Docking Bay</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Warp Near Ship</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Warp In Front of Ship</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Warp In Back of Ship</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Warp In Left of Ship</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Warp In Right of Ship</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Warp In Above Ship</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Warp In Below Ship</string>
-      </property>
-     </item>
-    </widget>
-    <widget class="QLabel" name="departureTypeLabel">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>110</y>
-       <width>101</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Departure Type</string>
-     </property>
-    </widget>
-    <widget class="QComboBox" name="departureTypeComboBox">
-     <property name="geometry">
-      <rect>
-       <x>90</x>
-       <y>110</y>
-       <width>111</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <item>
-      <property name="text">
-       <string>Warp In</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Docking Bay</string>
-      </property>
-     </item>
-    </widget>
-    <widget class="QComboBox" name="arrivalTargetComboBox">
-     <property name="geometry">
-      <rect>
-       <x>80</x>
-       <y>40</y>
-       <width>121</width>
-       <height>22</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QLabel" name="initialArrivalDelayLabel">
-     <property name="geometry">
-      <rect>
-       <x>220</x>
-       <y>10</y>
-       <width>101</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Initial Arrival Delay</string>
-     </property>
-    </widget>
-    <widget class="QSpinBox" name="initialArrivalDelaySpinBox">
-     <property name="geometry">
-      <rect>
-       <x>340</x>
-       <y>10</y>
-       <width>51</width>
-       <height>21</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QLabel" name="arrivalTargetLabel">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>40</y>
-       <width>81</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Target</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="arrivalDistanceLabel">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>70</y>
-       <width>81</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Distance</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="preDepartureDelayLabel">
-     <property name="geometry">
-      <rect>
-       <x>220</x>
-       <y>110</y>
-       <width>111</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Pre-Departure Delay</string>
-     </property>
-    </widget>
-    <widget class="QSpinBox" name="preDepartureDelaySpinBox">
-     <property name="geometry">
-      <rect>
-       <x>340</x>
-       <y>110</y>
-       <width>51</width>
-       <height>21</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="arrivalDistanceLineEdit">
-     <property name="geometry">
-      <rect>
-       <x>80</x>
-       <y>70</y>
-       <width>121</width>
-       <height>22</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QGroupBox" name="delayBetweenWavesGroupBox">
-     <property name="geometry">
-      <rect>
-       <x>220</x>
-       <y>40</y>
-       <width>181</width>
-       <height>61</height>
+       <x>10</x>
+       <y>0</y>
+       <width>221</width>
+       <height>121</height>
       </rect>
      </property>
      <property name="title">
-      <string>Delay Between Waves</string>
+      <string>Arrival</string>
      </property>
-     <widget class="QWidget" name="horizontalLayoutWidget_7">
+     <widget class="QWidget" name="verticalLayoutWidget_5">
       <property name="geometry">
        <rect>
         <x>10</x>
         <y>20</y>
+        <width>202</width>
+        <height>91</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_8">
+         <item>
+          <widget class="QLabel" name="arrivalTypeLabel">
+           <property name="text">
+            <string>Method</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="arrivalTypeComboBox">
+           <property name="minimumSize">
+            <size>
+             <width>150</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>150</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <item>
+            <property name="text">
+             <string>Warp In Where Located</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Start in Docking Bay</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Warp Near Ship</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Warp In Front of Ship</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Warp In Back of Ship</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Warp Left of Ship</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Warp Right of Ship</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Warp Above Ship</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Warp Below Ship</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_9">
+         <item>
+          <widget class="QLabel" name="arrivalTargetLabel">
+           <property name="text">
+            <string>Target</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="arrivalTargetComboBox">
+           <property name="minimumSize">
+            <size>
+             <width>125</width>
+             <height>0</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_10">
+         <item>
+          <widget class="QLabel" name="arrivalDistanceLabel">
+           <property name="text">
+            <string>Distance      </string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="arrivalDistanceSpinbox">
+           <property name="minimumSize">
+            <size>
+             <width>125</width>
+             <height>0</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>0</y>
+       <width>231</width>
+       <height>121</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Departure</string>
+     </property>
+     <widget class="QWidget" name="verticalLayoutWidget_7">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>20</y>
+        <width>221</width>
+        <height>91</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_7">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_12">
+         <item>
+          <widget class="QLabel" name="departureTypeLabel">
+           <property name="text">
+            <string>Departure Type</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="departureTypeComboBox">
+           <item>
+            <property name="text">
+             <string>Warp In</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Docking Bay</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_13">
+         <item>
+          <widget class="QLabel" name="departureTargetLabel">
+           <property name="text">
+            <string>Target</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="departureTargetComboBox"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>120</y>
+       <width>461</width>
+       <height>81</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Timing</string>
+     </property>
+     <widget class="QWidget" name="verticalLayoutWidget_6">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>211</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_6">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_11">
+         <item>
+          <widget class="QLabel" name="initialArrivalDelayLabel">
+           <property name="text">
+            <string>Initial Arrival Delay</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="initialArrivalDelaySpinBox"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_14">
+         <item>
+          <widget class="QLabel" name="preDepartureDelayLabel">
+           <property name="text">
+            <string>Pre-Departure Delay</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="preDepartureDelaySpinBox"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="horizontalLayoutWidget_7">
+      <property name="geometry">
+       <rect>
+        <x>250</x>
+        <y>30</y>
         <width>188</width>
-        <height>31</height>
+        <height>24</height>
        </rect>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_7">
@@ -601,7 +651,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="minWaveDelayLineEdit"/>
+        <widget class="QSpinBox" name="minWaveDelaySpinBox"/>
        </item>
        <item>
         <widget class="QLabel" name="maxWaveDelayLabel">
@@ -611,44 +661,554 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="maxWaveDelayLineEdit"/>
+        <widget class="QSpinBox" name="maxWaveDelaySpinBox"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QLabel" name="delayBetweenWavesLabel">
+      <property name="geometry">
+       <rect>
+        <x>240</x>
+        <y>10</y>
+        <width>191</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Delay Between Waves</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_4">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>200</y>
+       <width>461</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Formation</string>
+     </property>
+     <widget class="QWidget" name="horizontalLayoutWidget_18">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>441</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_33">
+       <item>
+        <widget class="QComboBox" name="formationComboBox">
+         <property name="minimumSize">
+          <size>
+           <width>167</width>
+           <height>0</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>50</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="formationScaleFactorLabel">
+         <property name="text">
+          <string>Scale Factor</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QDoubleSpinBox" name="formationScaleFactorDoubleSpinBox"/>
        </item>
       </layout>
      </widget>
     </widget>
-    <widget class="QComboBox" name="departureTargetComboBox">
-     <property name="geometry">
-      <rect>
-       <x>90</x>
-       <y>140</y>
-       <width>111</width>
-       <height>22</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QLabel" name="departureTargetLabel">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>140</y>
-       <width>49</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Target</string>
-     </property>
-    </widget>
    </widget>
    <widget class="QWidget" name="conditionalsTab">
     <attribute name="title">
-     <string>Conditionals</string>
+     <string>Cues</string>
     </attribute>
    </widget>
-   <widget class="QWidget" name="pararmetersTab">
+   <widget class="QWidget" name="arrivalPararmetersTab">
     <attribute name="title">
-     <string>Parameters</string>
+     <string>Arrival Parameters</string>
     </attribute>
+    <widget class="QWidget" name="verticalLayoutWidget_8">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>10</y>
+       <width>301</width>
+       <height>241</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_8">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_17">
+        <item>
+         <widget class="QLabel" name="warpArrivalTypeLabel">
+          <property name="text">
+           <string>Warp Type</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="warpArrivalTypeCombobox"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_18">
+        <item>
+         <widget class="QLabel" name="warpArrivalStartSoundLabel">
+          <property name="text">
+           <string>Warp Start Sound</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="warpArrivalStartSoundLineEdit">
+          <property name="maximumSize">
+           <size>
+            <width>130</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="warpArrivalStartSoundBrowseButton">
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="warpArrivalStartSoundPlayButton">
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_16">
+        <item>
+         <widget class="QLabel" name="warpArrivalEndSoundLabel">
+          <property name="text">
+           <string>Warp End Sound</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="warpArrivalStopSoundLineEdit">
+          <property name="maximumSize">
+           <size>
+            <width>130</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="warpArrivalStopSoundBrowseButton">
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="warpArrivalStopSoundPlayButton">
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_15">
+        <item>
+         <widget class="QLabel" name="warpArrivalEngageTimeLabe">
+          <property name="text">
+           <string>Warp Engage Time</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="warpArrivalEngageTimeSpinBox"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_19">
+        <item>
+         <widget class="QLabel" name="warpArrivalShipSpeedLabel">
+          <property name="text">
+           <string>Ship Warping Speed</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="warpArrivalShipSpeedSpinbox"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_20">
+        <item>
+         <widget class="QLabel" name="shipArrivalWarpingTimeLabel">
+          <property name="text">
+           <string>Ship Warping Time</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="shipArrivalWarpingTimeSpinbox"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_21">
+        <item>
+         <widget class="QLabel" name="warpArrivalRadiusLabel">
+          <property name="text">
+           <string>Warp Radius</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="warpArrivalRadiusSpinbox"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_22">
+        <item>
+         <widget class="QLabel" name="warpArrivalDecelerationExponentLabel">
+          <property name="text">
+           <string>Deceleration Exponent </string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="warpArrivalDecelerationExponenetDoubleSpinbox"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_23">
+        <item>
+         <widget class="QLabel" name="warpArrivalAnimationLabel">
+          <property name="text">
+           <string>Warp Animation</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="warpArrivalAnimationLineEdit">
+          <property name="maximumSize">
+           <size>
+            <width>130</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="warpArrivalAnimationBrowseButton">
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="verticalLayoutWidget_9">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>153</width>
+       <height>80</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_9">
+      <item>
+       <widget class="QCheckBox" name="noArrivalWarpCheckbox">
+        <property name="text">
+         <string>No Arrival Warp</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="noSpeedAdjustmentIfDockedArrivalCheckbox">
+        <property name="text">
+         <string>No Speed Adj. if Docked</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="supercapWarpPhysicsArrivalCheckbox">
+        <property name="text">
+         <string>Supercap Warp Physics</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="departureParametersTab">
+    <attribute name="title">
+     <string>Departure Parameters</string>
+    </attribute>
+    <widget class="QWidget" name="verticalLayoutWidget_10">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>10</y>
+       <width>301</width>
+       <height>241</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_10">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_24">
+        <item>
+         <widget class="QLabel" name="warpDepartureTypeLabel">
+          <property name="text">
+           <string>Warp Type</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="warpDepartureTypeCombobox"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_25">
+        <item>
+         <widget class="QLabel" name="warpDepartureStartSoundLabel">
+          <property name="text">
+           <string>Warp Start Sound</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="warpDepartureStartSoundLineEdit">
+          <property name="maximumSize">
+           <size>
+            <width>130</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="warpDepartureStartSoundBrowseButton">
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="warpDepartureStartSoundPlayButton">
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_26">
+        <item>
+         <widget class="QLabel" name="warpDepartureEndSoundLabel">
+          <property name="text">
+           <string>Warp End Sound</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="warpDepartureStopSoundLineEdit">
+          <property name="maximumSize">
+           <size>
+            <width>130</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="warpDepartureStopSoundBrowseButton">
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="warpDepartureStopSoundPlayButton">
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_27">
+        <item>
+         <widget class="QLabel" name="warpDepartureEngageTimeLabe">
+          <property name="text">
+           <string>Warp Engage Time</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="warpDepartureEngageTimeSpinBox"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_28">
+        <item>
+         <widget class="QLabel" name="warpDepartureShipSpeedLabel">
+          <property name="text">
+           <string>Ship Warping Speed</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="warpDepartureShipSpeedSpinbox"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_29">
+        <item>
+         <widget class="QLabel" name="shipDepartureWarpingTimeLabel">
+          <property name="text">
+           <string>Ship Warping Time</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="shipDepartureWarpingTimeSpinbox"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_30">
+        <item>
+         <widget class="QLabel" name="warpDepartureRadiusLabel">
+          <property name="text">
+           <string>Warp Radius</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="warpDepartureRadiusSpinbox"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_31">
+        <item>
+         <widget class="QLabel" name="warpDepartureDecelerationExponentLabel">
+          <property name="text">
+           <string>Deceleration Exponent </string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="warpDepartureDecelerationExponenetDoubleSpinbox"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_32">
+        <item>
+         <widget class="QLabel" name="warpDepartureAnimationLabel">
+          <property name="text">
+           <string>Warp Animation</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="warpDepartureAnimationLineEdit">
+          <property name="maximumSize">
+           <size>
+            <width>130</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="warpDepartureAnimationBrowseButton">
+          <property name="text">
+           <string>...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="verticalLayoutWidget_11">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>153</width>
+       <height>80</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_11">
+      <item>
+       <widget class="QCheckBox" name="noDepartureWarpCheckbox">
+        <property name="text">
+         <string>No Arrival Warp</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="noSpeedAdjustmentIfDockedDepartureCheckbox">
+        <property name="text">
+         <string>No Speed Adj. if Docked</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="supercapWarpPhysicsDepartureCheckbox">
+        <property name="text">
+         <string>Supercap Warp Physics</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </widget>
   </widget>
   <widget class="QLabel" name="arrivalDepartureLabel">
