@@ -587,16 +587,12 @@ void WingEditorDialog::loadWing()
 	SCP_string renameWing(SCP_string newName);
 
 	int setLeader(int newLeaderIndex);
-	int (int newTotalWaves);
 	SCP_string setSquadLogo(SCP_string filename);
 
 	int setArrivalTarget(int targetIndex);
 	int setArrivalDistance(int newDistance);
-	int (int newMin);
-	int (int newMax);
 	int setDepartureType(int departureType);
 	int setDepartureTarget(int targetIndex);
-	int (int newDelay);
 */
 
 void WingEditorDialog::onToggleGeneralOptionsButtonPressed()
@@ -884,6 +880,8 @@ void WingEditorDialog::onNoDynamicGoalsCheckboxClicked()
 
 void WingEditorDialog::onArrivalDistanceSpinboxUpdated()
 {	
+	ui->arrivalDistanceSpinbox->setValue(_model->setArrivalDistance(ui->arrivalDistanceSpinbox->value()));
+	
 	static bool TODOwarn37 = false;
 	if (!TODOwarn37) {
 		QMessageBox warnbox;
@@ -909,16 +907,6 @@ void WingEditorDialog::onMinWaveDelaySpinBoxUpdated()
 void WingEditorDialog::onInitialArrivalDelaySpinBoxUpdated()
 {	
 	ui->initialArrivalDelaySpinBox->setValue(_model->setInitialArrivalDelay(ui->initialArrivalDelaySpinBox->value()));
-	static bool TODOwarn40 = false;
-	if (!TODOwarn40) {
-		QMessageBox warnbox;
-		SCP_string message = "Control 40 has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn40 = true;
-	}
 }
 
 void WingEditorDialog::onPreDepartureDelaySpinBoxUpdated()
