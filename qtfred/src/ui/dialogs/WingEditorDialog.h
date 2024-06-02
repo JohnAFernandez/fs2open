@@ -40,6 +40,82 @@ class WingEditorDialog : public QDialog, public SexpTreeEditorInterface {
   protected:
 
   private slots:
+void onToggleGeneralOptionsButtonPressed();
+void onToggleArrivalDepartureButtonPressed();
+void onToggleWingFlagsButtonPressed();
+void onPreviousWingButtonPressed();
+void onNextWingButtonPressed();
+void onInitialOrdersButtonPressed();
+void onDeleteWingButtonPressed();
+void onDisbandWingButtonPressed();
+void onWarpArrivalStopSoundBrowseButtonPressed();
+void onWarpArrivalStopSoundPlayButtonPressed();
+void onWarpArrivalStartSoundBrowseButtonPressed();
+void onWarpArrivalStartSoundPlayButtonPressed();
+void onWarpArrivalAnimationBrowseButtonPressed();
+void onWarpDepartureStartSoundBrowseButtonPressed();
+void onWarpDepartureStartSoundPlayButtonPressed();
+void onWarpDepartureStopSoundBrowseButtonPressed();
+void onWarpDepartureStopSoundPlayButtonPressed();
+void onWarpDepartureAnimationBrowseButtonPressed();
+void onBrowseSquadLogosButtonPressed();
+
+void onReinforcementUnitFlagCheckboxClicked();
+void onIngoreCountingGoalsFlagCheckboxClicked();
+void onNoArrivalMusicFlagCheckboxClicked();
+void onNoArrivalMessageFlagCheckboxClicked();
+void onNoFirstWaveMessageCheckboxClicked();
+void onNoDynamicGoalsCheckboxClicked();
+
+void onArrivalDistanceSpinboxUpdated();
+void onMaxWaveDelaySpinBoxUpdated();
+void onMinWaveDelaySpinBoxUpdated();
+void onInitialArrivalDelaySpinBoxUpdated();
+void onPreDepartureDelaySpinBoxUpdated();
+void onWarpArrivalEngageTimeSpinBoxUpdated();
+void onWarpArrivalShipSpeedSpinboxUpdated();
+void onShipArrivalWarpingTimeSpinboxUpdated();
+void onWarpArrivalRadiusSpinboxUpdated();
+void onWarpDepartureEngageTimeSpinBoxUpdated();
+void onShipDepartureWarpingTimeSpinboxUpdated();
+void onWarpDepartureRadiusSpinboxUpdated();
+void onTotalWavesSpinBoxUpdated();
+void onWaveThresholdSpinBoxUpdated();
+
+void onReinforcementUnitFlagCheckboxClicked();
+void onIngoreCountingGoalsFlagCheckboxClicked();
+void onNoArrivalMusicFlagCheckboxClicked();
+void onNoArrivalMessageFlagCheckboxClicked();
+void onNoFirstWaveMessageCheckboxClicked();
+void onNoDynamicGoalsCheckboxClicked();
+void onNoArrivalWarpCheckboxClicked();
+void onNoSpeedAdjustmentIfDockedArrivalCheckboxClicked();
+void onSupercapWarpPhysicsArrivalCheckboxClicked();
+void onNoDepartureWarpCheckboxClicked();
+void onNoSpeedAdjustmentIfDockedDepartureCheckboxClicked();
+void onSupercapWarpPhysicsDepartureCheckboxClicked();
+
+void onArrivalTypeComboBoxChanged();
+void onArrivalTargetComboBoxChanged();
+void onDepartureTypeComboBoxChanged();
+void onFormationComboBoxChanged();
+void onWarpArrivalTypeComboboxChanged();
+void onWarpDepartureTypeComboboxChanged();
+void onHotkeyComboBoxChanged();
+void onSelectWingComboboxChanged();
+
+void onWarpArrivalStopSoundLineEditChanged();
+void onWarpArrivalStartSoundLineEditChanged();
+void onWarpArrivalAnimationLineEditChanged();
+void onWarpDepartureStartSoundLineEditChanged();
+void onWarpDepartureStopSoundLineEditChanged();
+void onWarpDepartureAnimationLineEdit();
+void onWingNameLineEditChanged();
+void onSquadLogoLineEditChanged();
+
+void onWarpArrivalDecelerationExponenetDoubleSpinboxUpdated();
+
+void onWarpDepartureDecelerationExponenetDoubleSpinboxUpdated();
 
   private:
 	std::unique_ptr<Ui::WingEditorDialog> ui;

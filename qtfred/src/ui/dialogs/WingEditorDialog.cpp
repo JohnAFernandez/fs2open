@@ -584,6 +584,980 @@ void WingEditorDialog::loadWing()
 } 
 
 
+void WingEditorDialog::onToggleGeneralOptionsButtonPressed()
+{	
+	static bool TODOwarn1 = false;
+	if (!TODOwarn1) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn1 = true;
+	}
+}
+
+void WingEditorDialog::onToggleArrivalDepartureButtonPressed()
+{	
+	static bool TODOwarn2 = false;
+	if (!TODOwarn2) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn2 = true;
+	}
+}
+
+void WingEditorDialog::onToggleWingFlagsButtonPressed()
+{	
+	static bool TODOwarn3 = false;
+	if (!TODOwarn3) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn3 = true;
+	}
+}
+
+void WingEditorDialog::onPreviousWingButtonPressed()
+{	
+	static bool TODOwarn4 = false;
+	if (!TODOwarn4) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn4 = true;
+	}
+}
+
+void WingEditorDialog::onNextWingButtonPressed()
+{	
+	static bool TODOwarn5 = false;
+	if (!TODOwarn5) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn5 = true;
+	}
+}
+
+void WingEditorDialog::onInitialOrdersButtonPressed()
+{	
+	static bool TODOwarn6 = false;
+	if (!TODOwarn6) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn6 = true;
+	}
+}
+
+void WingEditorDialog::onDeleteWingButtonPressed()
+{	
+	static bool TODOwarn7 = false;
+	if (!TODOwarn7) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn7 = true;
+	}
+}
+
+void WingEditorDialog::onDisbandWingButtonPressed()
+{	
+	static bool TODOwarn8 = false;
+	if (!TODOwarn8) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn8 = true;
+	}
+}
+
+void WingEditorDialog::onWarpArrivalStopSoundBrowseButtonPressed()
+{	
+	static bool TODOwarn9 = false;
+	if (!TODOwarn9) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn9 = true;
+	}
+}
+
+void WingEditorDialog::onWarpArrivalStopSoundPlayButtonPressed()
+{	
+	static bool TODOwarn21 = false;
+	if (!TODOwarn21) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn21 = true;
+	}
+}
+
+void WingEditorDialog::onWarpArrivalStartSoundBrowseButtonPressed()
+{	
+	static bool TODOwarn22 = false;
+	if (!TODOwarn22) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn22 = true;
+	}
+}
+
+void WingEditorDialog::onWarpArrivalStartSoundPlayButtonPressed()
+{	
+	static bool TODOwarn23 = false;
+	if (!TODOwarn23) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn23 = true;
+	}
+}
+
+void WingEditorDialog::onWarpArrivalAnimationBrowseButtonPressed()
+{	
+	static bool TODOwarn24 = false;
+	if (!TODOwarn24) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn24 = true;
+	}
+}
+
+void WingEditorDialog::onWarpDepartureStartSoundBrowseButtonPressed()
+{	
+	static bool TODOwarn25 = false;
+	if (!TODOwarn25) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn25 = true;
+	}
+}
+
+void WingEditorDialog::onWarpDepartureStartSoundPlayButtonPressed()
+{	
+	static bool TODOwarn26 = false;
+	if (!TODOwarn26) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn26 = true;
+	}
+}
+
+void WingEditorDialog::onWarpDepartureStopSoundBrowseButtonPressed()
+{	
+	static bool TODOwarn27 = false;
+	if (!TODOwarn27) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn27 = true;
+	}
+}
+
+void WingEditorDialog::onWarpDepartureStopSoundPlayButtonPressed()
+{	
+	static bool TODOwarn28 = false;
+	if (!TODOwarn28) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn28 = true;
+	}
+}
+
+void WingEditorDialog::onWarpDepartureAnimationBrowseButtonPressed()
+{	
+	static bool TODOwarn29 = false;
+	if (!TODOwarn29) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn29 = true;
+	}
+}
+
+void WingEditorDialog::onBrowseSquadLogosButtonPressed()
+{	
+	static bool TODOwarn30 = false;
+	if (!TODOwarn30) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn30 = true;
+	}
+}
+
+
+void WingEditorDialog::onReinforcementUnitFlagCheckboxClicked()
+{	
+	static bool TODOwarn31 = false;
+	if (!TODOwarn31) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn31 = true;
+	}
+}
+
+void WingEditorDialog::onIngoreCountingGoalsFlagCheckboxClicked()
+{	
+	static bool TODOwarn32 = false;
+	if (!TODOwarn32) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn32 = true;
+	}
+}
+
+void WingEditorDialog::onNoArrivalMusicFlagCheckboxClicked()
+{	
+	static bool TODOwarn33 = false;
+	if (!TODOwarn33) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn33 = true;
+	}
+}
+
+void WingEditorDialog::onNoArrivalMessageFlagCheckboxClicked()
+{	
+	static bool TODOwarn34 = false;
+	if (!TODOwarn34) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn34 = true;
+	}
+}
+
+void WingEditorDialog::onNoFirstWaveMessageCheckboxClicked()
+{	
+	static bool TODOwarn35 = false;
+	if (!TODOwarn35) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn35 = true;
+	}
+}
+
+void WingEditorDialog::onNoDynamicGoalsCheckboxClicked()
+{	
+	static bool TODOwarn36 = false;
+	if (!TODOwarn36) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn36 = true;
+	}
+}
+
+
+void WingEditorDialog::onArrivalDistanceSpinboxUpdated()
+{	
+	static bool TODOwarn37 = false;
+	if (!TODOwarn37) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn37 = true;
+	}
+}
+
+void WingEditorDialog::onMaxWaveDelaySpinBoxUpdated()
+{	
+	static bool TODOwarn38 = false;
+	if (!TODOwarn38) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn38 = true;
+	}
+}
+
+void WingEditorDialog::onMinWaveDelaySpinBoxUpdated()
+{	
+	static bool TODOwarn39 = false;
+	if (!TODOwarn39) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn39 = true;
+	}
+}
+
+void WingEditorDialog::onInitialArrivalDelaySpinBoxUpdated()
+{	
+	static bool TODOwarn40 = false;
+	if (!TODOwarn40) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn40 = true;
+	}
+}
+
+void WingEditorDialog::onPreDepartureDelaySpinBoxUpdated()
+{	
+	static bool TODOwarn41 = false;
+	if (!TODOwarn41) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn41 = true;
+	}
+}
+
+void WingEditorDialog::onWarpArrivalEngageTimeSpinBoxUpdated()
+{	
+	static bool TODOwarn42 = false;
+	if (!TODOwarn42) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn42 = true;
+	}
+}
+
+void WingEditorDialog::onWarpArrivalShipSpeedSpinboxUpdated()
+{	
+	static bool TODOwarn43 = false;
+	if (!TODOwarn43) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn43 = true;
+	}
+}
+
+void WingEditorDialog::onShipArrivalWarpingTimeSpinboxUpdated()
+{	
+	static bool TODOwarn44 = false;
+	if (!TODOwarn44) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn44 = true;
+	}
+}
+
+void WingEditorDialog::onWarpArrivalRadiusSpinboxUpdated()
+{	
+	static bool TODOwarn45 = false;
+	if (!TODOwarn45) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn45 = true;
+	}
+}
+
+void WingEditorDialog::onWarpDepartureEngageTimeSpinBoxUpdated()
+{	
+	static bool TODOwarn46 = false;
+	if (!TODOwarn46) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn46 = true;
+	}
+}
+
+void WingEditorDialog::onShipDepartureWarpingTimeSpinboxUpdated()
+{	
+	static bool TODOwarn47 = false;
+	if (!TODOwarn47) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn47 = true;
+	}
+}
+
+void WingEditorDialog::onWarpDepartureRadiusSpinboxUpdated()
+{	
+	static bool TODOwarn48 = false;
+	if (!TODOwarn48) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn48 = true;
+	}
+}
+
+void WingEditorDialog::onTotalWavesSpinBoxUpdated()
+{	
+	static bool TODOwarn49 = false;
+	if (!TODOwarn49) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn49 = true;
+	}
+}
+
+void WingEditorDialog::onWaveThresholdSpinBoxUpdated()
+{	
+	static bool TODOwarn50 = false;
+	if (!TODOwarn50) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn50 = true;
+	}
+}
+
+
+void WingEditorDialog::onReinforcementUnitFlagCheckboxClicked()
+{	
+	static bool TODOwarn51 = false;
+	if (!TODOwarn51) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn51 = true;
+	}
+}
+
+void WingEditorDialog::onIngoreCountingGoalsFlagCheckboxClicked()
+{	
+	static bool TODOwarn52 = false;
+	if (!TODOwarn52) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn52 = true;
+	}
+}
+
+void WingEditorDialog::onNoArrivalMusicFlagCheckboxClicked()
+{	
+	static bool TODOwarn53 = false;
+	if (!TODOwarn53) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn53 = true;
+	}
+}
+
+void WingEditorDialog::onNoArrivalMessageFlagCheckboxClicked()
+{	
+	static bool TODOwarn54 = false;
+	if (!TODOwarn54) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn54 = true;
+	}
+}
+
+void WingEditorDialog::onNoFirstWaveMessageCheckboxClicked()
+{	
+	static bool TODOwarn55 = false;
+	if (!TODOwarn55) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn55 = true;
+	}
+}
+
+void WingEditorDialog::onNoDynamicGoalsCheckboxClicked()
+{	
+	static bool TODOwarn56 = false;
+	if (!TODOwarn56) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn56 = true;
+	}
+}
+
+void WingEditorDialog::onNoArrivalWarpCheckboxClicked()
+{	
+	static bool TODOwarn57 = false;
+	if (!TODOwarn57) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn57 = true;
+	}
+}
+
+void WingEditorDialog::onNoSpeedAdjustmentIfDockedArrivalCheckboxClicked()
+{	
+	static bool TODOwarn58 = false;
+	if (!TODOwarn58) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn58 = true;
+	}
+}
+
+void WingEditorDialog::onSupercapWarpPhysicsArrivalCheckboxClicked()
+{	
+	static bool TODOwarn59 = false;
+	if (!TODOwarn59) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn59 = true;
+	}
+}
+
+void WingEditorDialog::onNoDepartureWarpCheckboxClicked()
+{	
+	static bool TODOwarn60 = false;
+	if (!TODOwarn60) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn60 = true;
+	}
+}
+
+void WingEditorDialog::onNoSpeedAdjustmentIfDockedDepartureCheckboxClicked()
+{	
+	static bool TODOwarn61 = false;
+	if (!TODOwarn61) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn61 = true;
+	}
+}
+
+void WingEditorDialog::onSupercapWarpPhysicsDepartureCheckboxClicked()
+{	
+	static bool TODOwarn62 = false;
+	if (!TODOwarn62) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn62 = true;
+	}
+}
+
+
+void WingEditorDialog::onArrivalTypeComboBoxChanged()
+{	
+	static bool TODOwarn63 = false;
+	if (!TODOwarn63) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn63 = true;
+	}
+}
+
+void WingEditorDialog::onArrivalTargetComboBoxChanged()
+{	
+	static bool TODOwarn64 = false;
+	if (!TODOwarn64) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn64 = true;
+	}
+}
+
+void WingEditorDialog::onDepartureTypeComboBoxChanged()
+{	
+	static bool TODOwarn65 = false;
+	if (!TODOwarn65) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn65 = true;
+	}
+}
+
+void WingEditorDialog::onFormationComboBoxChanged()
+{	
+	static bool TODOwarn66 = false;
+	if (!TODOwarn66) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn66 = true;
+	}
+}
+
+void WingEditorDialog::onWarpArrivalTypeComboboxChanged()
+{	
+	static bool TODOwarn67 = false;
+	if (!TODOwarn67) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn67 = true;
+	}
+}
+
+void WingEditorDialog::onWarpDepartureTypeComboboxChanged()
+{	
+	static bool TODOwarn68 = false;
+	if (!TODOwarn68) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn68 = true;
+	}
+}
+
+void WingEditorDialog::onHotkeyComboBoxChanged()
+{	
+	static bool TODOwarn69 = false;
+	if (!TODOwarn69) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn69 = true;
+	}
+}
+
+void WingEditorDialog::onSelectWingComboboxChanged()
+{	
+	static bool TODOwarn70 = false;
+	if (!TODOwarn70) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn70 = true;
+	}
+}
+
+
+void WingEditorDialog::onWarpArrivalStopSoundLineEditChanged()
+{	
+	static bool TODOwarn71 = false;
+	if (!TODOwarn71) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn71 = true;
+	}
+}
+
+void WingEditorDialog::onWarpArrivalStartSoundLineEditChanged()
+{	
+	static bool TODOwarn72 = false;
+	if (!TODOwarn72) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn72 = true;
+	}
+}
+
+void WingEditorDialog::onWarpArrivalAnimationLineEditChanged()
+{	
+	static bool TODOwarn73 = false;
+	if (!TODOwarn73) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn73 = true;
+	}
+}
+
+void WingEditorDialog::onWarpDepartureStartSoundLineEditChanged()
+{	
+	static bool TODOwarn74 = false;
+	if (!TODOwarn74) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn74 = true;
+	}
+}
+
+void WingEditorDialog::onWarpDepartureStopSoundLineEditChanged()
+{	
+	static bool TODOwarn75 = false;
+	if (!TODOwarn75) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn75 = true;
+	}
+}
+
+void WingEditorDialog::onWarpDepartureAnimationLineEdit()
+{	
+	static bool TODOwarn76 = false;
+	if (!TODOwarn76) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn76 = true;
+	}
+}
+
+void WingEditorDialog::onWingNameLineEditChanged()
+{	
+	static bool TODOwarn77 = false;
+	if (!TODOwarn77) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn77 = true;
+	}
+}
+
+void WingEditorDialog::onSquadLogoLineEditChanged()
+{	
+	static bool TODOwarn78 = false;
+	if (!TODOwarn78) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn78 = true;
+	}
+}
+
+
+void WingEditorDialog::onWarpArrivalDecelerationExponenetDoubleSpinboxUpdated()
+{	
+	static bool TODOwarn79 = false;
+	if (!TODOwarn79) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn79 = true;
+	}
+}
+
+void WingEditorDialog::onWarpDepartureDecelerationExponenetDoubleSpinboxUpdated()
+{	
+	static bool TODOwarn80 = false;
+	if (!TODOwarn80) {
+		QMessageBox warnbox;
+		SCP_string message = "This control has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn80 = true;
+	}
+}
+
+
+
 WingEditorDialog::~WingEditorDialog() {}; //NOLINT
 
 } // dialogs
