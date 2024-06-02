@@ -66,6 +66,13 @@ void onNoArrivalMusicFlagCheckboxClicked();
 void onNoArrivalMessageFlagCheckboxClicked();
 void onNoFirstWaveMessageCheckboxClicked();
 void onNoDynamicGoalsCheckboxClicked();
+void onNoArrivalWarpCheckboxClicked();
+void onNoSpeedAdjustmentIfDockedArrivalCheckboxClicked();
+void onSupercapWarpPhysicsArrivalCheckboxClicked();
+void onNoDepartureWarpCheckboxClicked();
+void onNoSpeedAdjustmentIfDockedDepartureCheckboxClicked();
+void onSupercapWarpPhysicsDepartureCheckboxClicked();
+
 
 void onArrivalDistanceSpinboxUpdated();
 void onMaxWaveDelaySpinBoxUpdated();
@@ -82,18 +89,6 @@ void onWarpDepartureRadiusSpinboxUpdated();
 void onTotalWavesSpinBoxUpdated();
 void onWaveThresholdSpinBoxUpdated();
 
-void onReinforcementUnitFlagCheckboxClicked();
-void onIngoreCountingGoalsFlagCheckboxClicked();
-void onNoArrivalMusicFlagCheckboxClicked();
-void onNoArrivalMessageFlagCheckboxClicked();
-void onNoFirstWaveMessageCheckboxClicked();
-void onNoDynamicGoalsCheckboxClicked();
-void onNoArrivalWarpCheckboxClicked();
-void onNoSpeedAdjustmentIfDockedArrivalCheckboxClicked();
-void onSupercapWarpPhysicsArrivalCheckboxClicked();
-void onNoDepartureWarpCheckboxClicked();
-void onNoSpeedAdjustmentIfDockedDepartureCheckboxClicked();
-void onSupercapWarpPhysicsDepartureCheckboxClicked();
 
 void onArrivalTypeComboBoxChanged();
 void onArrivalTargetComboBoxChanged();

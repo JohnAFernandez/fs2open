@@ -1,6 +1,6 @@
 #include "WingEditorDialog.h"
 #include <ui_WingEditorDialog.h>
-
+#include <QMessageBox>
 
 namespace fso {
 namespace fred {
@@ -438,16 +438,16 @@ void WingEditorDialog::loadWing()
 		ui->noDepartureWarpCheckbox->setChecked(false);
 		ui->noDepartureWarpCheckbox->setEnabled(false);
 
-		ui->sameArrivalWarpWhenDockedCheckbox->setChecked(false);
-		ui->sameArrivalWarpWhenDockedCheckbox->setEnabled(false);
+		ui->noSpeedAdjustmentIfDockedArrivalCheckbox->setChecked(false);
+		ui->noSpeedAdjustmentIfDockedArrivalCheckbox->setEnabled(false);
 
-		ui->sameDepartureWarpWhenDockedCheckbox->setChecked(false);
-		ui->sameDepartureWarpWhenDockedCheckbox->setEnabled(false);
+		ui->noSpeedAdjustmentIfDockedDepartureCheckbox->setChecked(false);
+		ui->noSpeedAdjustmentIfDockedDepartureCheckbox->setEnabled(false);
 		
 
 		
 		ui->arrivalTargetComboBox->clear();
-		ui->arrivalTargetComboBox->enable(false);		
+		ui->arrivalTargetComboBox->setEnabled(false);		
 
 		// TODO, this index should only be there when no wing is selected, for both arrival and departure
 		ui->arrivalTypeComboBox->setCurrentIndex(0);
@@ -459,11 +459,11 @@ void WingEditorDialog::loadWing()
 		ui->preDepartureDelaySpinBox->clear();
 		ui->preDepartureDelaySpinBox->setEnabled(false);
 
-		ui->minWaveDelayLineEdit->clear();
-		ui->minWaveDelayLineEdit->setEnabled(false);
+		ui->minWaveDelaySpinBox->clear();
+		ui->minWaveDelaySpinBox->setEnabled(false);
 
-		ui->maxWaveDelayLineEdit->clear();
-		ui->maxWaveDelayLineEdit->setEnabled(false);
+		ui->maxWaveDelaySpinBox->clear();
+		ui->maxWaveDelaySpinBox->setEnabled(false);
 
 	// Display all info based on the wing selected in the model
 	} else {
@@ -530,16 +530,16 @@ void WingEditorDialog::loadWing()
 
 		// this does not seem to exist yet either.
 
-		ui->arrivalTargetComboBox->enable(true);		
+		ui->arrivalTargetComboBox->setEnabled(true);		
 		ui->arrivalTargetComboBox->clear();
 
 		for (const auto& string : arrivalTargetList.second) {
-			ui->arrivalTargetComboBox.addItem(string.c_str());
+			ui->arrivalTargetComboBox->addItem(string.c_str());
 		}
 
-		ui->arrivalTargetcomboBox.setCurrentIndex(arrivalTargetList.first);
+		ui->arrivalTargetComboBox->setCurrentIndex(arrivalTargetList.first);
 
-		auto departureList = getDepartureTargetList();
+		auto departureList = _model->getDepartureTargetList();
 		/*
 		ui->arrivalTypeComboBox->setEnabled(true);
 		ui->arrivalTypeComboBox->setCurrentIndex(_model->getArrivalType() + 1);
@@ -567,22 +567,46 @@ void WingEditorDialog::loadWing()
 		ui->preDepartureDelaySpinBox->setEnabled(true);
 		ui->preDepartureDelaySpinBox->setValue(_model->getPredepartureDelay());
 
-		ui->minWaveDelayLineEdit->setEnabled(true);
-		ui->minWaveDelayLineEdit->setText(std::to_string(_model->getMinWaveDelay()).c_str());
+		ui->minWaveDelaySpinBox->setEnabled(true);
+		ui->minWaveDelaySpinBox->setValue(_model->getMinWaveDelay());
 
-		ui->maxWaveDelayLineEdit->setEnabled(true);
-		ui->maxWaveDelayLineEdit->setText(std::to_string(_model->getMaxWaveDelay()).c_str());
+		ui->maxWaveDelaySpinBox->setEnabled(true);
+		ui->maxWaveDelaySpinBox->setValue(_model->getMaxWaveDelay());
 		/*
 		SCP_vector<SCP_string> getCurrentSelectableWings();
 
 		// don't remember using this....
 		int getInitialDelay();
-		*/
-	
+		*/	
 	}
-
 } 
 
+/*
+	SCP_string switchCurrentWing(SCP_string name);
+	SCP_string switchToNextWing();
+	SCP_string switchToPreviousWing();
+
+	SCP_string renameWing(SCP_string newName);
+
+	void deleteWing();
+	void disbandWing();
+	int setLeader(int newLeaderIndex);
+	int setTotalWaves(int newTotalWaves);
+	int setWaveThreshhold(int newThreshhold);
+	int setHotKey(int newHotkeyIndex);
+	SCP_string setSquadLogo(SCP_string filename);
+
+
+	int setArrivalType(int arrivalType);
+	int setInitialArrivalDelay(int delayIn);
+	int setArrivalTarget(int targetIndex);
+	int setArrivalDistance(int newDistance);
+	int setMinWingDelay(int newMin);
+	int setMaxWingDelay(int newMax);
+	int setDepartureType(int departureType);
+	int setDepartureTarget(int targetIndex);
+	int setPreDepartureDelay(int newDelay);
+*/
 
 void WingEditorDialog::onToggleGeneralOptionsButtonPressed()
 {	
@@ -628,30 +652,14 @@ void WingEditorDialog::onToggleWingFlagsButtonPressed()
 
 void WingEditorDialog::onPreviousWingButtonPressed()
 {	
-	static bool TODOwarn4 = false;
-	if (!TODOwarn4) {
-		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn4 = true;
-	}
+	_model->switchToPreviousWing();
+	loadWing();
 }
 
 void WingEditorDialog::onNextWingButtonPressed()
 {	
-	static bool TODOwarn5 = false;
-	if (!TODOwarn5) {
-		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn5 = true;
-	}
+	_model->switchToNextWing();
+	loadWing();
 }
 
 void WingEditorDialog::onInitialOrdersButtonPressed()
@@ -850,89 +858,45 @@ void WingEditorDialog::onBrowseSquadLogosButtonPressed()
 	}
 }
 
+/*
 
+	bool (bool flagIn);
+	bool (bool flagIn);
+	bool (bool flagIn);
+	bool (bool flagIn);
+	bool (bool flagIn);
+	bool (bool flagIn);
+	bool (bool flagIn);
+	
+	*/
 void WingEditorDialog::onReinforcementUnitFlagCheckboxClicked()
 {	
-	static bool TODOwarn31 = false;
-	if (!TODOwarn31) {
-		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn31 = true;
-	}
+	ui->reinforcementUnitFlagCheckbox->setChecked(_model->setReinforcementFlag(ui->reinforcementUnitFlagCheckbox->isChecked()));
 }
 
 void WingEditorDialog::onIngoreCountingGoalsFlagCheckboxClicked()
 {	
-	static bool TODOwarn32 = false;
-	if (!TODOwarn32) {
-		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn32 = true;
-	}
+	ui->ingoreCountingGoalsFlagCheckbox->setChecked(_model->setCountingGoalsFlag(ui->ingoreCountingGoalsFlagCheckbox->isChecked()));
 }
 
 void WingEditorDialog::onNoArrivalMusicFlagCheckboxClicked()
 {	
-	static bool TODOwarn33 = false;
-	if (!TODOwarn33) {
-		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn33 = true;
-	}
+	ui->noArrivalMusicFlagCheckbox->setChecked(_model->setArrivalMusicFlag(ui->noArrivalMusicFlagCheckbox->isChecked()));
 }
 
 void WingEditorDialog::onNoArrivalMessageFlagCheckboxClicked()
 {	
-	static bool TODOwarn34 = false;
-	if (!TODOwarn34) {
-		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn34 = true;
-	}
+	ui->noArrivalMessageFlagCheckbox->setChecked(_model->setArrivalMessageFlag(ui->noArrivalMessageFlagCheckbox->isChecked()));
 }
 
 void WingEditorDialog::onNoFirstWaveMessageCheckboxClicked()
 {	
-	static bool TODOwarn35 = false;
-	if (!TODOwarn35) {
-		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn35 = true;
-	}
+	ui->noFirstWaveMessageCheckbox->setChecked(_model->setFirstWaveMessageFlag(ui->noFirstWaveMessageCheckbox->isChecked()));
 }
 
 void WingEditorDialog::onNoDynamicGoalsCheckboxClicked()
 {	
-	static bool TODOwarn36 = false;
-	if (!TODOwarn36) {
-		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn36 = true;
-	}
+	ui->noDynamicGoalsCheckbox->setChecked(_model->setDynamicGoalsFlag(ui->noDynamicGoalsCheckbox->isChecked()));
 }
 
 
@@ -1132,173 +1096,36 @@ void WingEditorDialog::onWaveThresholdSpinBoxUpdated()
 	}
 }
 
-
-void WingEditorDialog::onReinforcementUnitFlagCheckboxClicked()
-{	
-	static bool TODOwarn51 = false;
-	if (!TODOwarn51) {
-		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn51 = true;
-	}
-}
-
-void WingEditorDialog::onIngoreCountingGoalsFlagCheckboxClicked()
-{	
-	static bool TODOwarn52 = false;
-	if (!TODOwarn52) {
-		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn52 = true;
-	}
-}
-
-void WingEditorDialog::onNoArrivalMusicFlagCheckboxClicked()
-{	
-	static bool TODOwarn53 = false;
-	if (!TODOwarn53) {
-		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn53 = true;
-	}
-}
-
-void WingEditorDialog::onNoArrivalMessageFlagCheckboxClicked()
-{	
-	static bool TODOwarn54 = false;
-	if (!TODOwarn54) {
-		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn54 = true;
-	}
-}
-
-void WingEditorDialog::onNoFirstWaveMessageCheckboxClicked()
-{	
-	static bool TODOwarn55 = false;
-	if (!TODOwarn55) {
-		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn55 = true;
-	}
-}
-
-void WingEditorDialog::onNoDynamicGoalsCheckboxClicked()
-{	
-	static bool TODOwarn56 = false;
-	if (!TODOwarn56) {
-		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn56 = true;
-	}
-}
-
 void WingEditorDialog::onNoArrivalWarpCheckboxClicked()
 {	
-	static bool TODOwarn57 = false;
-	if (!TODOwarn57) {
-		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn57 = true;
-	}
+	ui->noArrivalWarpCheckbox->setChecked(_model->setNoArrivalWarpFlag(ui->noArrivalWarpCheckbox->isChecked()));
 }
 
 void WingEditorDialog::onNoSpeedAdjustmentIfDockedArrivalCheckboxClicked()
 {	
-	static bool TODOwarn58 = false;
-	if (!TODOwarn58) {
-		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn58 = true;
-	}
+	ui->noSpeedAdjustmentIfDockedArrivalCheckbox->setChecked(_model->setSameArrivalWarpWhenDockedFlag(ui->noSpeedAdjustmentIfDockedArrivalCheckbox->isChecked()));
 }
 
 void WingEditorDialog::onSupercapWarpPhysicsArrivalCheckboxClicked()
-{	
-	static bool TODOwarn59 = false;
-	if (!TODOwarn59) {
-		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn59 = true;
-	}
+{
+// TODO! No corresponding model funciton
+//	ui->supercapWarpPhysicsArrivalCheckbox->setChecked(_model->setReinforcementFlag(ui->supercapWarpPhysicsArrivalCheckbox->isChecked()));
 }
 
 void WingEditorDialog::onNoDepartureWarpCheckboxClicked()
 {	
-	static bool TODOwarn60 = false;
-	if (!TODOwarn60) {
-		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn60 = true;
-	}
+	ui->noDepartureWarpCheckbox->setChecked(_model->setNoDepartureWarpFlag(ui->noDepartureWarpCheckbox->isChecked()));
 }
 
 void WingEditorDialog::onNoSpeedAdjustmentIfDockedDepartureCheckboxClicked()
 {	
-	static bool TODOwarn61 = false;
-	if (!TODOwarn61) {
-		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn61 = true;
-	}
+	ui->noSpeedAdjustmentIfDockedDepartureCheckbox->setChecked(_model->setSameDepartureWarpWhenDockedFlag(ui->noSpeedAdjustmentIfDockedDepartureCheckbox->isChecked()));
 }
 
 void WingEditorDialog::onSupercapWarpPhysicsDepartureCheckboxClicked()
 {	
-	static bool TODOwarn62 = false;
-	if (!TODOwarn62) {
-		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn62 = true;
-	}
+// TODO! No corresponding model funciton
+//	ui->supercapWarpPhysicsDepartureCheckbox->setChecked(_model->setReinforcementFlag(ui->supercapWarpPhysicsDepartureCheckbox->isChecked()));
 }
 
 
