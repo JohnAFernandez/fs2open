@@ -583,22 +583,18 @@ void WingEditorDialog::loadWing()
 
 /*
 	SCP_string switchCurrentWing(SCP_string name);
-	SCP_string switchToNextWing();
-	SCP_string switchToPreviousWing();
 
 	SCP_string renameWing(SCP_string newName);
 
 	void deleteWing();
 	void disbandWing();
 	int setLeader(int newLeaderIndex);
-	int setTotalWaves(int newTotalWaves);
-	int setWaveThreshhold(int newThreshhold);
-	int setHotKey(int newHotkeyIndex);
+	int (int newTotalWaves);
 	SCP_string setSquadLogo(SCP_string filename);
 
 
-	int setArrivalType(int arrivalType);
-	int setInitialArrivalDelay(int delayIn);
+	int (int arrivalType);
+	int (int delayIn);
 	int setArrivalTarget(int targetIndex);
 	int setArrivalDistance(int newDistance);
 	int setMinWingDelay(int newMin);
@@ -613,7 +609,7 @@ void WingEditorDialog::onToggleGeneralOptionsButtonPressed()
 	static bool TODOwarn1 = false;
 	if (!TODOwarn1) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 1 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -627,7 +623,7 @@ void WingEditorDialog::onToggleArrivalDepartureButtonPressed()
 	static bool TODOwarn2 = false;
 	if (!TODOwarn2) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 2 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -641,7 +637,7 @@ void WingEditorDialog::onToggleWingFlagsButtonPressed()
 	static bool TODOwarn3 = false;
 	if (!TODOwarn3) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 3 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -667,7 +663,7 @@ void WingEditorDialog::onInitialOrdersButtonPressed()
 	static bool TODOwarn6 = false;
 	if (!TODOwarn6) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 6 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -681,7 +677,7 @@ void WingEditorDialog::onDeleteWingButtonPressed()
 	static bool TODOwarn7 = false;
 	if (!TODOwarn7) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 7 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -695,7 +691,7 @@ void WingEditorDialog::onDisbandWingButtonPressed()
 	static bool TODOwarn8 = false;
 	if (!TODOwarn8) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 8 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -709,7 +705,7 @@ void WingEditorDialog::onWarpArrivalStopSoundBrowseButtonPressed()
 	static bool TODOwarn9 = false;
 	if (!TODOwarn9) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 9 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -723,7 +719,7 @@ void WingEditorDialog::onWarpArrivalStopSoundPlayButtonPressed()
 	static bool TODOwarn21 = false;
 	if (!TODOwarn21) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 21 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -737,7 +733,7 @@ void WingEditorDialog::onWarpArrivalStartSoundBrowseButtonPressed()
 	static bool TODOwarn22 = false;
 	if (!TODOwarn22) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 22 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -751,7 +747,7 @@ void WingEditorDialog::onWarpArrivalStartSoundPlayButtonPressed()
 	static bool TODOwarn23 = false;
 	if (!TODOwarn23) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 23 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -765,7 +761,7 @@ void WingEditorDialog::onWarpArrivalAnimationBrowseButtonPressed()
 	static bool TODOwarn24 = false;
 	if (!TODOwarn24) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 24 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -779,7 +775,7 @@ void WingEditorDialog::onWarpDepartureStartSoundBrowseButtonPressed()
 	static bool TODOwarn25 = false;
 	if (!TODOwarn25) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 25 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -793,7 +789,7 @@ void WingEditorDialog::onWarpDepartureStartSoundPlayButtonPressed()
 	static bool TODOwarn26 = false;
 	if (!TODOwarn26) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 26 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -807,7 +803,7 @@ void WingEditorDialog::onWarpDepartureStopSoundBrowseButtonPressed()
 	static bool TODOwarn27 = false;
 	if (!TODOwarn27) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 27  has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -821,7 +817,7 @@ void WingEditorDialog::onWarpDepartureStopSoundPlayButtonPressed()
 	static bool TODOwarn28 = false;
 	if (!TODOwarn28) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 28 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -835,7 +831,7 @@ void WingEditorDialog::onWarpDepartureAnimationBrowseButtonPressed()
 	static bool TODOwarn29 = false;
 	if (!TODOwarn29) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 29  has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -849,7 +845,7 @@ void WingEditorDialog::onBrowseSquadLogosButtonPressed()
 	static bool TODOwarn30 = false;
 	if (!TODOwarn30) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 30 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -858,17 +854,6 @@ void WingEditorDialog::onBrowseSquadLogosButtonPressed()
 	}
 }
 
-/*
-
-	bool (bool flagIn);
-	bool (bool flagIn);
-	bool (bool flagIn);
-	bool (bool flagIn);
-	bool (bool flagIn);
-	bool (bool flagIn);
-	bool (bool flagIn);
-	
-	*/
 void WingEditorDialog::onReinforcementUnitFlagCheckboxClicked()
 {	
 	ui->reinforcementUnitFlagCheckbox->setChecked(_model->setReinforcementFlag(ui->reinforcementUnitFlagCheckbox->isChecked()));
@@ -905,7 +890,7 @@ void WingEditorDialog::onArrivalDistanceSpinboxUpdated()
 	static bool TODOwarn37 = false;
 	if (!TODOwarn37) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 37 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -919,7 +904,7 @@ void WingEditorDialog::onMaxWaveDelaySpinBoxUpdated()
 	static bool TODOwarn38 = false;
 	if (!TODOwarn38) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 38 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -933,7 +918,7 @@ void WingEditorDialog::onMinWaveDelaySpinBoxUpdated()
 	static bool TODOwarn39 = false;
 	if (!TODOwarn39) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 39  has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -944,10 +929,11 @@ void WingEditorDialog::onMinWaveDelaySpinBoxUpdated()
 
 void WingEditorDialog::onInitialArrivalDelaySpinBoxUpdated()
 {	
+	ui->initialArrivalDelaySpinBox->setValue(_model->setInitialArrivalDelay(ui->initialArrivalDelaySpinBox->value()));
 	static bool TODOwarn40 = false;
 	if (!TODOwarn40) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 40 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -961,7 +947,7 @@ void WingEditorDialog::onPreDepartureDelaySpinBoxUpdated()
 	static bool TODOwarn41 = false;
 	if (!TODOwarn41) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 41  has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -975,7 +961,7 @@ void WingEditorDialog::onWarpArrivalEngageTimeSpinBoxUpdated()
 	static bool TODOwarn42 = false;
 	if (!TODOwarn42) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 42  has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -989,7 +975,7 @@ void WingEditorDialog::onWarpArrivalShipSpeedSpinboxUpdated()
 	static bool TODOwarn43 = false;
 	if (!TODOwarn43) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 43 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -1003,7 +989,7 @@ void WingEditorDialog::onShipArrivalWarpingTimeSpinboxUpdated()
 	static bool TODOwarn44 = false;
 	if (!TODOwarn44) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 44 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -1017,7 +1003,7 @@ void WingEditorDialog::onWarpArrivalRadiusSpinboxUpdated()
 	static bool TODOwarn45 = false;
 	if (!TODOwarn45) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 45 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -1031,7 +1017,7 @@ void WingEditorDialog::onWarpDepartureEngageTimeSpinBoxUpdated()
 	static bool TODOwarn46 = false;
 	if (!TODOwarn46) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 46 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -1045,7 +1031,7 @@ void WingEditorDialog::onShipDepartureWarpingTimeSpinboxUpdated()
 	static bool TODOwarn47 = false;
 	if (!TODOwarn47) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 47 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -1059,7 +1045,7 @@ void WingEditorDialog::onWarpDepartureRadiusSpinboxUpdated()
 	static bool TODOwarn48 = false;
 	if (!TODOwarn48) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 48 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -1070,30 +1056,12 @@ void WingEditorDialog::onWarpDepartureRadiusSpinboxUpdated()
 
 void WingEditorDialog::onTotalWavesSpinBoxUpdated()
 {	
-	static bool TODOwarn49 = false;
-	if (!TODOwarn49) {
-		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn49 = true;
-	}
+	ui->totalWavesSpinBox->setValue(_model->setTotalWaves(ui->totalWavesSpinBox->value()));
 }
 
 void WingEditorDialog::onWaveThresholdSpinBoxUpdated()
 {	
-	static bool TODOwarn50 = false;
-	if (!TODOwarn50) {
-		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn50 = true;
-	}
+	ui->waveThresholdSpinBox->setValue(_model->setWaveThreshhold(ui->waveThresholdSpinBox->value()));
 }
 
 void WingEditorDialog::onNoArrivalWarpCheckboxClicked()
@@ -1108,6 +1076,16 @@ void WingEditorDialog::onNoSpeedAdjustmentIfDockedArrivalCheckboxClicked()
 
 void WingEditorDialog::onSupercapWarpPhysicsArrivalCheckboxClicked()
 {
+	static bool TODOwarn61 = false;
+	if (!TODOwarn61) {
+		QMessageBox warnbox;
+		SCP_string message = "Control 61 has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn61 = true;
+	}
 // TODO! No corresponding model funciton
 //	ui->supercapWarpPhysicsArrivalCheckbox->setChecked(_model->setReinforcementFlag(ui->supercapWarpPhysicsArrivalCheckbox->isChecked()));
 }
@@ -1124,6 +1102,16 @@ void WingEditorDialog::onNoSpeedAdjustmentIfDockedDepartureCheckboxClicked()
 
 void WingEditorDialog::onSupercapWarpPhysicsDepartureCheckboxClicked()
 {	
+	static bool TODOwarn62 = false;
+	if (!TODOwarn62) {
+		QMessageBox warnbox;
+		SCP_string message = "Control 62 has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn62 = true;
+	}
 // TODO! No corresponding model funciton
 //	ui->supercapWarpPhysicsDepartureCheckbox->setChecked(_model->setReinforcementFlag(ui->supercapWarpPhysicsDepartureCheckbox->isChecked()));
 }
@@ -1131,16 +1119,7 @@ void WingEditorDialog::onSupercapWarpPhysicsDepartureCheckboxClicked()
 
 void WingEditorDialog::onArrivalTypeComboBoxChanged()
 {	
-	static bool TODOwarn63 = false;
-	if (!TODOwarn63) {
-		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn63 = true;
-	}
+	ui->arrivalTypeComboBox->setCurrentIndex(_model->setArrivalType(ui->arrivalTypeComboBox->currentIndex()));
 }
 
 void WingEditorDialog::onArrivalTargetComboBoxChanged()
@@ -1148,7 +1127,7 @@ void WingEditorDialog::onArrivalTargetComboBoxChanged()
 	static bool TODOwarn64 = false;
 	if (!TODOwarn64) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 64 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -1162,7 +1141,7 @@ void WingEditorDialog::onDepartureTypeComboBoxChanged()
 	static bool TODOwarn65 = false;
 	if (!TODOwarn65) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 65 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -1176,7 +1155,7 @@ void WingEditorDialog::onFormationComboBoxChanged()
 	static bool TODOwarn66 = false;
 	if (!TODOwarn66) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 66 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -1190,7 +1169,7 @@ void WingEditorDialog::onWarpArrivalTypeComboboxChanged()
 	static bool TODOwarn67 = false;
 	if (!TODOwarn67) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 67 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -1204,7 +1183,7 @@ void WingEditorDialog::onWarpDepartureTypeComboboxChanged()
 	static bool TODOwarn68 = false;
 	if (!TODOwarn68) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 68 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -1215,16 +1194,7 @@ void WingEditorDialog::onWarpDepartureTypeComboboxChanged()
 
 void WingEditorDialog::onHotkeyComboBoxChanged()
 {	
-	static bool TODOwarn69 = false;
-	if (!TODOwarn69) {
-		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn69 = true;
-	}
+	ui->hotkeyComboBox->setCurrentIndex(_model->setHotKey(ui->hotkeyComboBox->currentIndex()));
 }
 
 void WingEditorDialog::onSelectWingComboboxChanged()
@@ -1232,7 +1202,7 @@ void WingEditorDialog::onSelectWingComboboxChanged()
 	static bool TODOwarn70 = false;
 	if (!TODOwarn70) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 70 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -1247,7 +1217,7 @@ void WingEditorDialog::onWarpArrivalStopSoundLineEditChanged()
 	static bool TODOwarn71 = false;
 	if (!TODOwarn71) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 71 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -1261,7 +1231,7 @@ void WingEditorDialog::onWarpArrivalStartSoundLineEditChanged()
 	static bool TODOwarn72 = false;
 	if (!TODOwarn72) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 72 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -1275,7 +1245,7 @@ void WingEditorDialog::onWarpArrivalAnimationLineEditChanged()
 	static bool TODOwarn73 = false;
 	if (!TODOwarn73) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 73 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -1289,7 +1259,7 @@ void WingEditorDialog::onWarpDepartureStartSoundLineEditChanged()
 	static bool TODOwarn74 = false;
 	if (!TODOwarn74) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 74 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -1303,7 +1273,7 @@ void WingEditorDialog::onWarpDepartureStopSoundLineEditChanged()
 	static bool TODOwarn75 = false;
 	if (!TODOwarn75) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 75 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -1317,7 +1287,7 @@ void WingEditorDialog::onWarpDepartureAnimationLineEdit()
 	static bool TODOwarn76 = false;
 	if (!TODOwarn76) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 76 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -1331,7 +1301,7 @@ void WingEditorDialog::onWingNameLineEditChanged()
 	static bool TODOwarn77 = false;
 	if (!TODOwarn77) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 77 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -1345,7 +1315,7 @@ void WingEditorDialog::onSquadLogoLineEditChanged()
 	static bool TODOwarn78 = false;
 	if (!TODOwarn78) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 78 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -1360,7 +1330,7 @@ void WingEditorDialog::onWarpArrivalDecelerationExponenetDoubleSpinboxUpdated()
 	static bool TODOwarn79 = false;
 	if (!TODOwarn79) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 79 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();
@@ -1374,7 +1344,7 @@ void WingEditorDialog::onWarpDepartureDecelerationExponenetDoubleSpinboxUpdated(
 	static bool TODOwarn80 = false;
 	if (!TODOwarn80) {
 		QMessageBox warnbox;
-		SCP_string message = "This control has not yet been set up.";
+		SCP_string message = "Control 80 has not yet been set up.";
         warnbox.setText(message.c_str());
         warnbox.setStandardButtons(QMessageBox::Ok);
         warnbox.exec();

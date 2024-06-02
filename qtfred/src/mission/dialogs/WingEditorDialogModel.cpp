@@ -204,7 +204,11 @@ int WingEditorDialogModel::getArrivalType()
 // depending on the mode.
 std::pair<int,SCP_vector<SCP_string>> WingEditorDialogModel::getArrivalTargetList()
 {
+	std::pair<int, SCP_vector<SCP_string>> out;
 
+	out.first = 0;
+	out.second.push_back("Not yet implemented.");
+	return out;
 }
 
 int WingEditorDialogModel::getArrivalDistance()
@@ -249,7 +253,11 @@ int WingEditorDialogModel::getDepartureType()
 
 std::pair<int, SCP_vector<SCP_string>> WingEditorDialogModel::getDepartureTargetList()
 {
-	
+	std::pair<int, SCP_vector<SCP_string>> out;
+
+	out.first = 0;
+	out.second.push_back("Not yet implemented.");
+	return out;
 }
 
 int WingEditorDialogModel::getPredepartureDelay()
@@ -656,6 +664,7 @@ int WingEditorDialogModel::setHotKey(int newHotkeyIndex)
 	}
 
 	Wings[_currentWingIndex].hotkey = newHotkeyIndex;
+	return Wings[_currentWingIndex].hotkey;
 }
 
 SCP_string WingEditorDialogModel::setSquadLogo(SCP_string filename)
