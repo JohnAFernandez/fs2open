@@ -118,7 +118,24 @@ void onWarpDepartureDecelerationExponenetDoubleSpinboxUpdated();
 	EditorViewport* _viewport;
 
 	void loadWing();
+	void adjustDialogSize();
 
+	constexpr int _closedHeight = 35;
+
+	// Variables for tracking the size of the dialog and its groupBoxes so that they can be collapsed
+	int _originalHeightDialog;
+	
+	int _originalHeightGeneral;
+	int _originalYGeneral;
+	bool _generalOpen = true;
+
+	int _originalHeightFlags;
+	int _originalYFlags;
+	bool _flagsOpen = true;
+
+	int _originalHeightTabs;
+	int _originalYTabs;
+	bool _tabsOpen = true;
 };
 
 } // namespace dialogs

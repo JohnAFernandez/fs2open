@@ -384,7 +384,19 @@ WingEditorDialog::WingEditorDialog(FredView* parent, EditorViewport* viewport)
 
 	ui->hotkeyComboBox->setCurrentIndex(0);
 
+
+	// setMinimumHeight
+	// setMaximumHeight
+	// 
 	// Set up saving the sizes of the UI elements so that we can expand and contract at will.
+	_originalHeightDialog = ui->maximumHeight();
+	
+	_originalHeightGeneral = ui->generalGroupBox->maximumHeight();
+	_originalYGeneral = ui->generalGroupBox->geometry().y;
+	_originalHeightFlags = ui->wingFlagsGroupBox->maximumHeight();
+	_originalYFlags = ui->wingFlagsGroupBox->geometry().y;
+	_originalHeightTabs = ui->arrivalDeparturesTabs->maximumHeight();
+	_originalYTabs = ui->arrivalDeparturesTabs->geometry().y;
 
 }
 
@@ -582,59 +594,107 @@ void WingEditorDialog::loadWing()
 } 
 
 /*
-	SCP_string switchCurrentWing(SCP_string name);
-
-	SCP_string renameWing(SCP_string newName);
-
 	int setLeader(int newLeaderIndex);
-	SCP_string setSquadLogo(SCP_string filename);
 
 	int setArrivalTarget(int targetIndex);
-	int setArrivalDistance(int newDistance);
 	int setDepartureType(int departureType);
 	int setDepartureTarget(int targetIndex);
 */
 
+void WingEditorDialog::adjustDialogSize()
+{
+	int heightAdjustment = 0;
+
+	// go through each group and adjust heightAdjustment based on whether it's open or closed
+	if (_generalOpen){
+		ui->generalGroupBox->setMinimumHeight(_originalHeightGeneral);
+		ui->generalGroupBox->setMaximumHeight(_originalHeightGeneral);
+		ui->generalGroupBox->setGeometry(ui->generalGroupBox->geometry().x, _originalYGeneral,ui->generalGroupBox->geometry().w, _originalHeightGeneral);
+	} else {
+		ui->generalGroupBox->setMinimumHeight(_closedHeight);
+		ui->generalGroupBox->setMaximumHeight(_closedHeight);
+		ui->generalGroupBox->setGeometry(ui->generalGroupBox->geometry().x, _originalYGeneral, ui->generalGroupBox->geometry().w, _closedHeight);
+
+		// everything after this gets adjusted by how much smaller this box is
+		heightAdjustment += (_originalHeightGeneral - _closedHeight);		 
+	}
+
+	if (_flagsOpen){
+		ui->wingFlagsGroupBox->setMinimumHeight(_originalHeightGeneral);
+		ui->wingFlagsGroupBox->setMaximumHeight(_originalHeightGeneral);
+		ui->wingFlagsGroupBox->setGeometry(ui->wingFlagsGroupBox->geometry().x, _originalYFlags - heightAdjustment, ui->wingFlagsGroupBox->geometry().w, _originalHeightFlags);
+
+	} else {
+		ui->wingFlagsGroupBox->setMinimumHeight(_closedHeight);
+		ui->wingFlagsGroupBox->setMaximumHeight(_closedHeight);
+		ui->wingFlagsGroupBox->setGeometry(ui->wingFlagsGroupBox->geometry().x, _originalYFlags - heightAdjustment, ui->wingFlagsGroupBox->geometry().w, _closedHeight);
+
+		// everything after this gets adjusted by how much smaller this box is
+		heightAdjustment += (_originalHeightFlags - _closedHeight);		 
+	}
+
+	if (_tabsOpen){
+		ui->arrivalDeparturesTabs->setMinimumHeight(_originalHeightTabs);
+		ui->arrivalDeparturesTabs->setMaximumHeight(_originalHeightTabs);
+		ui->arrivalDeparturesTabs->setGeometry(ui->arrivalDeparturesTabs->geometry().x, _originalYTabs - heightAdjustment, ui->arrivalDeparturesTabs->geometry().w, _originalHeightTabs);
+
+		// tabs needs to be enabled when in use.
+		ui->arrivalDeparturesTabs->setEnabled(true);
+	} else {
+		ui->arrivalDeparturesTabs->setMinimumHeight(_closedHeight);
+		ui->arrivalDeparturesTabs->setMaximumHeight(_closedHeight);
+		ui->arrivalDeparturesTabs->setGeometry(ui->arrivalDeparturesTabs->geometry().x, _originalYTabs - heightAdjustment, ui->arrivalDeparturesTabs->geometry().w, _closedHeight);
+
+		// tabs needs to be disabled when not in use.
+		ui->arrivalDeparturesTabs->setEnabled(false);
+
+		// everything after this gets adjusted by how much smaller this box is
+		heightAdjustment += (_originalHeightTabs - _closedHeight);		 
+	}
+
+	// finally apply the height adjustments to the actual dialog's size.
+	ui->setMinimumHeight(_originalHeightDialog - heightAdjustment);
+	ui->setMaximumHeight(_originalHeightDialog - heightAdjustment);
+}
+
 void WingEditorDialog::onToggleGeneralOptionsButtonPressed()
 {	
-	static bool TODOwarn1 = false;
-	if (!TODOwarn1) {
-		QMessageBox warnbox;
-		SCP_string message = "Control 1 has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
+	_generalOpen = !_generalOpen;
 
-		TODOwarn1 = true;
+	if (_generalOpen){
+		ui->toggleGeneralOptionsButton->setText("v")
+	} else {
+		ui->toggleGeneralOptionsButton->setText("^")
 	}
+
+	adjustDialogSize();
 }
 
 void WingEditorDialog::onToggleArrivalDepartureButtonPressed()
 {	
-	static bool TODOwarn2 = false;
-	if (!TODOwarn2) {
-		QMessageBox warnbox;
-		SCP_string message = "Control 2 has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
+	tabsOpen = !_tabsOpen;
 
-		TODOwarn2 = true;
+
+	if (tabsOpen){
+		ui->toggleArrivalDepartureButton->setText("v")
+	} else {
+		ui->toggleArrivalDepartureButton->setText("^")
 	}
+
+	adjustDialogSize();
 }
 
 void WingEditorDialog::onToggleWingFlagsButtonPressed()
 {	
-	static bool TODOwarn3 = false;
-	if (!TODOwarn3) {
-		QMessageBox warnbox;
-		SCP_string message = "Control 3 has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
+	_flagsOpen = !_flagsOpen;
 
-		TODOwarn3 = true;
+	if (_flagsOpen){
+		ui->toggleWingFlagsButton->setText("v")
+	} else {
+		ui->toggleWingFlagsButton->setText("^")
 	}
+
+	adjustDialogSize();
 }
 
 void WingEditorDialog::onPreviousWingButtonPressed()
@@ -1157,16 +1217,13 @@ void WingEditorDialog::onHotkeyComboBoxChanged()
 
 void WingEditorDialog::onSelectWingComboboxChanged()
 {	
-	static bool TODOwarn70 = false;
-	if (!TODOwarn70) {
-		QMessageBox warnbox;
-		SCP_string message = "Control 70 has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
+	auto response = _model->switchCurrentWing(ui->selectWingComboBox->currentText());
 
-		TODOwarn70 = true;
+	if (response.empty()){
+		ui->selectWingComboBox->setCurrentIndex(0);
 	}
+
+	loadWing();
 }
 
 
@@ -1256,30 +1313,12 @@ void WingEditorDialog::onWarpDepartureAnimationLineEdit()
 
 void WingEditorDialog::onWingNameLineEditChanged()
 {	
-	static bool TODOwarn77 = false;
-	if (!TODOwarn77) {
-		QMessageBox warnbox;
-		SCP_string message = "Control 77 has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn77 = true;
-	}
+	ui->wingNameLineEdit->setText(_model->renameWing(ui->wingNameLineEdit->text()).c_str());
 }
 
 void WingEditorDialog::onSquadLogoLineEditChanged()
 {	
-	static bool TODOwarn78 = false;
-	if (!TODOwarn78) {
-		QMessageBox warnbox;
-		SCP_string message = "Control 78 has not yet been set up.";
-        warnbox.setText(message.c_str());
-        warnbox.setStandardButtons(QMessageBox::Ok);
-        warnbox.exec();
-
-		TODOwarn78 = true;
-	}
+	ui->squadLogoLineEdit->setText(_model->setSquadLogo(ui->squadLogoLineEdit->text()).c_str());
 }
 
 
