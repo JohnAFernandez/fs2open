@@ -120,7 +120,7 @@ void onWarpDepartureDecelerationExponenetDoubleSpinboxUpdated();
 	void loadWing();
 	void adjustDialogSize();
 
-	constexpr int _closedHeight = 35;
+	const int _closedHeight = 22;
 
 	// Variables for tracking the size of the dialog and its groupBoxes so that they can be collapsed
 	int _originalHeightDialog;
@@ -136,6 +136,9 @@ void onWarpDepartureDecelerationExponenetDoubleSpinboxUpdated();
 	int _originalHeightTabs;
 	int _originalYTabs;
 	bool _tabsOpen = true;
+
+	int _originalArrivalDepartureButtonLocation;
+	int _originalArrivalDepartureLabelLocation;
 };
 
 } // namespace dialogs

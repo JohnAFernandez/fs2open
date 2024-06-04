@@ -49,6 +49,18 @@
      <height>121</height>
     </rect>
    </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>121</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>16777215</width>
+     <height>121</height>
+    </size>
+   </property>
    <property name="title">
     <string>General</string>
    </property>
@@ -279,6 +291,18 @@
      <height>101</height>
     </rect>
    </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>101</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>16777215</width>
+     <height>101</height>
+    </size>
+   </property>
    <property name="title">
     <string>Wing Flags</string>
    </property>
@@ -371,8 +395,20 @@
      <height>281</height>
     </rect>
    </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>281</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>16777215</width>
+     <height>281</height>
+    </size>
+   </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>3</number>
    </property>
    <widget class="QWidget" name="arrivalLocationTab">
     <attribute name="title">
@@ -756,7 +792,7 @@
        <x>170</x>
        <y>10</y>
        <width>301</width>
-       <height>241</height>
+       <height>231</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -988,7 +1024,7 @@
        <x>170</x>
        <y>10</y>
        <width>301</width>
-       <height>241</height>
+       <height>231</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_10">

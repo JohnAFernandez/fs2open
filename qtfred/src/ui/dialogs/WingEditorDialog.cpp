@@ -389,15 +389,17 @@ WingEditorDialog::WingEditorDialog(FredView* parent, EditorViewport* viewport)
 	// setMaximumHeight
 	// 
 	// Set up saving the sizes of the UI elements so that we can expand and contract at will.
-	_originalHeightDialog = ui->maximumHeight();
+	_originalHeightDialog = this->maximumHeight();
 	
 	_originalHeightGeneral = ui->generalGroupBox->maximumHeight();
-	_originalYGeneral = ui->generalGroupBox->geometry().y;
+	_originalYGeneral = ui->generalGroupBox->geometry().y();
 	_originalHeightFlags = ui->wingFlagsGroupBox->maximumHeight();
-	_originalYFlags = ui->wingFlagsGroupBox->geometry().y;
+	_originalYFlags = ui->wingFlagsGroupBox->geometry().y();
 	_originalHeightTabs = ui->arrivalDeparturesTabs->maximumHeight();
-	_originalYTabs = ui->arrivalDeparturesTabs->geometry().y;
+	_originalYTabs = ui->arrivalDeparturesTabs->geometry().y();
 
+	_originalArrivalDepartureButtonLocation = ui->toggleArrivalDepartureButton->geometry().y();
+	_originalArrivalDepartureLabelLocation = ui->arrivalDepartureLabel->geometry().y();
 }
 
 void WingEditorDialog::loadWing() 
@@ -609,52 +611,59 @@ void WingEditorDialog::adjustDialogSize()
 	if (_generalOpen){
 		ui->generalGroupBox->setMinimumHeight(_originalHeightGeneral);
 		ui->generalGroupBox->setMaximumHeight(_originalHeightGeneral);
-		ui->generalGroupBox->setGeometry(ui->generalGroupBox->geometry().x, _originalYGeneral,ui->generalGroupBox->geometry().w, _originalHeightGeneral);
+		ui->generalGroupBox->setGeometry(ui->generalGroupBox->geometry().x(), _originalYGeneral,ui->generalGroupBox->geometry().width(), _originalHeightGeneral);
 	} else {
 		ui->generalGroupBox->setMinimumHeight(_closedHeight);
 		ui->generalGroupBox->setMaximumHeight(_closedHeight);
-		ui->generalGroupBox->setGeometry(ui->generalGroupBox->geometry().x, _originalYGeneral, ui->generalGroupBox->geometry().w, _closedHeight);
+		ui->generalGroupBox->setGeometry(ui->generalGroupBox->geometry().x(), _originalYGeneral, ui->generalGroupBox->geometry().width(), _closedHeight);
 
 		// everything after this gets adjusted by how much smaller this box is
 		heightAdjustment += (_originalHeightGeneral - _closedHeight);		 
 	}
 
 	if (_flagsOpen){
-		ui->wingFlagsGroupBox->setMinimumHeight(_originalHeightGeneral);
-		ui->wingFlagsGroupBox->setMaximumHeight(_originalHeightGeneral);
-		ui->wingFlagsGroupBox->setGeometry(ui->wingFlagsGroupBox->geometry().x, _originalYFlags - heightAdjustment, ui->wingFlagsGroupBox->geometry().w, _originalHeightFlags);
+		ui->wingFlagsGroupBox->setMinimumHeight(_originalHeightFlags);
+		ui->wingFlagsGroupBox->setMaximumHeight(_originalHeightFlags);
+		ui->wingFlagsGroupBox->setGeometry(ui->wingFlagsGroupBox->geometry().x(), _originalYFlags - heightAdjustment, ui->wingFlagsGroupBox->geometry().width(), _originalHeightFlags);
 
 	} else {
 		ui->wingFlagsGroupBox->setMinimumHeight(_closedHeight);
 		ui->wingFlagsGroupBox->setMaximumHeight(_closedHeight);
-		ui->wingFlagsGroupBox->setGeometry(ui->wingFlagsGroupBox->geometry().x, _originalYFlags - heightAdjustment, ui->wingFlagsGroupBox->geometry().w, _closedHeight);
+		ui->wingFlagsGroupBox->setGeometry(ui->wingFlagsGroupBox->geometry().x(), _originalYFlags - heightAdjustment, ui->wingFlagsGroupBox->geometry().width(), _closedHeight);
 
 		// everything after this gets adjusted by how much smaller this box is
 		heightAdjustment += (_originalHeightFlags - _closedHeight);		 
 	}
 
+	// The labels will need to move based on if the UI is collapsed.
+	ui->toggleArrivalDepartureButton->setGeometry(ui->toggleArrivalDepartureButton->geometry().x(), _originalArrivalDepartureButtonLocation - heightAdjustment, ui->toggleArrivalDepartureButton->geometry().width(), ui->toggleArrivalDepartureButton->geometry().height());
+	ui->arrivalDepartureLabel->setGeometry(ui->arrivalDepartureLabel->geometry().x(), _originalArrivalDepartureLabelLocation - heightAdjustment, ui->arrivalDepartureLabel->geometry().width(), ui->arrivalDepartureLabel->geometry().height());
+
+	// Tabs is special, it needs to be set to height zero because otherwise the tabs are still there.
 	if (_tabsOpen){
 		ui->arrivalDeparturesTabs->setMinimumHeight(_originalHeightTabs);
 		ui->arrivalDeparturesTabs->setMaximumHeight(_originalHeightTabs);
-		ui->arrivalDeparturesTabs->setGeometry(ui->arrivalDeparturesTabs->geometry().x, _originalYTabs - heightAdjustment, ui->arrivalDeparturesTabs->geometry().w, _originalHeightTabs);
+		ui->arrivalDeparturesTabs->setGeometry(ui->arrivalDeparturesTabs->geometry().x(), _originalYTabs - heightAdjustment, ui->arrivalDeparturesTabs->geometry().width(), _originalHeightTabs);
 
 		// tabs needs to be enabled when in use.
 		ui->arrivalDeparturesTabs->setEnabled(true);
 	} else {
-		ui->arrivalDeparturesTabs->setMinimumHeight(_closedHeight);
-		ui->arrivalDeparturesTabs->setMaximumHeight(_closedHeight);
-		ui->arrivalDeparturesTabs->setGeometry(ui->arrivalDeparturesTabs->geometry().x, _originalYTabs - heightAdjustment, ui->arrivalDeparturesTabs->geometry().w, _closedHeight);
+		ui->arrivalDeparturesTabs->setMinimumHeight(0);
+		ui->arrivalDeparturesTabs->setMaximumHeight(0);
+		ui->arrivalDeparturesTabs->setGeometry(ui->arrivalDeparturesTabs->geometry().x(), _originalYTabs - heightAdjustment, ui->arrivalDeparturesTabs->geometry().width(), _closedHeight);
 
 		// tabs needs to be disabled when not in use.
 		ui->arrivalDeparturesTabs->setEnabled(false);
 
 		// everything after this gets adjusted by how much smaller this box is
-		heightAdjustment += (_originalHeightTabs - _closedHeight);		 
+		heightAdjustment += _originalHeightTabs - 10;		 
 	}
 
 	// finally apply the height adjustments to the actual dialog's size.
-	ui->setMinimumHeight(_originalHeightDialog - heightAdjustment);
-	ui->setMaximumHeight(_originalHeightDialog - heightAdjustment);
+	this->setMinimumHeight(_originalHeightDialog - heightAdjustment);
+	this->setMaximumHeight(_originalHeightDialog - heightAdjustment);
+
+	resize(QDialog::sizeHint());
 }
 
 void WingEditorDialog::onToggleGeneralOptionsButtonPressed()
@@ -662,9 +671,9 @@ void WingEditorDialog::onToggleGeneralOptionsButtonPressed()
 	_generalOpen = !_generalOpen;
 
 	if (_generalOpen){
-		ui->toggleGeneralOptionsButton->setText("v")
+		ui->toggleGeneralOptionsButton->setText("v");
 	} else {
-		ui->toggleGeneralOptionsButton->setText("^")
+		ui->toggleGeneralOptionsButton->setText("^");
 	}
 
 	adjustDialogSize();
@@ -672,13 +681,13 @@ void WingEditorDialog::onToggleGeneralOptionsButtonPressed()
 
 void WingEditorDialog::onToggleArrivalDepartureButtonPressed()
 {	
-	tabsOpen = !_tabsOpen;
+	_tabsOpen = !_tabsOpen;
 
 
-	if (tabsOpen){
-		ui->toggleArrivalDepartureButton->setText("v")
+	if (_tabsOpen){
+		ui->toggleArrivalDepartureButton->setText("v");
 	} else {
-		ui->toggleArrivalDepartureButton->setText("^")
+		ui->toggleArrivalDepartureButton->setText("^");
 	}
 
 	adjustDialogSize();
@@ -689,9 +698,9 @@ void WingEditorDialog::onToggleWingFlagsButtonPressed()
 	_flagsOpen = !_flagsOpen;
 
 	if (_flagsOpen){
-		ui->toggleWingFlagsButton->setText("v")
+		ui->toggleWingFlagsButton->setText("v");
 	} else {
-		ui->toggleWingFlagsButton->setText("^")
+		ui->toggleWingFlagsButton->setText("^");
 	}
 
 	adjustDialogSize();
@@ -735,7 +744,7 @@ void WingEditorDialog::onDeleteWingButtonPressed()
 
 		TODOwarn7 = true;
 	}
-	_model->deleteWing();
+	//_model->deleteWing();
 }
 
 void WingEditorDialog::onDisbandWingButtonPressed()
@@ -750,7 +759,7 @@ void WingEditorDialog::onDisbandWingButtonPressed()
 
 		TODOwarn8 = true;
 	}
-	_model->disbandWing();
+	//_model->disbandWing();
 }
 
 void WingEditorDialog::onWarpArrivalStopSoundBrowseButtonPressed()
@@ -971,7 +980,18 @@ void WingEditorDialog::onInitialArrivalDelaySpinBoxUpdated()
 
 void WingEditorDialog::onPreDepartureDelaySpinBoxUpdated()
 {	
-	ui->preDepartureDelaySpinBox->setValue(_model->setPreDepartureDelay(ui->preDepartureDelaySpinBox->value()));
+	static bool TODOwarn41 = false;
+	if (!TODOwarn41) {
+		QMessageBox warnbox;
+		SCP_string message = "Control 41  has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn41 = true;
+	}
+
+//	ui->preDepartureDelaySpinBox->setValue(_model->setPreDepartureDelay(ui->preDepartureDelaySpinBox->value()));
 }
 
 void WingEditorDialog::onWarpArrivalEngageTimeSpinBoxUpdated()
@@ -1217,10 +1237,10 @@ void WingEditorDialog::onHotkeyComboBoxChanged()
 
 void WingEditorDialog::onSelectWingComboboxChanged()
 {	
-	auto response = _model->switchCurrentWing(ui->selectWingComboBox->currentText());
+	auto response = _model->switchCurrentWing(ui->selectWingCombobox->currentText().toStdString());
 
 	if (response.empty()){
-		ui->selectWingComboBox->setCurrentIndex(0);
+		ui->selectWingCombobox->setCurrentIndex(0);
 	}
 
 	loadWing();
@@ -1313,12 +1333,22 @@ void WingEditorDialog::onWarpDepartureAnimationLineEdit()
 
 void WingEditorDialog::onWingNameLineEditChanged()
 {	
-	ui->wingNameLineEdit->setText(_model->renameWing(ui->wingNameLineEdit->text()).c_str());
+		static bool TODOwarn77 = false;
+	if (!TODOwarn77) {
+		QMessageBox warnbox;
+		SCP_string message = "Control 77 has not yet been set up.";
+        warnbox.setText(message.c_str());
+        warnbox.setStandardButtons(QMessageBox::Ok);
+        warnbox.exec();
+
+		TODOwarn77 = true;
+	}
+//	ui->wingNameLineEdit->setText(_model->renameWing(ui->wingNameLineEdit->text().toStdString()).c_str());
 }
 
 void WingEditorDialog::onSquadLogoLineEditChanged()
 {	
-	ui->squadLogoLineEdit->setText(_model->setSquadLogo(ui->squadLogoLineEdit->text()).c_str());
+	ui->squadLogoLineEdit->setText(_model->setSquadLogo(ui->squadLogoLineEdit->text().toStdString()).c_str());
 }
 
 
