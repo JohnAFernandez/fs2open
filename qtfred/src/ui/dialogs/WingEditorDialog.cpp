@@ -406,6 +406,8 @@ void WingEditorDialog::loadWing()
 {
 	auto wingName = _model->getCurrentWingName();
 
+	_updating = true;
+
 	// Shut everything down because there is no wing.
 	if (wingName.empty()){
 		ui->wingNameLineEdit->clear();
@@ -593,6 +595,8 @@ void WingEditorDialog::loadWing()
 		int getInitialDelay();
 		*/	
 	}
+
+	_updating = false;
 } 
 
 /*
@@ -1232,7 +1236,12 @@ void WingEditorDialog::onWarpDepartureTypeComboboxChanged()
 
 void WingEditorDialog::onHotkeyComboBoxChanged()
 {	
-	ui->hotkeyComboBox->setCurrentIndex(_model->setHotKey(ui->hotkeyComboBox->currentIndex()));
+	if (!_updating){
+		_updating =true;
+		ui->hotkeyComboBox->setCurrentIndex(_model->setHotKey(ui->hotkeyComboBox->currentIndex() - 1) + 1);
+	}
+
+	_updating = false;
 }
 
 void WingEditorDialog::onSelectWingComboboxChanged()

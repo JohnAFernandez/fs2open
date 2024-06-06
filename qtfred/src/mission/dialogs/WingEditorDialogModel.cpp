@@ -658,7 +658,7 @@ int WingEditorDialogModel::setHotKey(int newHotkeyIndex)
 	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
 		return -1; 
 
-	if (newHotkeyIndex < -1 || newHotkeyIndex >= NUM_HOTKEYS){
+	if (newHotkeyIndex < -1 || newHotkeyIndex > NUM_HOTKEYS){
 		Wings[_currentWingIndex].hotkey = -1;
 		return Wings[_currentWingIndex].hotkey;
 	}

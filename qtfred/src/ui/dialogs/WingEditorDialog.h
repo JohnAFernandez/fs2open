@@ -118,6 +118,9 @@ void onWarpDepartureDecelerationExponenetDoubleSpinboxUpdated();
 	EditorViewport* _viewport;
 
 	void loadWing();
+	bool _updating = false;
+	
+	
 	void adjustDialogSize();
 
 	const int _closedHeight = 22;
