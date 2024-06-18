@@ -31,12 +31,12 @@ public:
 	bool getArrivalMessageFlag();
 	bool getFirstWaveMessageFlag();
 	bool getDynamicGoalsFlag();
-	// No UI for these yet
 	bool getNoArrivalWarpFlag();
 	bool getNoDepartureWarpFlag();
 	bool getSameArrivalWarpWhenDockedFlag();
 	bool getSameDepartureWarpWhenDockedFlag();
-
+	SCP_vector<std::pair<string, bool>> getArrivalPathStatus();
+	SCP_vector<std::pair<string, bool>> getDeparturePathStatus();
 
 	int getArrivalType();
 	std::pair<int, SCP_vector<SCP_string>> getArrivalTargetList();
@@ -68,21 +68,26 @@ public:
 	bool setArrivalMessageFlag(bool flagIn);
 	bool setFirstWaveMessageFlag(bool flagIn);
 	bool setDynamicGoalsFlag(bool flagIn);
-	// NO UI for these yet
 	bool setNoArrivalWarpFlag(bool flagIn);
 	bool setNoDepartureWarpFlag(bool flagIn);
 	bool setSameArrivalWarpWhenDockedFlag(bool flagIn);
 	bool setSameDepartureWarpWhenDockedFlag(bool flagIn);
-
 	int setArrivalType(int arrivalType);
 	int setInitialArrivalDelay(int delayIn);
 	int setArrivalTarget(int targetIndex);
 	int setArrivalDistance(int newDistance);
+	bool setArrivalPath(std::pair<int, bool> pathStatusIn);
+	bool resetArrivalPaths();
 	int setMinWingDelay(int newMin);
 	int setMaxWingDelay(int newMax);
 	int setDepartureType(int departureType);
 	int setDepartureTarget(int targetIndex);
 	int setPreDepartureDelay(int newDelay);
+	bool resetDeparturePaths();
+	bool setDeparturePath(std::pair<int, bool> pathStatusIn);
+
+//arrival_path_mask
+//departure_path_mask
 
 private:
 	int _currentWingIndex;

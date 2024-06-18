@@ -687,6 +687,57 @@ SCP_string WingEditorDialogModel::setSquadLogo(SCP_string filename)
 	return Wings[_currentWingIndex].wing_squad_filename;
 }
 
+bool WingEditorDialogModel::resetArrivalPaths()
+{
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
+		return false;
+
+	Wings[_currentWingIndex].arrival_path_mask = 0;
+
+	return true;
+}
+
+bool WingEditorDialogModel::resetDeparturePaths()
+{
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS) 
+		return false;
+
+	Wings[_currentWingIndex].departure_path_mask = 0;
+
+	return true;
+}
+
+bool WingEditorDialogModel::setArrivalPath(std::pair<int, bool> pathStatusIn)
+{
+	// shouldn't even be here...
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS || Wings[_currentWingIndex].arrival_location != ARRIVE_FROM_DOCK_BAY) 
+		return !pathStatusIn.second;
+	
+	// bad arrival target
+	if (Wings[_currentWarrival_anchoringIndex].arrival_anchor < 0 || Wings[_currentWingIndex].arrival_anchor >= MAX_SHIPS || Ships[Wings[_currentWingIndex].arrival_anchor].name[0] == '\0')
+		return !pathStatusIn.second;
+
+	auto anchorShipModel = model_get(Ship_info[Ships[Wings[_currentWingIndex].arrival_anchor]].model_num);
+
+	// not enough paths
+	if (!anchorShipModel || !anchorShipModel->ship_bay || !anchorShipModel->ship_bay->num_paths <= pathStatusIn.first ){
+		return !pathStatusIn.second;
+	}
+
+	// 
+		
+}
+
+bool WingEditorDialogModel::setDeparturePath(std::pair<int, bool> pathStatusIn)
+{
+	// shouldn't even be here...
+	if (_currentWingIndex < 0 || _currentWingIndex >= MAX_WINGS || Wings[_currentWingIndex].departure_location != DEPART_AT_DOCK_BAY) 
+		return !pathStatusIn.second;
+
+	// bad departure target
+	Wings
+}
+
 
 /*#define	ARRIVE_AT_LOCATION			0
 #define	ARRIVE_NEAR_SHIP				1
