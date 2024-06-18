@@ -1227,6 +1227,7 @@ int multi_oo_pack_client_data(ubyte *data, ship* shipp)
 #define PACK_USHORT(v) { std::uint16_t swap = INTEL_SHORT(v); memcpy( data + packet_size + header_bytes, &swap, sizeof(std::uint16_t) ); packet_size += sizeof(std::uint16_t); }
 #define PACK_INT(v) { std::int32_t swap = INTEL_INT(v); memcpy( data + packet_size + header_bytes, &swap, sizeof(std::int32_t) ); packet_size += sizeof(std::int32_t); }
 #define PACK_ULONG(v) { std::uint64_t swap = INTEL_LONG(v); memcpy( data + packet_size + header_bytes, &swap, sizeof(std::uint64_t) ); packet_size += sizeof(std::uint64_t); }
+#define PACK_FLOAT(v) { memcpy( data + packet_size + header_bytes, &v, sizeof(std::float_t) ); packet_size += sizeof(std::float_t); }
 int multi_oo_pack_data(net_player *pl, object *objp, ushort oo_flags, ubyte *data_out)
 {
 	ubyte data[OO_SAFE_BUFFER_SIZE];
@@ -1280,7 +1281,11 @@ int multi_oo_pack_data(net_player *pl, object *objp, ushort oo_flags, ubyte *dat
 	// position - Now includes, position, orientation, velocity, rotational velocity, desired velocity and desired rotational velocity.
 	// this should always be sent when it is determined to be needed.
 	if ( oo_flags & OO_POS_AND_ORIENT_NEW ) {	
-		ret = multi_pack_unpack_position( 1, data + packet_size + header_bytes, &objp->pos ); // 10 bytes
+		//ret = multi_pack_unpack_position( 1, data + packet_size + header_bytes, &objp->pos ); // 10 bytes
+		PACK_FLOAT(objp->pos.xyz.x);
+		PACK_FLOAT(objp->pos.xyz.y);
+		PACK_FLOAT(objp->pos.xyz.z);
+
 		packet_size += ret;
 
 		// datarate tracking.
@@ -1745,6 +1750,7 @@ int multi_oo_unpack_client_data(net_player* pl, ubyte* data)
 // more recently, but the packet has the newest AI info, we will still use the AI info, even though it's not the newest
 // packet.
 #define UNPACK_PERCENT(v)					{ ubyte temp_byte; memcpy(&temp_byte, data + offset, sizeof(ubyte)); v = (float)temp_byte / 255.0f; offset++;}
+#define UNPACK_FLOAT(v)		{ memcpy(&v, data + offset, sizeof(std::float_t)); offset += sizeof(std::float_t); }
 int multi_oo_unpack_data(net_player* pl, ubyte* data, int seq_num, int time_delta)
 {
 	int offset = 0;
@@ -1831,8 +1837,11 @@ int multi_oo_unpack_data(net_player* pl, ubyte* data, int seq_num, int time_delt
 	if ( oo_flags & OO_POS_AND_ORIENT_NEW) {
 
 		// unpack position
-		int r1 = multi_pack_unpack_position(0, data + offset, &new_pos);
-		offset += r1;
+//		int r1 = multi_pack_unpack_position(0, data + offset, &new_pos);
+//		offset += r1;
+		UNPACK_FLOAT(pobjp->pos.xyz.x);
+		UNPACK_FLOAT(pobjp->pos.xyz.y);
+		UNPACK_FLOAT(pobjp->pos.xyz.z);
 
 		// unpack orientation
 		int r2 = multi_pack_unpack_orient( 0, data + offset, &new_angles );
