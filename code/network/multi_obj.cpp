@@ -1750,7 +1750,7 @@ int multi_oo_unpack_client_data(net_player* pl, ubyte* data)
 // more recently, but the packet has the newest AI info, we will still use the AI info, even though it's not the newest
 // packet.
 #define UNPACK_PERCENT(v)					{ ubyte temp_byte; memcpy(&temp_byte, data + offset, sizeof(ubyte)); v = (float)temp_byte / 255.0f; offset++;}
-#define UNPACK_FLOAT(v)		{ memcpy(&v, data + offset, sizeof(std::float_t)); offset += sizeof(std::float_t); }
+#define UNPACK_FLOAT(v)		{ v = *reinterpret_cast<std::float_t *>(data + offset); offset += sizeof(std::float_t); }
 int multi_oo_unpack_data(net_player* pl, ubyte* data, int seq_num, int time_delta)
 {
 	int offset = 0;
@@ -1839,9 +1839,9 @@ int multi_oo_unpack_data(net_player* pl, ubyte* data, int seq_num, int time_delt
 		// unpack position
 //		int r1 = multi_pack_unpack_position(0, data + offset, &new_pos);
 //		offset += r1;
-		UNPACK_FLOAT(pobjp->pos.xyz.x);
-		UNPACK_FLOAT(pobjp->pos.xyz.y);
-		UNPACK_FLOAT(pobjp->pos.xyz.z);
+		UNPACK_FLOAT(new_pos.xyz.x);
+		UNPACK_FLOAT(new_pos.xyz.y);
+		UNPACK_FLOAT(new_pos.xyz.z);
 
 		// unpack orientation
 		int r2 = multi_pack_unpack_orient( 0, data + offset, &new_angles );
