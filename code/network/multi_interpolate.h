@@ -38,6 +38,7 @@ private:
 	int _prev_packet_index;				// what was the last packet? This and Upcoming are both idices into the _packets vector. 
 	int _local_skip_forward;			// TODO: Use this? Used on the server if a client is inexplicably ahead of us.
 	bool _simulation_mode;				// are we currently simulating as if this were a normal ship?
+	TIMESTAMP _sim_from_collision_time; 	// Given that a collision recently happened to this player ship, when should we trust packets from the server again to not cause players being flung to the next sector
 	bool _packets_expended;				// have we used up all packets while interpolating?
 	SCP_vector<packet_info> _packets;	// all the info from the position/orientation portion of packets that we care to keep
 	int _source_player_index;
@@ -103,7 +104,7 @@ public:
 
 	void set_ai_comparison_frame(int frame) { _ai_comparison_frame = frame; }
 
-	void force_interpolation_mode() { _simulation_mode = true; }
+	void force_interpolation_mode() { _simulation_mode = true; _sim_from_collision_time = TIMESTAMP(200)}
 
 	void reset(int subsystem_count) 
 	{

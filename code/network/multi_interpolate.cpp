@@ -25,15 +25,24 @@ void interpolation_manager::reassess_packet_index(vec3d* pos, matrix* ori, physi
 			// probably the "hackiest" thing about this.  If we were just straight simulating, 
 			// and we now need to go back, pretend that the position we were in *was* our old packet
 			// and we are now going towards our new packet's physics.
-			if (_simulation_mode) {
-				replace_packet(prev_index, pos, ori, pip); // TODO, if simulation mode was forced by the collision code, this method regresses a bug where collisions instantly kill
-				_simulation_mode = false;
+			if (_simulation_mode) {			
+				// This code path is only trigerred for player ships having to handle difficult collisions.
+				if (_sim_from_collision_time.isFinite()) {
+					if (timestamp_elapsed(_sim_from_collision_time)){
+						replace_packet(prev_index, pos, ori, pip);
+						_simulation_mode = false;
+						_sim_from_collision_time = TIMESTAMP::invalid();					
+					}
+				} else { 
+					replace_packet(prev_index, pos, ori, pip);
+					_simulation_mode = false;
+				}
 			}
 
 			return;
 		}
+	
 	}
-
 	// if we didn't find indexes then we are overwhelmingly likely to have passed the server somehow
 	// and we need to make sure that we just straight simulate these ships
 	_simulation_mode = true;
