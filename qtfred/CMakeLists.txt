@@ -6,7 +6,16 @@
 SET(QT5_INSTALL_ROOT "" CACHE PATH
 "The path to the Qt5 installation root. May be necessary on windows if the standard find_package fails to find the Qt installation.")
 
-list(APPEND CMAKE_PREFIX_PATH "${QT5_INSTALL_ROOT}")
+list(
+    APPEND CMAKE_PREFIX_PATH "${QT5_INSTALL_ROOT}" 
+    "${QT5_INSTALL_ROOT}/5.15.2/msvc2019_64/lib/cmake"
+    "${QT5_INSTALL_ROOT}/5.15.1/msvc2019_64/lib/cmake"
+    "${QT5_INSTALL_ROOT}/5.15.0/msvc2019_64/lib/cmake"
+    "C:/qt/5.15.2/msvc2019_64/lib/cmake"
+    "C:/qt/5.15.1/msvc2019_64/lib/cmake"
+    "C:/qt/5.15.0/msvc2019_64/lib/cmake"
+)
+
 
 find_package(Qt5 COMPONENTS Widgets OpenGL REQUIRED)
 
