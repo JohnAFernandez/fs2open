@@ -140,11 +140,14 @@ class sexp_tree_item {
 	sexp_tree_item() : type(SEXPT_UNUSED) {
 	}
 
+	int backend_id; // this id is used to communicate between the ui and backend, instead of relying on names.  
+					// The id is requested from the model on creation, but then the ui must retain them to request changes 
+
 	int type;
 	int parent;    // pointer to parent of this item
 	int child;    // pointer to first child of this item
 	int next;    // pointer to next sibling
-	int flags;
+	int flags;	
 	char text[2 * TOKEN_LENGTH + 2];
 	QTreeWidgetItem* handle;
 };
@@ -228,7 +231,6 @@ class sexp_tree: public QTreeWidget {
 	void editBgColorForItem(QTreeWidgetItem* h);
 	void expand_operator(int node);
 	void merge_operator(int node);
-	int identify_arg_type(int node);
 	int count_args(int node);
 	int ctree_size;
 	virtual void build_tree();

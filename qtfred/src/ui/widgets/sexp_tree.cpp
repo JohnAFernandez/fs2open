@@ -13,6 +13,7 @@
 #include "mission/util.h"
 #include "mission/Editor.h"
 #include "mission/object.h"
+#include "sexp_model.h"
 
 #include "parse/sexp.h"
 #include "globalincs/linklist.h"
@@ -225,10 +226,6 @@ QList<QAction *> SexpTreeEditorInterface::getContextMenuExtras(QObject */*parent
 }
 SexpTreeEditorInterface::~SexpTreeEditorInterface() = default;
 
-QIcon sexp_tree::convertNodeImageToIcon(NodeImage image) {
-	return QIcon(node_image_to_resource_name(image));
-}
-
 class NoteBadgeDelegate final : public QStyledItemDelegate {
   public:
 	explicit NoteBadgeDelegate(sexp_tree* tree) : QStyledItemDelegate(tree) {}
@@ -243,7 +240,7 @@ class NoteBadgeDelegate final : public QStyledItemDelegate {
 		const QStyle* s = w ? w->style() : QApplication::style();
 		s->drawControl(QStyle::CE_ItemViewItem, &opt, p, w);
 
-		// if there’s a note, paint the badge directly after the text
+		// if thereï¿½s a note, paint the badge directly after the text
 		const QString note = index.data(sexp_tree::NoteRole).toString();
 		if (!note.isEmpty()) {
 			// where Qt drew the text
@@ -289,6 +286,7 @@ sexp_tree::sexp_tree(QWidget* parent) : QTreeWidget(parent) {
 
 	setHeaderHidden(true);
 
+	backend_id = -1;
 	select_sexp_node = -1;
 	root_item = -1;
 	clear_tree();
@@ -303,6 +301,12 @@ sexp_tree::sexp_tree(QWidget* parent) : QTreeWidget(parent) {
 
 sexp_tree::~sexp_tree() = default;
 
+// No change, UI only (I did move it further down the file, though since its location didn't make sense)
+QIcon sexp_tree::convertNodeImageToIcon(NodeImage image) {
+	return QIcon(node_image_to_resource_name(image));
+}
+
+/* moved
 // clears out the tree, so all the nodes are unused.
 void sexp_tree::clear_tree(const char* op) {
 	mprintf(("Resetting dynamic tree node limit from "
@@ -319,25 +323,25 @@ void sexp_tree::clear_tree(const char* op) {
 			build_tree();
 		}
 	}
-}
+}*/
 
+// UI only, revised
 void sexp_tree::reset_handles() {
-	uint i;
-
-	for (i = 0; i < tree_nodes.size(); i++) {
-		tree_nodes[i].handle = NULL;
+	for (auto& tree : tree_nodes) {
+		tree.handle = nullptr;
 	}
 }
 
+/* moved 
 // initializes and creates a tree from a given sexp startpoint.
-void sexp_tree::load_tree(int index, const char* deflt) {
+void sexp_tree::load_tree(int index, const char* default_text) {
 	int cur;
 
 	clear_tree();
 	root_item = 0;
 	if (index < 0) {
 		cur = allocate_node(-1);
-		set_node(cur, (SEXPT_OPERATOR | SEXPT_VALID), deflt);  // setup a default tree if none
+		set_node(cur, (SEXPT_OPERATOR | SEXPT_VALID), default_text);  // setup a default tree if none
 		build_tree();
 		return;
 	}
@@ -362,6 +366,7 @@ void sexp_tree::load_tree(int index, const char* deflt) {
 	build_tree();
 }
 
+// moved
 void get_combined_variable_name(char* combined_name, const char* sexp_var_name) {
 	int sexp_var_index = get_index_sexp_variable_name(sexp_var_name);
 
@@ -373,6 +378,7 @@ void get_combined_variable_name(char* combined_name, const char* sexp_var_name) 
 
 // creates a tree from a given Sexp_nodes[] point under a given parent.  Recursive.
 // Returns the allocated current node.
+// moved, removed select_sexp_node
 int sexp_tree::load_branch(int index, int parent) {
 	int cur = -1;
 	char combined_var_name[2 * TOKEN_LENGTH + 2];
@@ -453,6 +459,7 @@ int sexp_tree::load_branch(int index, int parent) {
 	return cur;
 }
 
+// moved
 int sexp_tree::query_false(int node) {
 	if (node < 0) {
 		node = root_item;
@@ -469,6 +476,7 @@ int sexp_tree::query_false(int node) {
 }
 
 // builds an sexp of the tree and returns the index of it.  This allocates sexp nodes.
+// moved
 int sexp_tree::save_tree(int node) {
 	if (node < 0) {
 		node = root_item;
@@ -481,6 +489,7 @@ int sexp_tree::save_tree(int node) {
 }
 
 // get variable name from sexp_tree node .text
+// moved
 void var_name_from_sexp_tree_text(char* var_name, const char* text) {
 	auto var_name_length = strcspn(text, "(");
 	Assert(var_name_length < TOKEN_LENGTH - 1);
@@ -489,9 +498,11 @@ void var_name_from_sexp_tree_text(char* var_name, const char* text) {
 	var_name[var_name_length] = '\0';
 }
 
+
 #define NO_PREVIOUS_NODE -9
 // called recursively to save a tree branch and everything under it
 // SEXPT_CONTAINER_NAME and SEXPT_MODIFIER require no special handling here
+// moved
 int sexp_tree::save_branch(int cur, int at_root) {
 	int start, node = -1, last = NO_PREVIOUS_NODE;
 	char var_name_text[TOKEN_LENGTH];
@@ -553,6 +564,7 @@ int sexp_tree::save_branch(int cur, int at_root) {
 }
 
 // find the next free tree node and return its index.
+// moved
 int sexp_tree::find_free_node() {
 	int i;
 
@@ -566,6 +578,7 @@ int sexp_tree::find_free_node() {
 }
 
 // allocate a node.  Remains used until freed.
+// moved
 int sexp_tree::allocate_node() {
 	int node = find_free_node();
 
@@ -607,6 +620,7 @@ int sexp_tree::allocate_node() {
 }
 
 // allocate a child node under 'parent'.  Appends to end of list.
+// moved
 int sexp_tree::allocate_node(int parent, int after) {
 	int i, index = allocate_node();
 
@@ -665,7 +679,7 @@ void sexp_tree::free_node(int node, int cascade) {
 // more simple node freer, which works recursively.  It frees the given node and all siblings
 // that come after it, as well as all children of these.  Doesn't clear any links to any of
 // these freed nodes, so make sure all links are broken first. (i.e. use free_node() if you can)
-//
+// moved
 void sexp_tree::free_node2(int node) {
 	Assert(node != -1);
 	Assert(tree_nodes[node].type != SEXPT_UNUSED);
@@ -683,6 +697,7 @@ void sexp_tree::free_node2(int node) {
 }
 
 // initialize the data for a node.  Should be called right after a new node is allocated.
+// moved, marked for future cleanup
 void sexp_tree::set_node(int node, int type, const char* text) {
 	Assert(type != SEXPT_UNUSED);
 	Assert(tree_nodes[node].type != SEXPT_UNUSED);
@@ -697,8 +712,9 @@ void sexp_tree::set_node(int node, int type, const char* text) {
 	}
 	Assert(strlen(text) < max_length);
 	strcpy_s(tree_nodes[node].text, text);
-}
+}*/
 
+// UI! Still not sure what it does, though.
 void sexp_tree::post_load() {
 	if (!flag) {
 		select_sexp_node = -1;
@@ -706,6 +722,7 @@ void sexp_tree::post_load() {
 }
 
 // build or rebuild a CTreeCtrl object with the current tree data
+// UI, clear is inherited from QT.  Flag and select_sexp_node
 void sexp_tree::build_tree() {
 	if (!flag) {
 		select_sexp_node = -1;
@@ -717,6 +734,7 @@ void sexp_tree::build_tree() {
 
 // Create the CTreeCtrl tree from the tree data.  The tree data should already be setup by
 // this point.
+// Major edits, needed to separate out type from the ui tree creation logic
 void sexp_tree::add_sub_tree(int node, QTreeWidgetItem* root) {
 //	char str[80];
 	int node2;
@@ -734,45 +752,54 @@ void sexp_tree::add_sub_tree(int node, QTreeWidgetItem* root) {
 	}*/
 
 	// bitmap to draw in tree
+	sexp_item_type type = model->get_item_type(tree_nodes[node].backend_id);
 	NodeImage bitmap;
 
-	if (tree_nodes[node].type & SEXPT_OPERATOR) {
-		tree_nodes[node].flags = OPERAND;
-		bitmap = NodeImage::OPERATOR;
-	} else {
-		if (tree_nodes[node].type & SEXPT_VARIABLE) {
+	switch(type){
+		case sexp_item_type::OPERATOR:
+			tree_nodes[node].flags = OPERAND;
+			bitmap = NodeImage::OPERATOR;
+			break;
+		case sexp_item_type::VARIABLE:
 			tree_nodes[node].flags = NOT_EDITABLE;
 			bitmap = NodeImage::VARIABLE;
-		} else if (tree_nodes[node].type & SEXPT_CONTAINER_NAME) {
+			break;
+		case sexp_item_type::CONTAINER_NAME:
 			tree_nodes[node].flags = NOT_EDITABLE;
 			bitmap = NodeImage::CONTAINER_NAME;
-		} else if (tree_nodes[node].type & SEXPT_CONTAINER_DATA) {
+			break;
+		case sexp_item_type::CONTAINER_DATA:
 			tree_nodes[node].flags = NOT_EDITABLE;
 			bitmap = NodeImage::CONTAINER_DATA;
-		} else {
+			break;
+		default:
 			tree_nodes[node].flags = EDITABLE;
 			bitmap = get_data_image(node);
-		}
+			break;
 	}
 
+	// QT function here
 	root = tree_nodes[node].handle = insert(tree_nodes[node].text, bitmap, root);
 
 	tree_nodes[node].handle->setFlags(
 		tree_nodes[node].handle->flags().setFlag(Qt::ItemIsEditable, (tree_nodes[node].flags & EDITABLE)));
 
 	node = node2;
+		
+	// NOTE, This may get replaced by a strict pull from the model later on, but it at least looks like the underlying nodes have been set up already 
 	while (node != -1) {
-		Assert(node >= 0 && node < (int) tree_nodes.size());
-		Assert(tree_nodes[node].type & SEXPT_VALID);
-		if (tree_nodes[node].type & (SEXPT_OPERATOR | SEXPT_CONTAINER_DATA)) {
+		Assert(node >= 0 && node < static_cast<int>(tree_nodes.size()));
+		type = model->get_item_type(tree_nodes[node].backend_id);
+
+		if (type == sexp_item_type::OPERATOR || type == sexp_item_type::CONTAINER_DATA) {
 			add_sub_tree(node, root);
 
 		} else {
 			Assert(tree_nodes[node].child == -1);
-			if (tree_nodes[node].type & SEXPT_VARIABLE) {
+			if (type == sexp_item_type::VARIABLE) {
 				tree_nodes[node].handle = insert(tree_nodes[node].text, NodeImage::VARIABLE, root);
 				tree_nodes[node].flags = NOT_EDITABLE;
-			} else if (tree_nodes[node].type & SEXPT_CONTAINER_NAME) {
+			} else if (type == sexp_item_type::CONTAINER_NAME) {
 				tree_nodes[node].handle = insert(tree_nodes[node].text, NodeImage::CONTAINER_NAME, root);
 				tree_nodes[node].flags = NOT_EDITABLE;
 			// SEXPT_MODIFIER doesn't require special treatment here
@@ -790,7 +817,9 @@ void sexp_tree::add_sub_tree(int node, QTreeWidgetItem* root) {
 	}
 }
 
+/*
 // construct tree nodes for an sexp, adding them to the list and returning first node
+// moved
 int sexp_tree::load_sub_tree(int index, bool valid, const char* text) {
 	int cur;
 
@@ -806,10 +835,11 @@ int sexp_tree::load_sub_tree(int index, bool valid, const char* text) {
 	Assert(Sexp_nodes[index].subtype == SEXP_ATOM_OPERATOR);
 	cur = load_branch(index, -1);
 	return cur;
-}
+}*/
 
 // counts the number of arguments an operator has.  Call this with the node of the first
 // argument of the operator
+// This *could* be useful on the UI side, so I just copied it over to the model
 int sexp_tree::count_args(int node) {
 	int count = 0;
 
@@ -821,9 +851,11 @@ int sexp_tree::count_args(int node) {
 	return count;
 }
 
+/*
 // identify what type of argument this is.  You call it with the node of the first argument
 // of an operator.  It will search through enough of the arguments to determine what type of
 // data they are.
+// Deleted!  This is not referenced anywhere
 int sexp_tree::identify_arg_type(int node) {
 	int type = -1;
 
@@ -851,6 +883,7 @@ int sexp_tree::identify_arg_type(int node) {
 
 // given a tree node, returns the argument type it should be.
 // OPF_NULL means no value (or a "void" value) is returned.  OPF_NONE means there shouldn't be any argument at this position at all.
+// Moved
 int sexp_tree::query_node_argument_type(int node) const {
 	int parent_node = tree_nodes[node].parent;
 	if (parent_node < 0) {		// parent nodes are -1 for a top-level operator like 'when'
@@ -873,7 +906,7 @@ int sexp_tree::query_node_argument_type(int node) const {
 // Look for the valid operator that is the closest match for 'str' and return the operator
 // number of it.  What operators are valid is determined by 'node', and an operator is valid
 // if it is allowed to fit at position 'node'
-//
+// Moved, the string determination should be handled by the model.
 const SCP_string &sexp_tree::match_closest_operator(const SCP_string &str, int node) {
 	int z, op, arg_num, opf;
 
@@ -896,9 +929,10 @@ const SCP_string &sexp_tree::match_closest_operator(const SCP_string &str, int n
 	if (best < 0)
 		return str;
 	return Operators[best].text;
-}
+} 
 
 // adds to or replaces (based on passed in flag) the current operator
+// Moved
 void sexp_tree::add_or_replace_operator(int op, int replace_flag) {
 	int i, op2;
 
@@ -938,7 +972,7 @@ void sexp_tree::add_or_replace_operator(int op, int replace_flag) {
 }
 
 // initialize node, type operator
-//
+// Moved
 void sexp_list_item::set_op(int op_num) {
 	int i;
 
@@ -957,7 +991,7 @@ void sexp_list_item::set_op(int op_num) {
 
 // initialize node, type data
 // Defaults: t = SEXPT_STRING
-//
+// MOVED
 void sexp_list_item::set_data(const char* str, int t) {
 	op = -1;
 	text = str;
@@ -965,7 +999,7 @@ void sexp_list_item::set_data(const char* str, int t) {
 }
 
 // add a node to end of list
-//
+// moved
 void sexp_list_item::add_op(int op_num) {
 	sexp_list_item* item, * ptr;
 
@@ -981,7 +1015,7 @@ void sexp_list_item::add_op(int op_num) {
 
 // add a node to end of list
 // Defaults: t = SEXPT_STRING
-//
+// Moved
 void sexp_list_item::add_data(const char* str, int t) {
 	sexp_list_item* item, * ptr;
 
@@ -993,10 +1027,10 @@ void sexp_list_item::add_data(const char* str, int t) {
 
 	ptr->next = item;
 	item->set_data(str, t);
-}
+} 
 
 // add an sexp list to end of another list (join lists)
-//
+// Moved
 void sexp_list_item::add_list(sexp_list_item* list) {
 	sexp_list_item* ptr;
 
@@ -1006,7 +1040,7 @@ void sexp_list_item::add_list(sexp_list_item* list) {
 	}
 
 	ptr->next = list;
-}
+} 
 
 // free all nodes of list
 //
@@ -1022,6 +1056,7 @@ void sexp_list_item::destroy() {
 	}
 }
 
+// Moved
 int sexp_tree::add_default_operator(int op_index, int argnum) {
 	char buf[256];
 	int index;
@@ -1656,7 +1691,7 @@ int sexp_tree::query_default_argument_available(int op, int i) {
 			return 1;
 
 		return 0;
-		 */
+		 *//*
 
 	case OPF_GOAL_NAME: {
 		return _interface->hasDefaultGoal(Operators[op].value) ? 1 : 0;
@@ -1677,7 +1712,7 @@ int sexp_tree::query_default_argument_available(int op, int i) {
 		}
 
 		return 0;
-		 */
+		 *//*
 	}
 
 	case OPF_EVENT_NAME: {
@@ -1698,7 +1733,7 @@ int sexp_tree::query_default_argument_available(int op, int i) {
 		}
 
 		return 0;
-		 */
+		 *//*
 	}
 
 	case OPF_MESSAGE:
@@ -1782,10 +1817,11 @@ int sexp_tree::query_default_argument_available(int op, int i) {
 	}
 
 	return 0;
-}
+}*/
 
 // expand a combined line (one with an operator and its one argument on the same line) into
 // 2 lines.
+// TODO! I do not know what this is.
 void sexp_tree::expand_operator(int node) {
 	if (tree_nodes[node].flags & COMBINED) {
 		node = tree_nodes[node].parent;
@@ -1808,6 +1844,7 @@ void sexp_tree::expand_operator(int node) {
 }
 
 // expand a CTreeCtrl branch and all of its children
+// NOT MOVED, UI
 void sexp_tree::expand_branch(QTreeWidgetItem* h) {
 	h->setExpanded(true);
 	for (auto i = 0; i < h->childCount(); ++i) {
@@ -2882,14 +2919,14 @@ void sexp_tree::mouseMoveEvent(QMouseEvent* e)
 		return;
 	}
 
-	// “Dragging” – we just highlight potential drop target (a root under the cursor)
+	// ï¿½Draggingï¿½ ï¿½ we just highlight potential drop target (a root under the cursor)
 	s_dragging = true;
 	if (auto* over = itemAt(e->pos())) {
 		if (isRoot(over))
-			setCurrentItem(over); // simple visual cue like OG’s SelectDropTarget
+			setCurrentItem(over); // simple visual cue like OGï¿½s SelectDropTarget
 	}
 
-	// No QDrag payload; we’ll do the move on mouse release to keep logic simple.
+	// No QDrag payload; weï¿½ll do the move on mouse release to keep logic simple.
 	QTreeWidget::mouseMoveEvent(e);
 }
 
@@ -2899,7 +2936,7 @@ void sexp_tree::mouseReleaseEvent(QMouseEvent* e)
 		auto* dropTarget = itemAt(e->pos());
 		if (dropTarget && isRoot(dropTarget) && dropTarget != s_dragSourceRoot) {
 			// OG rule: if moving up, insert_before=true; if moving down, insert_after
-			// (so we “end up where we dropped”). :contentReference[oaicite:1]{index=1}
+			// (so we ï¿½end up where we droppedï¿½). :contentReference[oaicite:1]{index=1}
 			const int srcIdx = indexOfTopLevelItem(s_dragSourceRoot);
 			const int dstIdx = indexOfTopLevelItem(dropTarget);
 			const bool insert_before = (srcIdx > dstIdx);
@@ -7323,7 +7360,7 @@ void sexp_tree::startOperatorQuickSearch(QTreeWidgetItem* item, const QString& s
 		return;
 
 	// Only allow on editable positions (operator or data) that live beneath a parent
-	// (We’ll compute OPF from parent or root as necessary)
+	// (Weï¿½ll compute OPF from parent or root as necessary)
 	_opAll = validOperatorsForNode(nodeIdx);
 	if (_opAll.isEmpty())
 		return;
@@ -7916,5 +7953,3 @@ int sexp_tree::getCurrentItemIndex() const {
 	return item_index;
 }
 
-}
-}
