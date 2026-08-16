@@ -110,6 +110,7 @@ typedef struct weapon {
 	int		target_num;						//	Object index of target
 	int		target_sig;						//	So we know if the target is the same one we've been tracking
 	fix		creation_time;					//	time at which created, stuffed Missiontime
+	vec3d	inherited_velocity;
 	flagset<Weapon::Weapon_Flags> weapon_flags;					//	bit flags defining behavior, see WF_xxxx
 	object*	homing_object;					//	object this weapon is homing on.
 	ship_subsys*	homing_subsys;			// subsystem this weapon is homing on

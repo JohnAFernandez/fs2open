@@ -252,6 +252,7 @@ special_flag_def_list_new<Weapon::Info_Flags, weapon_info*, flagset<Weapon::Info
 	{ "no_fred",						Weapon::Info_Flags::No_fred,							true },
 	{ "detonate on expiration",			Weapon::Info_Flags::Detonate_on_expiration,				true },
 	{ "ignores countermeasures",		Weapon::Info_Flags::Ignores_countermeasures,			true },
+	{ "homer inherits velocity",        Weapon::Info_Flags::Enhanced_homing_vel_inheritance,    true },
 	{ "freespace 1 missile behavior",   Weapon::Info_Flags::Freespace_1_missile_behavior,       true, [](const SCP_string& /*spawn*/, weapon_info* weaponp, flagset<Weapon::Info_Flags>& flags) {
 		if (!(weaponp->is_locked_homing())) {
 			Warning(LOCATION, "\"freespace 1 missile behavior\" only applies to aspect seekers.");
@@ -6158,8 +6159,17 @@ void weapon_home(object *obj, int num, float frame_time)
 
 		Assert( obj->phys_info.speed > 0.0f );
 
+		// this is the original homing method, which is to just make the desired velocity match the exact homing path the missiel wanted		
 		vm_vec_copy_scale( &obj->phys_info.desired_vel, &obj->orient.vec.fvec, obj->phys_info.speed);
 
+		// this flag adds back the original inherited velocity by interpolating between the homing vector and inherited velocity vector for a portion of the missile's lifetime
+		if (wip->wi_flags[Weapon::Info_Flags::Enhanced_homing_vel_inheritance] && ){
+			// the current method uses one fifth of the missle's lifetime 
+			float progress = (time_alive) / (wip->lifetime * 5);
+			CLAMP(progress, 0.01f, 1.0f);
+			vm_vec_interp_constant(&obj->phys_info.desired_vel, &obj->phys_info.desired_vel, &wp->inherited_velocity, progress);			
+		}
+		
 		vec3d turnrate_mod = vm_vec_new(1.0f, 1.0f, 1.0f);
 
 		turnrate_mod *= wip->weapon_curves.get_output(weapon_info::WeaponCurveOutputs::TURN_RATE_MULT, *wp, &wp->modular_curves_instance);
@@ -7273,10 +7283,12 @@ int weapon_create( const vec3d *pos, const matrix *porient, int weapon_type, int
 		Assert((parent_objp->instance >= 0) && (parent_objp->instance < MAX_SHIPS));
 		wp->team = Ships[parent_objp->instance].team;
 		wp->species = Ship_info[Ships[parent_objp->instance].ship_info_index].species;
+		wp->inherited_velocity = parent_objp->phys_info.vel;
 	} else {
 		// ugh - we need to prevent bad array accesses
 		wp->team = Iff_traitor;
 		wp->species = 0;
+		vm_vec_zero(&wp->inherited_velocity);
 	}
 	wp->turret_subsys = NULL;
 	vm_vec_zero(&wp->homing_pos);
