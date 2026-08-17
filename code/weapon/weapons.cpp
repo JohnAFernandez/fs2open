@@ -6159,16 +6159,7 @@ void weapon_home(object *obj, int num, float frame_time)
 
 		Assert( obj->phys_info.speed > 0.0f );
 
-		// this is the original homing method, which is to just make the desired velocity match the exact homing path the missiel wanted		
 		vm_vec_copy_scale( &obj->phys_info.desired_vel, &obj->orient.vec.fvec, obj->phys_info.speed);
-
-		// this flag adds back the original inherited velocity by interpolating between the homing vector and inherited velocity vector for a portion of the missile's lifetime
-		if (wip->wi_flags[Weapon::Info_Flags::Enhanced_homing_vel_inheritance]){
-			// the current method uses one fifth of the missle's lifetime 
-			float progress = (time_alive * 5) / (wip->lifetime);
-			CLAMP(progress, 0.1f, 1.0f);
-			vm_vec_interp_constant(&obj->phys_info.desired_vel, &wp->inherited_velocity, &obj->phys_info.desired_vel, progress);			
-		}
 		
 		vec3d turnrate_mod = vm_vec_new(1.0f, 1.0f, 1.0f);
 
@@ -6179,10 +6170,17 @@ void weapon_home(object *obj, int num, float frame_time)
 		if ( wp->swarm_info_ptr == nullptr ) {
 			ai_turn_towards_vector(&target_pos, obj, nullptr, nullptr, 0.0f, 0, nullptr, &turnrate_mod);
 			
-			if (!wip->wi_flags[Weapon::Info_Flags::Enhanced_homing_vel_inheritance]){
-				vel = vm_vec_mag(&obj->phys_info.desired_vel);
+			vel = vm_vec_mag(&obj->phys_info.desired_vel);
 
-				vm_vec_copy_scale(&obj->phys_info.desired_vel, &obj->orient.vec.fvec, vel);
+			// this is the original homing method, which is to just make the desired velocity match the exact homing path the missiel wanted		
+			vm_vec_copy_scale(&obj->phys_info.desired_vel, &obj->orient.vec.fvec, vel);
+			
+			// this flag adds back the original inherited velocity by interpolating between the homing vector and inherited velocity vector for a portion of the missile's lifetime
+			if (wip->wi_flags[Weapon::Info_Flags::Enhanced_homing_vel_inheritance]){
+				// the current method uses one fifth of the missle's lifetime 
+				float progress = (time_alive * 5) / (wip->lifetime);
+				CLAMP(progress, 0.1f, 1.0f);
+				vm_vec_interp_constant(&obj->phys_info.desired_vel, &wp->inherited_velocity, &obj->phys_info.desired_vel, progress);			
 			}
 		}
 
