@@ -6163,11 +6163,11 @@ void weapon_home(object *obj, int num, float frame_time)
 		vm_vec_copy_scale( &obj->phys_info.desired_vel, &obj->orient.vec.fvec, obj->phys_info.speed);
 
 		// this flag adds back the original inherited velocity by interpolating between the homing vector and inherited velocity vector for a portion of the missile's lifetime
-		if (wip->wi_flags[Weapon::Info_Flags::Enhanced_homing_vel_inheritance] && ){
+		if (wip->wi_flags[Weapon::Info_Flags::Enhanced_homing_vel_inheritance]){
 			// the current method uses one fifth of the missle's lifetime 
-			float progress = (time_alive) / (wip->lifetime * 5);
-			CLAMP(progress, 0.01f, 1.0f);
-			vm_vec_interp_constant(&obj->phys_info.desired_vel, &obj->phys_info.desired_vel, &wp->inherited_velocity, progress);			
+			float progress = (time_alive * 5) / (wip->lifetime);
+			CLAMP(progress, 0.1f, 1.0f);
+			vm_vec_interp_constant(&obj->phys_info.desired_vel, &wp->inherited_velocity, &obj->phys_info.desired_vel, progress);			
 		}
 		
 		vec3d turnrate_mod = vm_vec_new(1.0f, 1.0f, 1.0f);
@@ -6178,9 +6178,12 @@ void weapon_home(object *obj, int num, float frame_time)
 		// a different vector to turn towards, this is done in swarm_update_direction().
 		if ( wp->swarm_info_ptr == nullptr ) {
 			ai_turn_towards_vector(&target_pos, obj, nullptr, nullptr, 0.0f, 0, nullptr, &turnrate_mod);
-			vel = vm_vec_mag(&obj->phys_info.desired_vel);
+			
+			if (!wip->wi_flags[Weapon::Info_Flags::Enhanced_homing_vel_inheritance]){
+				vel = vm_vec_mag(&obj->phys_info.desired_vel);
 
-			vm_vec_copy_scale(&obj->phys_info.desired_vel, &obj->orient.vec.fvec, vel);
+				vm_vec_copy_scale(&obj->phys_info.desired_vel, &obj->orient.vec.fvec, vel);\
+			}
 		}
 
 		// (likely) fs1 code to early detonate if still nearby the target but not pointing at it
