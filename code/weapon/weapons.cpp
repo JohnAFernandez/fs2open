@@ -6182,7 +6182,7 @@ void weapon_home(object *obj, int num, float frame_time)
 			if (!wip->wi_flags[Weapon::Info_Flags::Enhanced_homing_vel_inheritance]){
 				vel = vm_vec_mag(&obj->phys_info.desired_vel);
 
-				vm_vec_copy_scale(&obj->phys_info.desired_vel, &obj->orient.vec.fvec, vel);\
+				vm_vec_copy_scale(&obj->phys_info.desired_vel, &obj->orient.vec.fvec, vel);
 			}
 		}
 
